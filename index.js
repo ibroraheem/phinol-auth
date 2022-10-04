@@ -12,7 +12,7 @@ const connectDB = require('./config/db');
 
 app.use(morgan('tiny'))
 app.use(session({
-    secret: process.env.secret,
+    secret: 'aaaaaaaaa',
     resave: true,
     saveUninitialized: true
 }));
