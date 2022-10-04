@@ -17,6 +17,9 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.get('/', (req, res) => {
+    res.send('Hello World!')
+})
 app.use(cookieParser('secret'));
 app.use(cors());
 app.use(bodyParser.json());
@@ -41,7 +44,7 @@ app.get(
 );
 app.get('/profile', (req, res) => {
     req.session.user = req.user;
-    res.json({email: req.session.user.email})
+    res.json({ email: req.session.user.email })
 
 })
 
