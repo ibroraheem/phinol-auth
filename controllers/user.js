@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const User = require('../models/user')
-const axios = require('axios')
+const request = require('request');
 
 const register = async (req, res) => {
     const { email, password } = req.body
@@ -99,19 +99,28 @@ const updateUser = async (req, res) => {
         user.verificationCode = Math.floor(1000 + Math.random() * 9000)
         await user.save()
         const message = `Your verification code is ${user.verificationCode}`
-        axios({
-            method: 'POST',
-            url: 'https://www.bulksmsnigeria.com/api/v1/sms/create',
-            headers: {
-                "Content-Type": "application/json",
+
+        const data = {
+            "to": phoneNumber,
+            "from": "Phinol",
+            "sms": "Hi there, testing Termii" + message,
+            "type": "plain",
+            "api_key": process.env.SMS_TOKEN,
+            "channel": "generic"
+        };
+        const options = {
+            'method': 'POST',
+            'url': 'https://api.ng.termii.com/api/sms/send',
+            'headers': {
+                'Content-Type': ['application/json', 'application/json']
             },
-            data: {
-                'api_token': process.env.SMS_API_KEY,
-                "from": "Phinol Technologies",
-                "to": phoneNumber,
-                "body": message
-            }
-        })
+            body: JSON.stringify(data)
+
+        };
+        request(options, function (error, response) {
+            if (error) throw new Error(error);
+            console.log(response.body);
+        });
 
         res.status(200).json({ message: 'User updated successfully. Verification Sent!' })
     } catch (error) {
