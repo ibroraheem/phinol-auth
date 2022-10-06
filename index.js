@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const passport = require('passport')
 const session = require('express-session')
+const MemoryStore = require('memorystore')(session)
 const cookieParser = require('cookie-parser')
 require('dotenv').config();
 
@@ -12,8 +13,12 @@ const connectDB = require('./config/db');
 
 app.use(morgan('tiny'))
 app.use(session({
-    secret: 'aaaaaaaaa',
-    resave: true,
+    cookie: { maxAge: 86400000 },
+    store: new MemoryStore({
+        checkPeriod: 86400000 // prune expired entries every 24h
+    }),
+    secret: 'keyboard cat',
+    resave: false,
     saveUninitialized: true
 }));
 

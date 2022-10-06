@@ -3,7 +3,7 @@ const router = express.Router();
 require('../controllers/google')
 const passport = require('passport')
 
-const { register, login, verifyUser, verifyPhoneNumber, updateUser } = require('../controllers/user');
+const { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet } = require('../controllers/user');
 
 router.post('/register', register);
 router.post('/login', login);
@@ -14,6 +14,9 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
     res.redirect('/profile');
 });
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
+router.post('/create-wallet', createWallet);
 
 
 module.exports = router;

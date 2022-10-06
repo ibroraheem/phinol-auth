@@ -1,8 +1,18 @@
 const jwt = require('jsonwebtoken')
+require('dotenv').config()
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const User = require('../models/user')
 const request = require('request');
+const Quidax = require('quidax-node');
+const quidax = new Quidax({
+    apiKey: process.env.QUIDAX_API_KEY,
+    apiSecret: process.env.QUIDAX_API_SECRET,
+    baseUrl: 'https://api.quidax.com'
+});
+
+
+
 
 const register = async (req, res) => {
     const { email, password } = req.body
@@ -147,4 +157,79 @@ const verifyPhoneNumber = async (req, res) => {
     }
 }
 
-module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser }
+const forgotPassword = async (req, res) => {
+    const { email } = req.body
+    try {
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const otp = Math.floor(1000 + Math.random() * 9000)
+        user.passwordResetToken = otp
+        await user.save()
+        const transporter = nodemailer.createTransport({
+            service: 'Zoho',
+            host: 'smtp.zoho.eu',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
+            }
+        })
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: user.email,
+            subject: 'Password Reset',
+            html: `<h1>Hi ${user.firstName} ${user.lastName}</h1>
+            <p>Your password reset code is ${otp}</p>`
+        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error)
+            } else {
+                console.log('Email sent: ' + info.response)
+            }
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const resetPassword = async (req, res) => {
+    const { password, passwordResetToken } = req.body
+    try {
+        const user = await User.findOne({ passwordResetToken })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        user.password = bcrypt.hashSync(password, 10)
+        user.passwordResetToken = null
+        await user.save()
+        res.status(200).json({ message: 'Password reset successful' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const createWallet = async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    try {
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const data = quidax.users.create({ 
+            email: email,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            phone_number: user.phoneNumber,
+        })
+        console.log(data)
+        res.status(200).json({ message: 'Wallet created successfully' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+
+
+
+
+        module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet }

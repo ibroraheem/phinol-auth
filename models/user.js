@@ -46,6 +46,9 @@ const UserSchema = new mongoose.Schema({
         "eth": { type: String, },
         "btc": { type: String, },
     }],
+    passwordResetToken: {
+        type: Number
+    },
 },
     { timestamps: true }
 )
