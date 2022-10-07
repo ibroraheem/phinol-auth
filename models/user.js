@@ -43,9 +43,11 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
     addresses: [{
-        "eth": { type: String, },
-        "btc": { type: String, },
     }],
+    user_id: {
+        type: String,
+        unique: true
+    },
     passwordResetToken: {
         type: Number
     },

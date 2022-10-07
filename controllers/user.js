@@ -4,12 +4,7 @@ const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const User = require('../models/user')
 const request = require('request');
-const Quidax = require('quidax-node');
-const quidax = new Quidax({
-    apiKey: process.env.QUIDAX_API_KEY,
-    apiSecret: process.env.QUIDAX_API_SECRET,
-    baseUrl: 'https://api.quidax.com'
-});
+
 
 
 
@@ -209,20 +204,54 @@ const resetPassword = async (req, res) => {
 }
 
 const createWallet = async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1]
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
     try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const data = quidax.users.create({ 
-            email: email,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            phone_number: user.phoneNumber,
-        })
-        console.log(data)
-        res.status(200).json({ message: 'Wallet created successfully' })
+
+        let options = {
+            method: 'POST',
+            url: 'https://www.quidax.com/api/v1/users',
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+            },
+            body: {
+                email: '',
+                first_name: user.firstName,
+                last_name: user.lastName,
+                phone_number: user.phoneNumber,
+            },
+            json: true
+        };
+
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            user.user_id = body.data.id
+            user.save()
+        });
+        let currency = ['btc', 'eth', 'usdt']
+        const length = currency.length
+        for (let i = 0; i < length; i++) {
+            var url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`
+            const options = {
+                method: 'POST',
+                url: url,
+                headers: {
+                    accept: 'application/json',
+                    Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                }
+            };
+
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+            });
+        }
+
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -232,4 +261,4 @@ const createWallet = async (req, res) => {
 
 
 
-        module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet }
+module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet }
