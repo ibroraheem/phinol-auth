@@ -18,7 +18,7 @@ router.post('/verify-phone-number/', verifyPhoneNumber);
     router.post('/forgot-password', forgotPassword);
     router.post('/reset-password', resetPassword);
     router.get('/create-wallet', createWallet);
-    router.get('/view-wallet', viewWalletBalance);
+    router.get('/wallet-balance', viewWalletBalance);
 
 
     module.exports = router;

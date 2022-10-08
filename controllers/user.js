@@ -263,25 +263,27 @@ const createWallet = async (req, res) => {
                 if (error) throw new Error(error);
             });
         }
-        for (let i = 0; i < length; i++) {
-            url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/`
-            const options = {
-                method: 'GET',
-                url: url,
-                headers: {
-                    accept: 'application/json',
-                    Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
-                },
+        if (res.status(200)) {
+            for (let i = 0; i < length; i++) {
+                url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/`
+                const options = {
+                    method: 'GET',
+                    url: url,
+                    headers: {
+                        accept: 'application/json',
+                        Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                    },
 
+                }
+                request(options, function (error, response, body) {
+                    if (error) throw new Error(error);
+                    const Body = JSON.parse(body)
+                    const address = { BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance }
+                    user.addresses.push(address)
+                    user.save()
+
+                });
             }
-            request(options, function (error, response, body) {
-                if (error) throw new Error(error);
-                const Body = JSON.parse(body)
-                const address = { BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance }
-                user.addresses.push(address)
-                user.save()
-            
-            });
         }
 
     } catch (error) {
