@@ -42,8 +42,8 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    addresses: [{
-    }],
+    addresses: [{ btc: String, eth: String, usdt: String }],
+
     user_id: {
         type: String,
         unique: true

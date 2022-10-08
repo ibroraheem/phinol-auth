@@ -248,17 +248,40 @@ const createWallet = async (req, res) => {
 
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
+
             });
         }
-
 
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
 
+const viewWalletBalance = async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const email = decoded.email
+    try {
+        const user = await User.findOne({ email: email })
+        if (!user) return res.status(404).json({ message: 'User not found. Log in to access wallet.' })
+        const options = {
+            method: 'GET',
+            url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/`,
+            headers: {
+                accept: 'application/json',
+                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+            }
+        };
+
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            const Body = JSON.parse(body)
+            res.status(200).json({ message: 'Wallet retrieved.', BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance})
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
 
-
-
-module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet }
+module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance }

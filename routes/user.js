@@ -3,7 +3,7 @@ const router = express.Router();
 require('../controllers/google')
 const passport = require('passport')
 
-const { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet } = require('../controllers/user');
+const { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance } = require('../controllers/user');
 
 router.post('/register', register);
 router.post('/login', login);
@@ -16,7 +16,8 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 });
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
-router.post('/create-wallet', createWallet);
+router.get('/create-wallet', createWallet);
+router.get('/view-wallet', viewWalletBalance);
 
 
 module.exports = router;
