@@ -7,7 +7,20 @@ const request = require('request');
 
 
 
-
+const google = async (req, res) => {
+    const { firstName, lastName, email, password } = req.body
+    try {
+        const user = await User.findOne({ email })
+        if (user) return res.status(401).json({ message: 'User not found' })
+        const User = await User.create({ firstName, lastName, email, password, verified: true })
+        const token = jwt.sign({ email: user.email, firstName: user.firstName, lastName: user.lastName }, process.env.JWT_SECRET, {
+            expiresIn: '1h'
+        })
+        res.status(200).json({ message: 'Login Successful', user: user.email, firstName: user.firstName, lastName: user.lastName, token: token })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
 const register = async (req, res) => {
     const { email, password } = req.body
@@ -233,7 +246,7 @@ const createWallet = async (req, res) => {
             user.user_id = body.data.id
             user.save()
         });
-        let currency = ['btc', 'eth', 'usdt']
+        let currency = ['btc', 'eth', 'usdt', 'bnb']
         const length = currency.length
         for (let i = 0; i < length; i++) {
             var url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`
@@ -248,7 +261,23 @@ const createWallet = async (req, res) => {
 
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
+            });
+        }
+        for (let i = 0; i < length; i++) {
+            url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}`
+            const options = {
+                method: 'GET',
+                url: url,
+                headers: {
+                    accept: 'application/json',
+                    Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                },
 
+            }
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                let responseObject = JSON.parse(body)
+            
             });
         }
 
@@ -284,4 +313,4 @@ const viewWalletBalance = async (req, res) => {
 }
 
 
-module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance }
+module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance, google }
