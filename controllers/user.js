@@ -264,7 +264,7 @@ const createWallet = async (req, res) => {
             });
         }
         for (let i = 0; i < length; i++) {
-            url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}`
+            url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/`
             const options = {
                 method: 'GET',
                 url: url,
@@ -276,7 +276,10 @@ const createWallet = async (req, res) => {
             }
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                let responseObject = JSON.parse(body)
+                const Body = JSON.parse(body)
+                const address = { BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance }
+                user.addresses.push(address)
+                user.save()
             
             });
         }
@@ -305,7 +308,7 @@ const viewWalletBalance = async (req, res) => {
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             const Body = JSON.parse(body)
-            res.status(200).json({ message: 'Wallet retrieved.', BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance})
+            res.status(200).json({ message: 'Wallet retrieved.', BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance })
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
