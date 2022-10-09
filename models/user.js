@@ -42,7 +42,9 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    addresses: [{ btc: String, eth: String, usdt: String }],
+    addresses: {
+        type: Array
+    },
 
     user_id: {
         type: String,

@@ -230,7 +230,7 @@ const createWallet = async (req, res) => {
             headers: {
                 accept: 'application/json',
                 'content-type': 'application/json',
-                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}` 
             },
             body: {
                 email: '',
@@ -255,7 +255,7 @@ const createWallet = async (req, res) => {
                 url: url,
                 headers: {
                     accept: 'application/json',
-                    Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 }
             };
 
@@ -271,16 +271,14 @@ const createWallet = async (req, res) => {
                     url: url,
                     headers: {
                         accept: 'application/json',
-                        Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                     },
 
                 }
                 request(options, function (error, response, body) {
                     if (error) throw new Error(error);
-                    const Body = JSON.parse(body)
-                    const address = { BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance }
-                    user.addresses.push(address)
-                    user.save()
+                    user.addresses = [];
+                    user.addresses.push({ Currency: `${body.data.currency}`, Address: `${body.data.address}` })
 
                 });
             }
@@ -303,7 +301,7 @@ const viewWalletBalance = async (req, res) => {
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/`,
             headers: {
                 accept: 'application/json',
-                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
         };
 
@@ -317,5 +315,15 @@ const viewWalletBalance = async (req, res) => {
     }
 }
 
+const viewAddresses = async (req, res) => {
+    const {id} = req.params
+    try {
+        const user = await User.findOne({user_id: id})
+        if (!user) return res.status(404).json({ message: 'User not found.' })
+        res.status(200).json({ Address: user.addresses })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
-module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance, google }
+module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance, google, viewAddresses }
