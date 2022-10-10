@@ -55,7 +55,7 @@ const register = async (req, res) => {
                 console.log('Email sent: ' + info.response)
             }
         })
-        res.status(201).json({ message: 'User registered successfully', user: user.email, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, token: token })
+        res.status(201).json({ message: 'User registered successfully', user: user.email, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, verified: user.verified, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -95,7 +95,7 @@ const login = async (req, res) => {
         const token = jwt.sign({ email: user.email, verified: user.verified }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         })
-        res.status(200).json({ message: 'Login Successful', user: user.email, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, token: token })
+        res.status(200).json({ message: 'Login Successful', user: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, token: token })
     } catch (error) {
         res.status(500).json({ error })
         console.log(error)
@@ -230,7 +230,7 @@ const createWallet = async (req, res) => {
             headers: {
                 accept: 'application/json',
                 'content-type': 'application/json',
-                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}` 
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             },
             body: {
                 email: '',
@@ -277,8 +277,9 @@ const createWallet = async (req, res) => {
                 }
                 request(options, function (error, response, body) {
                     if (error) throw new Error(error);
-                    user.addresses = [];
-           
+                    let wallets = JSON.parse(body)
+
+
 
                 });
             }
@@ -316,9 +317,9 @@ const viewWalletBalance = async (req, res) => {
 }
 
 const viewAddresses = async (req, res) => {
-    const {id} = req.params
+    const { id } = req.params
     try {
-        const user = await User.findOne({user_id: id})
+        const user = await User.findOne({ user_id: id })
         if (!user) return res.status(404).json({ message: 'User not found.' })
         res.status(200).json({ Address: user.addresses })
     } catch (error) {
@@ -326,4 +327,39 @@ const viewAddresses = async (req, res) => {
     }
 }
 
-module.exports = { register, login, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance, google, viewAddresses }
+const postAddress = async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const email = decoded.email
+    try {
+        const user = await User.findOne({ email: email })
+        if (!user) return res.status(404).json({ message: 'User not found. Log in to access wallet.' })
+        const currency = ['btc', 'eth', 'usdt', 'bnb']
+        const length = currency.length
+        for (let i = 0; i < length; i++) {
+            const options = {
+                method: 'GET',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/`,
+                headers: {
+                    accept: 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                }
+            };
+
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                const Body = JSON.parse(body)
+                const addresses = []
+                addresses.push({ "BTC": Body.data[3].deposit_address, "USDT": Body.data[4].deposit_address, "ETH": Body.data[7].deposit_address, "BNB": Body.data[8].deposit_address})
+                user.addresses = addresses
+                console.log(user.addresses)
+            });
+        }
+        user.save()
+        res.status(200).json({message: 'Wallet addresses retrieved.', addresses: user.addresses})
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+module.exports = { register, login, verifyUser, postAddress, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance, google, viewAddresses }
