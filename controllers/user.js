@@ -55,7 +55,7 @@ const register = async (req, res) => {
                 console.log('Email sent: ' + info.response)
             }
         })
-        res.status(201).json({ message: 'User registered successfully', user: user.email, token: token })
+        res.status(201).json({ message: 'User registered successfully', user: user.email, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -95,7 +95,7 @@ const login = async (req, res) => {
         const token = jwt.sign({ email: user.email, verified: user.verified }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         })
-        res.status(200).json({ message: 'Login Successful', user: user.email, token: token })
+        res.status(200).json({ message: 'Login Successful', user: user.email, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, token: token })
     } catch (error) {
         res.status(500).json({ error })
         console.log(error)
@@ -278,7 +278,7 @@ const createWallet = async (req, res) => {
                 request(options, function (error, response, body) {
                     if (error) throw new Error(error);
                     user.addresses = [];
-                    user.addresses.push({ Currency: `${body.data.currency}`, Address: `${body.data.address}` })
+           
 
                 });
             }
