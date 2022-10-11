@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 require('../controllers/google')
-const passport = require('passport')
+
 
 const { register, login, verifyUser, updateUser, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses } = require('../controllers/user');
 
@@ -10,10 +10,7 @@ router.post('/login', login);
 router.post('/verify-user/', verifyUser);
 router.patch('/update-user/', updateUser);
 // router.post('/verify-phone-number/', verifyPhoneNumber);
-// router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-// router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-//     res.redirect('/profile');
-//     // });
+router.post('/resend-otp/', resendOTP);
 router.post('/google', google);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
