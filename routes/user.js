@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-require('../controllers/google')
+
 
 
 const { register, login, verifyUser, updateUser, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses } = require('../controllers/user');
