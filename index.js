@@ -27,8 +27,6 @@ app.get('/', (req, res) => {
 app.use(cookieParser('secret'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(cors({
     origin: '*'
 }));
