@@ -8,8 +8,8 @@ const request = require('request');
 
 
 const google = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body
     try {
+        const { firstName, lastName, email, password } = req.body
         const user = await User.findOne({ email })
         if (user) return res.status(401).json({ message: 'User not found' })
         const User = await User.create({ firstName, lastName, email, password, verified: true })
@@ -23,9 +23,9 @@ const google = async (req, res) => {
 }
 
 const register = async (req, res) => {
-    const { email, password } = req.body
-    const hashedPassword = bcrypt.hashSync(password, 10)
     try {
+        const { email, password } = req.body
+        const hashedPassword = bcrypt.hashSync(password, 10)
         const isRegistered = await User.findOne({ email })
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const otp = Math.floor(1000 + Math.random() * 9000)
@@ -61,8 +61,8 @@ const register = async (req, res) => {
     }
 }
 const verifyUser = async (req, res) => {
-    const { otp } = req.body
     try {
+        const { otp } = req.body
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
@@ -82,8 +82,8 @@ const verifyUser = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    const { email, password } = req.body
     try {
+        const { email, password } = req.body
         const user = await User.findOne({ email })
         if (!user) {
             res.status(404).json({ error: 'User not found' })
@@ -103,8 +103,8 @@ const login = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
-    const { phoneNumber, firstName, lastName } = req.body
     try {
+        const { phoneNumber, firstName, lastName } = req.body
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
@@ -298,8 +298,8 @@ const updateUser = async (req, res) => {
 // }
 
 const forgotPassword = async (req, res) => {
-    const { email } = req.body
     try {
+        const { email } = req.body
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         const otp = Math.floor(1000 + Math.random() * 9000)
@@ -335,8 +335,8 @@ const forgotPassword = async (req, res) => {
 }
 
 const resetPassword = async (req, res) => {
-    const { password, passwordResetToken } = req.body
     try {
+        const { password, passwordResetToken } = req.body
         const user = await User.findOne({ passwordResetToken })
         if (!user) return res.status(401).json({ message: 'User not found' })
         user.password = bcrypt.hashSync(password, 10)
@@ -349,10 +349,10 @@ const resetPassword = async (req, res) => {
 }
 
 const viewWalletBalance = async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1]
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const email = decoded.email
     try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const token = req.headers.authorization.split(' ')[1]
         const user = await User.findOne({ email: email })
         if (!user) return res.status(404).json({ message: 'User not found. Log in to access wallet.' })
         if(!user.verified) return res.status(404).json({ message: 'Your account is not verified. Verify your account to access wallet'})
@@ -376,10 +376,10 @@ const viewWalletBalance = async (req, res) => {
 }
 
 const viewAddresses = async (req, res) => {
-    const token = req.headers.authorization.split(' ')[1]
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const email = decoded.email
     try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         res.status(200).json({ message: 'Addresses retrieved', address: user.addresses })
