@@ -219,13 +219,13 @@ const updateUser = async (req, res) => {
                 if (error) console.log(error);
             });
         }
-        if (createResponse.body.message === "Successful") {
-            const options = {
+
+             options = {
                 method: 'GET',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
                 headers: {
                     accept: 'application/json',
-                    Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 }
             };
 
@@ -242,7 +242,7 @@ const updateUser = async (req, res) => {
                 user.addresses = addresses
                 user.save()
             });
-        }
+        res.status(200).json({ user: user })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
