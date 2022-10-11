@@ -216,7 +216,7 @@ const updateUser = async (req, res) => {
             };
 
             request(options, function (error, response, body) {
-                if (error) throw new Error(error);
+                if (error) console.log(error);
             });
         }
         if (createResponse.body.message === "Successful") {
