@@ -159,7 +159,7 @@ const updateUser = async (req, res) => {
             json: true
         };
 
-        request(options, function (error, response, body) {
+        const createResponse = request(options, function (error, response, body) {
             if (error) throw new Error(error);
             user.user_id = body.data.id
             user.save()
@@ -181,7 +181,7 @@ const updateUser = async (req, res) => {
                 if (error) throw new Error(error);
             });
         }
-        if (res.status(200)) {
+        if (createResponse.body.message === "Successful") {
             const options = {
                 method: 'GET',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,

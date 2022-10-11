@@ -26,11 +26,13 @@ app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 app.use(cookieParser('secret'));
-app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cors({
+    origin: '*'
+}));
 
 connectDB()
 
