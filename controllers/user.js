@@ -110,37 +110,44 @@ const updateUser = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        if(!user.verified) res.status(401).json({ message: 'Please verify your email first' })
         if (user.phoneVerified) return res.status(401).json({ message: 'Phone number already verified' })
         user.phoneNumber = phoneNumber
         user.firstName = firstName
         user.lastName = lastName
         user.verificationCode = Math.floor(1000 + Math.random() * 9000)
         await user.save()
-        const message = `Your verification code is ${user.verificationCode}`
+        // const message = `Your verification code is ${user.verificationCode}`
 
-        const data = {
-            "to": phoneNumber,
-            "from": "Phinol",
-            "sms": "Hi there, testing Termii" + message,
-            "type": "plain",
-            "api_key": process.env.SMS_TOKEN,
-            "channel": "generic"
-        };
-        const options = {
-            'method': 'POST',
-            'url': 'https://api.ng.termii.com/api/sms/send',
-            'headers': {
-                'Content-Type': ['application/json', 'application/json']
-            },
-            body: JSON.stringify(data)
+        // const data = {
+        //     "to": phoneNumber,
+        //     "from": "Phinol",
+        //     "sms": "Hi there, testing Termii" + message,
+        //     "type": "plain",
+        //     "api_key": process.env.SMS_TOKEN,
+        //     "channel": "generic"
+        // };
+        // const options = {
+        //     'method': 'POST',
+        //     'url': 'https://api.ng.termii.com/api/sms/send',
+        //     'headers': {
+        //         'Content-Type': ['application/json', 'application/json']
+        //     },
+        //     body: JSON.stringify(data)
 
-        };
-        request(options, function (error, response) {
+        // };
+        // request(options, function (error, response) {
+        //     if (error) throw new Error(error);
+        //     console.log(response.body);
+        // });
+
+        // res.status(200).json({ message: 'User updated successfully. Verification Sent!' })
+
+        createWallet(options, function (error, response) {
             if (error) throw new Error(error);
-            console.log(response.body);
-        });
-
-        res.status(200).json({ message: 'User updated successfully. Verification Sent!' })
+            if (response) console.log(response);
+            res.status(200).json({ message: 'User details saved successfully' })
+        })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -153,13 +160,81 @@ const verifyPhoneNumber = async (req, res) => {
     try {
         const user = await User.findOne({ email: decoded.email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        if(!user.verified) return res.status(401).json({ message: 'Please verify your email first' })
         if (user.verificationCode == verificationCode) {
+            user.phoneVerified = true
             user.verificationCode = null
             await user.save()
             res.status(200).json({ message: 'Phone number verified' })
+            if (res.ok()) {
+                let options = {
+                    method: 'POST',
+                    url: 'https://www.quidax.com/api/v1/users',
+                    headers: {
+                        accept: 'application/json',
+                        'content-type': 'application/json',
+                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                    },
+                    body: {
+                        email: '',
+                        first_name: user.firstName,
+                        last_name: user.lastName,
+                        phone_number: user.phoneNumber,
+                    },
+                    json: true
+                };
+
+                request(options, function (error, response, body) {
+                    if (error) throw new Error(error);
+                    user.user_id = body.data.id
+                    user.save()
+                });
+                let currency = ['btc', 'eth', 'usdt', 'bnb']
+                const length = currency.length
+                for (let i = 0; i < length; i++) {
+                    var url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`
+                    const options = {
+                        method: 'POST',
+                        url: url,
+                        headers: {
+                            accept: 'application/json',
+                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                        }
+                    };
+
+                    request(options, function (error, response, body) {
+                        if (error) throw new Error(error);
+                    });
+                }
+                if (res.status(200)) {
+                    const options = {
+                        method: 'GET',
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
+                        headers: {
+                            accept: 'application/json',
+                            Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                        }
+                    };
+
+                    request(options, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        const Body = JSON.parse(body);
+                        let addresses = [];
+                        let obj = {}
+                        obj['btc'] = Body.data[3].deposit_address
+                        obj['usdt'] = Body.data[4].deposit_address
+                        obj['eth'] = Body.data[7].deposit_address
+                        obj['bnb'] = Body.data[8].deposit_address
+                        addresses.push(obj)
+                        user.addresses = addresses
+                        user.save()
+                    });
+                }
+            }
         } else {
             res.status(401).json({ message: 'Invalid verification code' })
         }
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -216,79 +291,84 @@ const resetPassword = async (req, res) => {
     }
 }
 
-const createWallet = async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const email = decoded.email
-        const user = await User.findOne({ email })
-        if (!user) return res.status(401).json({ message: 'User not found' })
+// const createWallet = async (req, res) => {
+//     try {
+//         const token = req.headers.authorization.split(' ')[1]
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET)
+//         const email = decoded.email
+//         const user = await User.findOne({ email })
+//         if (!user) return res.status(401).json({ message: 'User not found' })
 
-        let options = {
-            method: 'POST',
-            url: 'https://www.quidax.com/api/v1/users',
-            headers: {
-                accept: 'application/json',
-                'content-type': 'application/json',
-                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            },
-            body: {
-                email: '',
-                first_name: user.firstName,
-                last_name: user.lastName,
-                phone_number: user.phoneNumber,
-            },
-            json: true
-        };
+//         let options = {
+//             method: 'POST',
+//             url: 'https://www.quidax.com/api/v1/users',
+//             headers: {
+//                 accept: 'application/json',
+//                 'content-type': 'application/json',
+//                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+//             },
+//             body: {
+//                 email: '',
+//                 first_name: user.firstName,
+//                 last_name: user.lastName,
+//                 phone_number: user.phoneNumber,
+//             },
+//             json: true
+//         };
 
-        request(options, function (error, response, body) {
-            if (error) throw new Error(error);
-            user.user_id = body.data.id
-            user.save()
-        });
-        let currency = ['btc', 'eth', 'usdt', 'bnb']
-        const length = currency.length
-        for (let i = 0; i < length; i++) {
-            var url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`
-            const options = {
-                method: 'POST',
-                url: url,
-                headers: {
-                    accept: 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                }
-            };
+//         request(options, function (error, response, body) {
+//             if (error) throw new Error(error);
+//             user.user_id = body.data.id
+//             user.save()
+//         });
+//         let currency = ['btc', 'eth', 'usdt', 'bnb']
+//         const length = currency.length
+//         for (let i = 0; i < length; i++) {
+//             var url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`
+//             const options = {
+//                 method: 'POST',
+//                 url: url,
+//                 headers: {
+//                     accept: 'application/json',
+//                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+//                 }
+//             };
 
-            request(options, function (error, response, body) {
-                if (error) throw new Error(error);
-            });
-        }
-        if (res.status(200)) {
-            for (let i = 0; i < length; i++) {
-                url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/`
-                const options = {
-                    method: 'GET',
-                    url: url,
-                    headers: {
-                        accept: 'application/json',
-                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                    },
+//             request(options, function (error, response, body) {
+//                 if (error) throw new Error(error);
+//             });
+//         }
+//         if (res.status(200)) {
+//             if (res.status(200)) {
+//                 const options = {
+//                     method: 'GET',
+//                     url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
+//                     headers: {
+//                         accept: 'application/json',
+//                         Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+//                     }
+//                 };
 
-                }
-                request(options, function (error, response, body) {
-                    if (error) throw new Error(error);
-                    let wallets = JSON.parse(body)
+//                 request(options, function (error, response, body) {
+//                     if (error) throw new Error(error);
+//                     const Body = JSON.parse(body);
+//                     let addresses = [];
+//                     let obj = {}
+//                     obj['btc'] = Body.data[3].deposit_address
+//                     obj['usdt'] = Body.data[4].deposit_address
+//                     obj['eth'] = Body.data[7].deposit_address
+//                     obj['bnb'] = Body.data[8].deposit_address
+//                     addresses.push(obj)
+//                     user.addresses = addresses
+//                     user.save()
+//                 });
+//             }
+//         }
 
-
-
-                });
-            }
-        }
-
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
+//     } catch (error) {
+//         res.status(500).json({ error: error.message })
+//     }
+// }
 
 const viewWalletBalance = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
@@ -297,6 +377,7 @@ const viewWalletBalance = async (req, res) => {
     try {
         const user = await User.findOne({ email: email })
         if (!user) return res.status(404).json({ message: 'User not found. Log in to access wallet.' })
+        if(!user.verified) return res.status(404).json({ message: 'Your account is not verified. Verify your account to access wallet'})
         const options = {
             method: 'GET',
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/`,
@@ -317,11 +398,14 @@ const viewWalletBalance = async (req, res) => {
 }
 
 const viewAddresses = async (req, res) => {
-    const { id } = req.params
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const email = decoded.email
     try {
-        const user = await User.findOne({ user_id: id })
-        if (!user) return res.status(404).json({ message: 'User not found.' })
-        res.status(200).json({ Address: user.addresses })
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        res.status(200).json({ message: 'Addresses retrieved', address: user.addresses })
+       
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -332,34 +416,36 @@ const postAddress = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const email = decoded.email
     try {
-        const user = await User.findOne({ email: email })
-        if (!user) return res.status(404).json({ message: 'User not found. Log in to access wallet.' })
-        const currency = ['btc', 'eth', 'usdt', 'bnb']
-        const length = currency.length
-        for (let i = 0; i < length; i++) {
-            const options = {
-                method: 'GET',
-                url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/`,
-                headers: {
-                    accept: 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                }
-            };
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const options = {
+            method: 'GET',
+            url: 'https://www.quidax.com/api/v1/users/sbdya6nn/wallets',
+            headers: {
+                accept: 'application/json',
+                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+            }
+        };
 
-            request(options, function (error, response, body) {
-                if (error) throw new Error(error);
-                const Body = JSON.parse(body)
-                const addresses = []
-                addresses.push({ "BTC": Body.data[3].deposit_address, "USDT": Body.data[4].deposit_address, "ETH": Body.data[7].deposit_address, "BNB": Body.data[8].deposit_address})
-                user.addresses = addresses
-                console.log(user.addresses)
-            });
-        }
-        user.save()
-        res.status(200).json({message: 'Wallet addresses retrieved.', addresses: user.addresses})
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            const Body = JSON.parse(body);
+            let addresses = [];
+            let obj = {}
+            obj['btc'] = Body.data[3].deposit_address
+            obj['usdt'] = Body.data[4].deposit_address
+            obj['eth'] = Body.data[7].deposit_address
+            obj['bnb'] = Body.data[8].deposit_address
+            addresses.push(obj)
+            user.addresses = addresses  
+            user.save()
+        });
+        res.status(200).json({ message: 'Addresses added', address: user.addresses })
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
 
-module.exports = { register, login, verifyUser, postAddress, verifyPhoneNumber, updateUser, forgotPassword, resetPassword, createWallet, viewWalletBalance, google, viewAddresses }
+
+module.exports = { register, login, postAddress, verifyUser, verifyPhoneNumber, updateUser, forgotPassword, resetPassword,  viewWalletBalance, google, viewAddresses }
