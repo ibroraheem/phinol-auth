@@ -115,7 +115,7 @@ const updateUser = async (req, res) => {
         user.phoneNumber = phoneNumber
         user.firstName = firstName
         user.lastName = lastName
-        user.verificationCode = Math.floor(1000 + Math.random() * 9000)
+        // user.verificationCode = Math.floor(1000 + Math.random() * 9000)
         await user.save()
         // const message = `Your verification code is ${user.verificationCode}`
 
