@@ -40,25 +40,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/admin', require('./admin'));
-app.get(
-    "/auth/google",
-    passport.authenticate("google", {
-        scope: ["profile", "email"],
-    })
-);
-app.get('/profile', (req, res) => {
-    req.session.user = req.user;
-    res.json({ email: req.session.user.email })
 
-})
-
-app.get(
-    "/auth/google/callback",
-    passport.authenticate("google", {
-        failureRedirect: "/",
-        successRedirect: "/profile",
-    })
-);
 app.use('/', require('./routes/user'));
 
 const port = process.env.PORT
