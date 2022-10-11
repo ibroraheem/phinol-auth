@@ -60,6 +60,44 @@ const register = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
+
+const resendOTP = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const otp = Math.floor(1000 + Math.random() * 9000)
+        user.otp = otp
+        await user.save()
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.zoho.eu',
+            port: 465,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
+            }
+        })
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Verify your email',
+            html: `<h1>Enter the OTP code to verify your email</h1>
+            <h2>OTP: ${otp}</h2>`
+        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error)
+            } else {
+                console.log('Email sent: ' + info.response)
+            }
+        })
+        res.status(200).json({ message: 'OTP sent to your email' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 const verifyUser = async (req, res) => {
     try {
         const { otp } = req.body
@@ -110,7 +148,7 @@ const updateUser = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if(!user.verified) res.status(401).json({ message: 'Please verify your email first' })
+        if (!user.verified) res.status(401).json({ message: 'Please verify your email first' })
         if (user.phoneVerified) return res.status(401).json({ message: 'Phone number already verified' })
         user.phoneNumber = phoneNumber
         user.firstName = firstName
@@ -355,7 +393,7 @@ const viewWalletBalance = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1]
         const user = await User.findOne({ email: email })
         if (!user) return res.status(404).json({ message: 'User not found. Log in to access wallet.' })
-        if(!user.verified) return res.status(404).json({ message: 'Your account is not verified. Verify your account to access wallet'})
+        if (!user.verified) return res.status(404).json({ message: 'Your account is not verified. Verify your account to access wallet' })
         const options = {
             method: 'GET',
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/`,
@@ -390,4 +428,4 @@ const viewAddresses = async (req, res) => {
 
 
 
-module.exports = { register, login, verifyUser,  updateUser, forgotPassword, resetPassword,  viewWalletBalance, google, viewAddresses }
+module.exports = { register, login, resendOTP, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }

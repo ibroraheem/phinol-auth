@@ -3,7 +3,7 @@ const router = express.Router();
 require('../controllers/google')
 const passport = require('passport')
 
-const { register, login, verifyUser, updateUser, forgotPassword, resetPassword, google,  viewWalletBalance, viewAddresses } = require('../controllers/user');
+const { register, login, verifyUser, updateUser, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses } = require('../controllers/user');
 
 router.post('/register', register);
 router.post('/login', login);
@@ -19,6 +19,7 @@ router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/wallet-balance', viewWalletBalance);
 router.get('/view-addresses', viewAddresses);
+router.post('/resend-otp', resendOTP);
 
 
 module.exports = router;
