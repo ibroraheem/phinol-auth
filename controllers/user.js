@@ -500,4 +500,4 @@ const viewAddresses = async (req, res) => {
 
 
 
-module.exports = { register, login, resendOTP, createWallet, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }
+module.exports = { register, login, resendOTP,  verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }
