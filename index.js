@@ -3,7 +3,6 @@ const app = express();
 const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const passport = require('passport')
 const session = require('express-session')
 const MemoryStore = require('memorystore')(session)
 const cookieParser = require('cookie-parser')
