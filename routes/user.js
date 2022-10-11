@@ -8,7 +8,7 @@ const { register, login, verifyUser, updateUser, resendOTP, forgotPassword, rese
 router.post('/register', register);
 router.post('/login', login);
 router.post('/verify-user/', verifyUser);
-router.post('/update-user/', updateUser);
+router.patch('/update-user/', updateUser);
 // router.post('/verify-phone-number/', verifyPhoneNumber);
 // router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 // router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
