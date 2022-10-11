@@ -12,13 +12,16 @@ const UserSchema = new mongoose.Schema({
     },
     firstName: {
         type: String,
+        default: " "
     },
     lastName: {
         type: String,
+        default: " "
     },
     phoneNumber: {
         type: String,
-        unique: true
+        unique: true,
+        default: " "
     },
     role: {
         type: String,
@@ -30,7 +33,7 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
     passwordResetToken: {
-        type: Number
+        type: Number,
     },
     otp: {
         type: Number
