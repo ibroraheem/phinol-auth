@@ -46,12 +46,14 @@ const UserSchema = new mongoose.Schema({
         default: false
     },
     addresses: {
-        type: Array
+        type: Array,
+        default: []
     },
 
     user_id: {
         type: String,
-        unique: true
+        unique: true,
+        default: " "
     },
     passwordResetToken: {
         type: Number
