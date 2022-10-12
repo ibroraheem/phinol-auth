@@ -201,14 +201,12 @@ const updateUser = async (req, res) => {
 
         request(options, async function (error, response, body) {
             if (error) throw new Error(error);
-            user_id = await body.data.id
-            user.user_id = user_id;
+            if(error) res.send(error);
+            user.user_id = body.data.user_id;
+            getWallet(user.user_id)
             await user.save()
-            getWallet(user, user_id)
+            res.status(200).json({ message: 'User updated successfully', user: user })
         });
-
-
-        res.status(200).json({ message: 'User updated successfully', user: user })
 
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -467,7 +465,6 @@ const viewAddresses = async (req, res) => {
 
 
 const getWallet = async (user_id) => {
-    
     let currency = ['btc', 'eth', 'usdt', 'bnb']
     const length = currency.length
     for (let i = 0; i < length; i++) {
@@ -515,9 +512,9 @@ const saveWallet = async (req, res) => {
             obj['bnb'] = Body.data[8].deposit_address
             addresses.push(obj)
             user.addresses = addresses
+            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, Address: user.addresses})
         })
-        user.save()
-        res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, Address: user.addresses})
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
