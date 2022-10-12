@@ -61,7 +61,7 @@ const register = async (req, res) => {
                 console.log('Email sent: ' + info.response)
             }
         })
-        res.status(201).json({ message: 'User registered successfully', user: user.email, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, verified: user.verified, token: token })
+        res.status(201).json({ message: 'User registered successfully', user: user.email, addresses: user.addresses, firstName: user.firstName, lastName: user.lastName, verified: user.verified, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
