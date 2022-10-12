@@ -206,7 +206,6 @@ const updateUser = async (req, res) => {
             user.user_id = body.data.user_id;
             console.log(body.data.user_id);
             getWallet(body.data.user_id);
-            saveWallet();
             await user.save()
             res.status(200).json({ message: 'User updated successfully', user: user })
         });
