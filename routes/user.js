@@ -19,5 +19,4 @@ router.get('/view-addresses', viewAddresses);
 router.post('/resend-otp', resendOTP);
 router.post('/save-wallet', saveWallet)
 
-
 module.exports = router;

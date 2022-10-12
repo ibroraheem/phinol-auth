@@ -154,6 +154,7 @@ const updateUser = async (req, res) => {
         user.phoneNumber = phoneNumber
         user.firstName = firstName
         user.lastName = lastName
+       
         // user.verificationCode = Math.floor(1000 + Math.random() * 9000)
         // const message = `Your verification code is ${user.verificationCode}`
 
@@ -188,12 +189,12 @@ const updateUser = async (req, res) => {
             headers: {
                 accept: 'application/json',
                 'content-type': 'application/json',
-                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             },
             body: {
                 first_name: firstName,
                 last_name: lastName,
-                phone_number: '09228492900'
+                phone_number: phoneNumber
             },
             json: true
         };
@@ -202,7 +203,7 @@ const updateUser = async (req, res) => {
             if (error) throw new Error(error);
             user_id = await body.data.id
             getWallet(user_id)
-            console.log(body.data.id);
+            await user.save()
         });
 
 
