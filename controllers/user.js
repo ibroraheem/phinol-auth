@@ -204,8 +204,8 @@ const updateUser = async (req, res) => {
             if (error) res.send(error);
             console.log(body)
             user.user_id = body.data.user_id;
-            getWallet(body.data.user_id)
             await user.save()
+            getWallet(body.data.user_id)
             res.status(200).json({ message: 'User updated successfully', user: user })
         });
 
@@ -481,6 +481,7 @@ const getWallet = async (user_id) => {
 
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
+            console.log(body, error);
         });
     }
 }
