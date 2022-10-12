@@ -9,10 +9,11 @@ const request = require('request');
 
 const google = async (req, res) => {
     try {
+        const { firstName, lastName, email, password } = req.body
         const user = await User.findOne({ email })
         if (user) return res.status(401).json({ message: 'User not found' })
-        const _user = await User.create(req.body, { verified: true })
-        const token = jwt.sign(_user, process.env.JWT_SECRET, {
+        const _user = await User.create({ firstName, lastName, email, password, verified: true })
+        const token = jwt.sign({ email: _user.email, firstName: _user.firstName, lastName: _user.lastName }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         })
         res.status(200).json({ message: 'Login Successful', user: _user.email, firstName: _user.firstName, lastName: _user.lastName, token: token })
