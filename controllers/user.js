@@ -154,7 +154,7 @@ const updateUser = async (req, res) => {
         user.phoneNumber = phoneNumber
         user.firstName = firstName
         user.lastName = lastName
-       
+    
         // user.verificationCode = Math.floor(1000 + Math.random() * 9000)
         // const message = `Your verification code is ${user.verificationCode}`
 
@@ -202,6 +202,7 @@ const updateUser = async (req, res) => {
         request(options, async function (error, response, body) {
             if (error) throw new Error(error);
             user_id = await body.data.id
+            user.user_id = user_id;
             getWallet(user_id)
             await user.save()
         });
@@ -483,6 +484,7 @@ const getWallet = async (user_id) => {
             if (error) throw new Error(error);
         });
     }
+    await user.save()
 }
 
 const saveWallet = async (req, res) => {
