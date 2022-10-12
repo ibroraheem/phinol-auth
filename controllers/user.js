@@ -154,7 +154,7 @@ const updateUser = async (req, res) => {
         user.phoneNumber = phoneNumber
         user.firstName = firstName
         user.lastName = lastName
-    
+
         // user.verificationCode = Math.floor(1000 + Math.random() * 9000)
         // const message = `Your verification code is ${user.verificationCode}`
 
@@ -201,7 +201,8 @@ const updateUser = async (req, res) => {
 
         request(options, async function (error, response, body) {
             if (error) throw new Error(error);
-            if(error) res.send(error);
+            if (error) res.send(error);
+            console.log(body)
             user.user_id = body.data.user_id;
             getWallet(user.user_id)
             await user.save()
@@ -512,7 +513,7 @@ const saveWallet = async (req, res) => {
             obj['bnb'] = Body.data[8].deposit_address
             addresses.push(obj)
             user.addresses = addresses
-            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, Address: user.addresses})
+            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, Address: user.addresses })
         })
 
     } catch (error) {
