@@ -19,12 +19,11 @@ const UserSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        unique: true,
         default: " "
     },
     role: {
         type: String,
-        required: true,
+
         default: 'user'
     },
     verified: {
@@ -51,7 +50,6 @@ const UserSchema = new mongoose.Schema({
 
     user_id: {
         type: String,
-        unique: true,
         default: " "
     },
     passwordResetToken: {
