@@ -17,7 +17,9 @@ const google = async (req, res) => {
                 expiresIn: '1h'
             })
             res.status(200).json({ message: 'Login Successful', user: _user.email, firstName: _user.firstName, lastName: _user.lastName, token: token })
-        } else return res.status(401).json({ message: 'User not found' });
+        } else {
+            return res.status(401).json({ message: 'User not found' });
+        }
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
