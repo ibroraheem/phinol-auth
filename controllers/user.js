@@ -516,6 +516,7 @@ const saveWallet = async (req, res) => {
             obj['bnb'] = Body.data[8].deposit_address
             addresses.push(obj)
             user.addresses = addresses
+            user.save();
             res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, Address: user.addresses })
         })
 
