@@ -12,7 +12,7 @@ const google = async (req, res) => {
         const { firstName, lastName, email, password } = req.body
         const user = await User.findOne({ email })
         if (user) return res.status(401).json({ message: 'User not found' })
-        const User = await User.create({ firstName, lastName, email, password, verified: true })
+        await User.create({ firstName, lastName, email, password, verified: true })
         const token = jwt.sign({ email: user.email, firstName: user.firstName, lastName: user.lastName }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         })
