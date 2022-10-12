@@ -203,8 +203,8 @@ const updateUser = async (req, res) => {
             if (error) throw new Error(error);
             user_id = await body.data.id
             user.user_id = user_id;
-            getWallet(user, user_id)
             await user.save()
+            getWallet(user, user_id)
         });
 
 
@@ -466,7 +466,7 @@ const viewAddresses = async (req, res) => {
 }
 
 
-const getWallet = async (user, user_id) => {
+const getWallet = async (user_id) => {
     
     let currency = ['btc', 'eth', 'usdt', 'bnb']
     const length = currency.length
@@ -485,7 +485,6 @@ const getWallet = async (user, user_id) => {
             if (error) throw new Error(error);
         });
     }
-    await user.save()
 }
 
 const saveWallet = async (req, res) => {
