@@ -205,6 +205,7 @@ const updateUser = async (req, res) => {
             console.log(body)
             user.user_id = body.data.user_id;
             await user.save()
+            console.log(body.data.user_id);
             getWallet(body.data.user_id)
             res.status(200).json({ message: 'User updated successfully', user: user })
         });
@@ -478,7 +479,7 @@ const getWallet = async (user_id) => {
                 Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
             }
         };
-
+        console.log(user_id);
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             console.log(body, error);
@@ -494,6 +495,7 @@ const saveWallet = async (req, res) => {
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         const user_id = user.user_id
+        console.log(user_id);
         const options = {
             method: 'GET',
             url: `https://www.quidax.com/api/v1/users/${user_id}/wallets`,
