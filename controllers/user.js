@@ -484,7 +484,7 @@ const getWallet = async (user_id) => {
             url: `https://www.quidax.com/api/v1/users/${user_id}/wallets/${currency[i]}/addresses`,
             headers: {
                 accept: 'application/json',
-                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
         };
         console.log(user_id);
@@ -509,7 +509,7 @@ const saveWallet = async (req, res) => {
             url: `https://www.quidax.com/api/v1/users/${user_id}/wallets`,
             headers: {
                 accept: 'application/json',
-                Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
         };
 
