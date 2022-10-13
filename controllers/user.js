@@ -9,19 +9,21 @@ const request = require('request');
 
 const google = async (req, res) => {
     try {
-        const { firstName, lastName, email, password } = req.body
-        const user = await User.findOne({ email: email })
+        let email = req.body.email
+        let password = req.body.password
+        let firstName = req.body.firstName
+        let lastName = req.body.lastName
+        let phoneNumber = Math.floor(1000 + Math.random() * 9000).toString()
+        email = encodeURIComponent(email)
+        const user = await User.findOne({ email })
         if (user) {
-            const token = jwt.sign({ email: user.email, firstName: user.firstName, lastName: user.lastName }, process.env.JWT_SECRET, {
-                expiresIn: '1h'
-            })
-            res.status(200).json({ message: 'Login Successful', user: user.email, firstName: user.firstName, lastName: user.lastName, token: token });
+            const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
+            res.status(200).json({ message: 'Sign in via google', user: user.email, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
         } else {
-            const _user = await User.create({ firstName: firstName, lastName: lastName, email: email, password: password, verified: true })
-            const token = jwt.sign({ email: _user.email, firstName: _user.firstName, lastName: _user.lastName }, process.env.JWT_SECRET, {
-                expiresIn: '1h'
-            })
-            res.status(200).json({ message: 'Login Successful', user: _user.email, firstName: _user.firstName, lastName: _user.lastName, token: token })
+            user = await User.create({ email: email, password: password, firstName:firstName, lastName:lastName, phoneNumber: phoneNumber, verified: true })
+            const token = jwt.sign({ email }, process.env.JWT_SECRET)
+
+            res.status(200).json({ message: 'Sign up via google', token, firstName: user.firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber})
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
