@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 const { register, login, verifyUser, saveWallet, updateUser, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses } = require('../controllers/user');
-const { validateAddress } = require('../controllers/send');
+const { validateAddress, sendCrypto } = require('../controllers/send');
 const {getDeposit, getDeposits} = require('../controllers/deposit')
 
 router.post('/register', register);
