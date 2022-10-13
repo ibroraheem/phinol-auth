@@ -22,7 +22,7 @@ const google = async (req, res) => {
              await User.create({ email: email, password: password, firstName:firstName, lastName:lastName, phoneNumber: phoneNumber, verified: true })
             const token = jwt.sign({ email }, process.env.JWT_SECRET)
 
-            res.status(200).json({ message: 'Sign up via google', token, firstName: user.firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber})
+            res.status(200).json({ message: 'Sign up via google', token, email: user.email, firstName: user.firstName, user.firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber})
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
