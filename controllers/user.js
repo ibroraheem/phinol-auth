@@ -37,7 +37,7 @@ const register = async (req, res) => {
         const isRegistered = await User.findOne({ email })
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const otp = Math.floor(1000 + Math.random() * 9000)
-        const user = await User.create({ email, password: hashedPassword, otp, phoneNumber: otp.toString()})
+        const user = await User.create({ email, password: hashedPassword, otp, user_id: otp.toLocaleString(), phoneNumber: otp.toString()})
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         })

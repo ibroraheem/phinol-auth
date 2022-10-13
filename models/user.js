@@ -50,7 +50,7 @@ const UserSchema = new mongoose.Schema({
 
     user_id: {
         type: String,
-        default: " "
+        
     },
     passwordResetToken: {
         type: Number
