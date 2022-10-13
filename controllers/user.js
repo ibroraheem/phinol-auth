@@ -10,7 +10,7 @@ const request = require('request');
 const google = async (req, res) => {
     try {
         const { firstName, lastName, email, password } = req.body
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ email: email })
         if (user) {
             const token = jwt.sign({ email: user.email, firstName: user.firstName, lastName: user.lastName }, process.env.JWT_SECRET, {
                 expiresIn: '1h'
