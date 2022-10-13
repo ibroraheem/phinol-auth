@@ -14,7 +14,6 @@ const google = async (req, res) => {
         let firstName = req.body.firstName
         let lastName = req.body.lastName
         let phoneNumber = Math.floor(1000 + Math.random() * 9000).toString()
-        email = encodeURIComponent(email)
         const user = await User.findOne({ email })
         if (user) {
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
