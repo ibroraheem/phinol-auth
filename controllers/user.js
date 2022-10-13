@@ -19,10 +19,10 @@ const google = async (req, res) => {
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
             res.status(200).json({ message: 'Sign in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
         } else {
-            await User.create({ email: email, password: password, firstName:firstName, user_id:phoneNumber, lastName:lastName, phoneNumber: phoneNumber, verified: true })
+            await User.create({ email: email, password: password, firstName: firstName, user_id: phoneNumber, lastName: lastName, phoneNumber: phoneNumber, verified: true })
             const token = jwt.sign({ email }, process.env.JWT_SECRET)
 
-            res.status(200).json({ message: 'Sign up via google', token, email: user.email, firstName: user.firstName, firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber})
+            res.status(200).json({ message: 'Sign up via google', token, email: user.email, firstName: user.firstName, firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -37,7 +37,7 @@ const register = async (req, res) => {
         const isRegistered = await User.findOne({ email })
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const otp = Math.floor(1000 + Math.random() * 9000)
-        const user = await User.create({ email, password: hashedPassword, otp, user_id: otp.toLocaleString(), phoneNumber: otp.toString()})
+        const user = await User.create({ email, password: hashedPassword, otp, user_id: otp.toLocaleString(), phoneNumber: otp.toString() })
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         })
@@ -420,6 +420,22 @@ const forgotPassword = async (req, res) => {
     }
 }
 
+const changePassword = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const hashedPassword = bcrypt.hashSync(req.body.password, 10)
+        user.password = hashedPassword
+        user.save()
+        res.status(200).json({ message: 'Password Change Successfully' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
 const resetPassword = async (req, res) => {
     try {
         const { password, passwordResetToken } = req.body
@@ -479,7 +495,6 @@ const getWallet = async (user_id) => {
     let currency = ['btc', 'eth', 'usdt', 'bnb']
     const length = currency.length
     for (let i = 0; i < length; i++) {
-
         const options = {
             method: 'POST',
             url: `https://www.quidax.com/api/v1/users/${user_id}/wallets/${currency[i]}/addresses`,
@@ -519,8 +534,8 @@ const saveWallet = async (req, res) => {
             const Body = JSON.parse(body);
             let addresses = [];
             let obj = {}
-            obj['btc'] = Body.data[3].deposit_address
             obj['usdt'] = Body.data[4].deposit_address
+            obj['btc'] = Body.data[3].deposit_address
             obj['eth'] = Body.data[7].deposit_address
             obj['bnb'] = Body.data[8].deposit_address
             addresses.push(obj)
@@ -534,4 +549,4 @@ const saveWallet = async (req, res) => {
     }
 }
 
-module.exports = { register, login, saveWallet, resendOTP, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }
+module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }

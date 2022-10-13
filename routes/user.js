@@ -3,7 +3,7 @@ const router = express.Router();
 
 
 
-const { register, login, verifyUser, saveWallet, updateUser, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses } = require('../controllers/user');
+const { register, login, verifyUser, saveWallet, changePassword, updateUser, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses } = require('../controllers/user');
 const { validateAddress, sendCrypto } = require('../controllers/send');
 const {getDeposit, getDeposits} = require('../controllers/deposit')
 
@@ -23,5 +23,6 @@ router.post('/save-wallet', saveWallet)
 router.post('/validate-address', validateAddress)
 router.get('/deposits', getDeposits)
 router.get('/deposits/:deposit_id', getDeposit)
+router.post('/change-password', changePassword)
 
 module.exports = router;

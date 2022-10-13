@@ -5,13 +5,14 @@ require('dotenv').config()
 
 const getDeposits = async (req, res) => {
     try {
+        const {currency} = req.body
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findOne({ email: decoded.email })
         if(!user) return res.status(401).json({ message: 'User not found' })
         const options = {
             method: 'GET',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/deposits?currency=usdt&state=submitted`,
+            url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
             headers: {
                 accept: 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
