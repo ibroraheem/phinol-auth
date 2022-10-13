@@ -19,10 +19,10 @@ const google = async (req, res) => {
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
             res.status(200).json({ message: 'Sign in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
         } else {
-             await User.create({ email: email, password: password, firstName:firstName, lastName:lastName, phoneNumber: phoneNumber, verified: true })
+            await User.create({ email: email, password: password, firstName:firstName, lastName:lastName, phoneNumber: phoneNumber, verified: true })
             const token = jwt.sign({ email }, process.env.JWT_SECRET)
 
-            res.status(200).json({ message: 'Sign up via google', token, email: user.email, firstName: user.firstName, user.firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber})
+            res.status(200).json({ message: 'Sign up via google', token, email: user.email, firstName: user.firstName, firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber})
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -63,7 +63,7 @@ const register = async (req, res) => {
                 console.log('Email sent: ' + info.response)
             }
         })
-        res.status(201).json({ message: 'User registered successfully', user: user.email, addresses: user.addresses, firstName: user.firstName, lastName: user.lastName, verified: user.verified, token: token })
+        res.status(201).json({ message: 'User registered successfully', email: user.email, addresses: user.addresses, firstName: user.firstName, lastName: user.lastName, verified: user.verified, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -141,7 +141,7 @@ const login = async (req, res) => {
         const token = jwt.sign({ email: user.email, verified: user.verified }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         })
-        res.status(200).json({ message: 'Login Successful', user: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, token: token })
+        res.status(200).json({ message: 'Login Successful', email: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, token: token })
     } catch (error) {
         res.status(500).json({ error })
         console.log(error)
