@@ -386,7 +386,7 @@ const updateUser = async (req, res) => {
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         const otp = Math.floor(1000 + Math.random() * 9000)
         user.passwordResetToken = otp

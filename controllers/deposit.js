@@ -1,18 +1,19 @@
-const User = require("../models/user");
-const jwt = require('jsonwebtoken')
 const request = require('request')
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
 require('dotenv').config()
 
 const getDeposits = async (req, res) => {
     try {
         const {currency} = req.body
         const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findOne({ email: decoded.email })
-        if(!user) return res.status(401).json({ message: 'User not found' })
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.find({ email: email })
+        if (!user) return res.status(400).send('user does not exist')    
         const options = {
             method: 'GET',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
+            url: `https://www.quidax.com/api/v1/users/me/deposits?currency=${currency}&state=accepted`,
             headers: {
                 accept: 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
@@ -22,35 +23,43 @@ const getDeposits = async (req, res) => {
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             const Body = JSON.parse(body)
-            res.status(200).json({ data: Body.data })
-        });
+            if (Body.status !== 'success') {
+                return res.status(400).json(Body);
+            }
+            return res.status(200).json(Body.data);
+        }); 
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.json({ error: error.message })
     }
 }
 
 const getDeposit = async (req, res) => {
     try {
-        const { deposit_id } = req.params
+        const { deposit_id } = req.body
         const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findOne({ email: decoded.email })
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email: email })
+        const request = require('request');
+
         const options = {
             method: 'GET',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/deposits/${deposit_id}`,
+            url: `https://www.quidax.com/api/v1/users/${user.user_id}/deposits/${deposit_id}}`,
             headers: {
                 accept: 'application/json',
-                'content-type': 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
-        }
+        };
+
         request(options, function (error, response, body) {
+            if (error) throw new Error(error);
             const Body = JSON.parse(body)
-            res.status(200).json({ data: Body.data })
-        })
+            if (Body.status === 'success') return res.status(200).json(Body.data)
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.json({ error: error.message })
     }
 }
 
-module.exports = { getDeposits, getDeposit }
+module.exports = {getDeposits, getDeposit}
