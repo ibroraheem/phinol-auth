@@ -385,17 +385,15 @@ const updateUser = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
     try {
-        const email  = req.body
+        const {email}  = req.body
         const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         const otp = Math.floor(1000 + Math.random() * 9000)
         user.passwordResetToken = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            service: 'Zoho',
             host: 'smtp.zoho.eu',
             port: 465,
-            secure: true,
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASSWORD
@@ -413,6 +411,7 @@ const forgotPassword = async (req, res) => {
                 console.log(error)
             } else {
                 console.log('Email sent: ' + info.response)
+                res.status(200).json({message: "OTP sent to user's email address"})
             }
         })
     } catch (error) {
