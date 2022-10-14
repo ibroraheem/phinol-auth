@@ -540,7 +540,7 @@ const saveWallet = async (req, res) => {
             addresses.push(obj)
             user.addresses = addresses
             user.save();
-            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, Address: user.addresses })
+            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, addresses: user.addresses })
         })
 
     } catch (error) {
