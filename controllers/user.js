@@ -203,7 +203,6 @@ const updateUser = async (req, res) => {
             body: {
                 first_name: firstName,
                 last_name: lastName,
-                phone_number: phoneNumber
             },
             json: true
         };
