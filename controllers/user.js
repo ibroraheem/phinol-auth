@@ -3,7 +3,7 @@ require('dotenv').config()
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const User = require('../models/user')
-const request = require('request');
+const request = require('request')
 
 
 
@@ -199,12 +199,7 @@ const updateUser = async (req, res) => {
                 accept: 'application/json',
                 'content-type': 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            },
-            body: {
-                first_name: firstName,
-                last_name: lastName,
-            },
-            json: true
+            }
         };
 
         request(options, async function (error, response, body) {
@@ -384,7 +379,7 @@ const updateUser = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
     try {
-        const {email}  = req.body
+        const { email } = req.body
         const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         const otp = Math.floor(1000 + Math.random() * 9000)
@@ -410,7 +405,7 @@ const forgotPassword = async (req, res) => {
                 console.log(error)
             } else {
                 console.log('Email sent: ' + info.response)
-                res.status(200).json({message: "OTP sent to user's email address"})
+                res.status(200).json({ message: "OTP sent to user's email address" })
             }
         })
     } catch (error) {
@@ -450,15 +445,15 @@ const resetPassword = async (req, res) => {
 
 const viewWalletBalance = async (req, res) => {
     try {
+        const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
-        const token = req.headers.authorization.split(' ')[1]
         const user = await User.findOne({ email: email })
-        if (!user) return res.status(404).json({ message: 'User not found. Log in to access wallet.' })
-        if (!user.verified) return res.status(404).json({ message: 'Your account is not verified. Verify your account to access wallet' })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        if (!user.verified) return res.status(401).json({ message: 'User not verified' })
         const options = {
             method: 'GET',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/`,
+            url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
             headers: {
                 accept: 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
@@ -467,8 +462,14 @@ const viewWalletBalance = async (req, res) => {
 
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
-            const Body = JSON.parse(body)
-            res.status(200).json({ message: 'Wallet retrieved.', BTC: Body.data[3].balance, USDT: Body.data[4].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance })
+            const Body = JSON.parse(body);
+            res.status(200).json({
+                BTC: Body.data[3].balance,
+                ETH: Body.data[7].balance,
+                USDT: Body.data[4].balance,
+                BNB: Body.data[8].balance
+          
+            })
         });
     } catch (error) {
         res.status(500).json({ error: error.message })

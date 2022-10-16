@@ -42,6 +42,7 @@ app.get('/', (req, res) => {
 app.use('/admin', require('./admin'));
 
 app.use('/', require('./routes/user'));
+app.use('/', require('./routes/trade'));
 
 const port = process.env.PORT
 app.listen(port, () => {
