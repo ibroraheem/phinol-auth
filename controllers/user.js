@@ -205,7 +205,6 @@ const updateUser = async (req, res) => {
         request(options, async function (error, response, body) {
             if (error) throw new Error(error);
             if (error) res.send(error);
-            console.log(body)
             const Body = JSON.parse(body)
             user.user_id = Body.data.id;
             await user.save()
