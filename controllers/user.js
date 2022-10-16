@@ -501,10 +501,8 @@ const getWallet = async (user_id) => {
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
         };
-        console.log(user_id);
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
-            console.log(error);
         });
     }
 }
