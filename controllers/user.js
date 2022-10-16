@@ -9,7 +9,7 @@ const request = require('request')
 
 const google = async (req, res) => {
     try {
-        let{email, firstName, password, lastName} = req.body
+        const {email, firstName, password, lastName} = req.body
         let phoneNumber = Math.floor(1000 + Math.random() * 9000).toString()
         const user = await User.findOne({ email: email })
         if (user) {
