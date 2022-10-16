@@ -209,7 +209,6 @@ const updateUser = async (req, res) => {
             const Body = JSON.parse(body)
             user.user_id = Body.data.id;
             await user.save()
-            console.log(Body.data.id);
             getWallet(Body.data.id);
         });
         res.status(200).json({ message: 'User updated successfully', user: user })
@@ -506,7 +505,7 @@ const getWallet = async (user_id) => {
         console.log(user_id);
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
-            console.log(body, error);
+            console.log(error);
         });
     }
 }
@@ -534,8 +533,8 @@ const saveWallet = async (req, res) => {
             const Body = JSON.parse(body);
             let addresses = [];
             let obj = {}
-            obj['usdt'] = Body.data[4].deposit_address
             obj['btc'] = Body.data[3].deposit_address
+            obj['usdt'] = Body.data[4].deposit_address
             obj['eth'] = Body.data[7].deposit_address
             obj['bnb'] = Body.data[8].deposit_address
             addresses.push(obj)
