@@ -11,7 +11,7 @@ const google = async (req, res) => {
     try {
         const {email, firstName, password, lastName} = req.body
         let phoneNumber = Math.floor(1000 + Math.random() * 9000).toString()
-        const user = await User.findOne({ email: email })
+        const user = await User.find({email: email})
         if (user) {
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
             res.status(200).json({ message: 'Sign in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
