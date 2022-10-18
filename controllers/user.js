@@ -8,11 +8,21 @@ const request = require('request')
 
 
 const google = async (req, res) => {
-    const { email, firstName, lastName, password, phoneNumber } = req.body
-    const hashedPassword = bcrypt.hashSync(password, 10)
-    const isRegistered = await User.findOne({ email: email })
-    console.log(isRegistered)
-
+try{
+        const { email, firstName, lastName, password } = req.body
+        const hashedPassword = bcrypt.hashSync(password, 10)
+        const isRegistered = await User.findOne({ email: email })
+        if (isRegistered) {
+            const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '1h' })
+            return res.status(200).json({ message: 'User Signed in via google', email: isRegistered.email, addresses: isRegistered.addresses, firstName: isRegistered.firstName, lastName: isRegistered.lastName, verified: isRegistered.verified, token: token })
+        } else {
+            const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString() })
+            const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '1h' })
+            return res.status(200).json({ message: 'User Signed in via google', email: user.email, verified: user.verified, addresses: user.addresses, firstName: user.firstName, lastName: user.lastName, token })
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
 }
 
 const register = async (req, res) => {
