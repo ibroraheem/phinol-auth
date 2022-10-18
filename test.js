@@ -109,3 +109,55 @@ request(options, function (error, response, body) {
 });
 
 
+
+
+// {
+//     "data": {
+//         "id": "bvcjzqgf",
+//             "reference": null,
+//                 "market": {
+//             "id": "bnbusdt",
+//                 "base_unit": "BNB",
+//                     "quote_unit": "USDT"
+//         },
+//         "side": "buy",
+//             "order_type": "market",
+//                 "price": {
+//             "unit": "USDT",
+//                 "amount": null
+//         },
+//         "avg_price": {
+//             "unit": "USDT",
+//                 "amount": "0.0"
+//         },
+//         "volume": {
+//             "unit": "BNB",
+//                 "amount": "0.017"
+//         },
+//         "origin_volume": {
+//             "unit": "BNB",
+//                 "amount": "0.017"
+//         },
+//         "executed_volume": {
+//             "unit": "BNB",
+//                 "amount": "0.0"
+//         },
+//         "status": "wait",
+//             "trades_count": 0,
+//                 "created_at": "2022-10-17T15:08:13.123+01:00",
+//                     "updated_at": "2022-10-17T15:08:13.123+01:00",
+//                         "done_at": null,
+//                             "user": {
+//             "id": "sbdya6nn",
+//                 "sn": "QDXDSYPJ5SF",
+//                     "email": "opeibrahim@gmail.com",
+//                         "reference": null,
+//                             "first_name": "Ibrahim",
+//                                 "last_name": "Abdulraheem",
+//                                     "display_name": null,
+//                                         "created_at": "2022-10-06T12:55:35.000+01:00",
+//                                             "updated_at": "2022-10-06T13:35:29.000+01:00"
+//         },
+//         "trades": []
+//     }
+// }

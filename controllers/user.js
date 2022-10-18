@@ -9,17 +9,19 @@ const request = require('request')
 
 const google = async (req, res) => {
     try {
-        const {email, firstName, password, lastName} = req.body
+        const { email, firstName, password, lastName } = req.body
         let phoneNumber = Math.floor(1000 + Math.random() * 9000).toString()
-        const user = await User.find({email: email})
+        const user = await User.find({ email: email })
         if (user) {
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
             res.status(200).json({ message: 'Sign in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
+            console.log({ message: 'Sign in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
         } else {
             await User.create({ email: email, password: password, firstName: firstName, user_id: phoneNumber, lastName: lastName, phoneNumber: phoneNumber, verified: true })
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
 
-            res.status(200).json({ message: 'Sign up via google', token, email: user.email, firstName: user.firstName, firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
+            res.status(200).json({ message: 'Sign up via google', token, email: user.email, firstName: user.firstName, lastName: user.lastName, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
+            console.log({ message: 'Sign in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -465,7 +467,7 @@ const viewWalletBalance = async (req, res) => {
                 ETH: Body.data[7].balance,
                 USDT: Body.data[4].balance,
                 BNB: Body.data[8].balance
-          
+
             })
         });
     } catch (error) {
