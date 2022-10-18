@@ -13,12 +13,12 @@ const google = async (req, res) => {
         let phoneNumber = Math.floor(1000 + Math.random() * 9000).toString()
         const user = await User.find({ email: email })
         if (user) {
-            const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
+            const token = jwt.sign({ email: user.user.email, google: true }, process.env.JWT_SECRET)
             res.status(200).json({ message: 'Sign in via google', email: user.user.email, firstName: user.user.firstName, lastName: user.user.lastName, phoneNumber: user.user.phoneNumber, token, verified: user.user.verified, addresses: user.user.addresses, phoneNumber: user.user.phoneNumber, token: token })
             console.log({ user: user.email })
         } else {
             await User.create({ email: email, password: password, firstName: firstName, user_id: phoneNumber, lastName: lastName, phoneNumber: phoneNumber, verified: true })
-            const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
+            const token = jwt.sign({ email: user.user.email, google: true }, process.env.JWT_SECRET)
             console.log({ email: user.user.email, })
             res.status(200).json({ message: 'Sign in via google', email: user.user.email, firstName: user.user.firstName, lastName: user.user.lastName, phoneNumber: user.user.phoneNumber, token, verified: user.user.verified, addresses: user.user.addresses, phoneNumber: user.user.phoneNumber, token: token })
             console.log({ email: user.user.email, })
