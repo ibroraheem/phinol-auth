@@ -149,17 +149,15 @@ const login = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
         const { phoneNumber, firstName, lastName } = req.body
-
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const email = decoded.email
+        email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if (!user.verified) res.status(401).json({ message: 'Please verify your email first' })
-        if (user.phoneVerified) return res.status(401).json({ message: 'Phone number already verified' })
         user.phoneNumber = phoneNumber
         user.firstName = firstName
         user.lastName = lastName
+        await user.save()
 
         let options = {
             method: 'POST',
