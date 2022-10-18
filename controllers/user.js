@@ -20,8 +20,7 @@ const google = async (req, res) => {
             const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString() })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '1h' })
             console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, trades: user.trades, token: token })
-            return res.status(200).json({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, trades: user.trades, token: token }
-})
+            return res.status(200).json({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, trades: user.trades, token: token })
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
