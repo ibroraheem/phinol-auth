@@ -21,7 +21,7 @@ const google = async (req, res) => {
             const token = jwt.sign({ email: user.user.email, google: true }, process.env.JWT_SECRET)
             console.log({ email: user.user.email, })
             res.status(200).json({ message: 'Sign in via google', email: user.user.email, firstName: user.user.firstName, lastName: user.user.lastName, phoneNumber: user.user.phoneNumber, token, verified: user.user.verified, addresses: user.user.addresses, phoneNumber: user.user.phoneNumber, token: token })
-            console.log({ user: user.user })
+            console.log({ user: user.user.email })
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
