@@ -55,6 +55,10 @@ const UserSchema = new mongoose.Schema({
     passwordResetToken: {
         type: Number
     },
+    trades: {
+        type: Array,
+        default: []
+    }
 },
     { timestamps: true }
 )

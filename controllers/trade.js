@@ -27,9 +27,15 @@ const buy = async (req, res,) => {
 
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
-            console.log(body)
-            if (body.status === "success") return res.status(201).json({ data: body.data })
-            res.status(200).json({ message: body.message, id })
+            if (body.status === "success") {
+            setInterval(() => {
+                user.trades.push(body.data)
+                user.save()
+                res.status(200).json({ message: body.message, data: body.data })
+            }, 10000)
+            } else {
+                res.status(400).json({ message: body.message })
+            }
         })
 
     } catch (error) {
@@ -42,7 +48,7 @@ const buy = async (req, res,) => {
 const sell = async (req, res) => {
     try {
         const { amount, market } = req.body
-   
+
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
@@ -63,10 +69,18 @@ const sell = async (req, res) => {
 
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
-            
-            console.log(body.message)
-            res.status(200).send(body.message)
-            
+
+            if (body.status === "success") {
+                setInterval(() => {
+                    res.status(201).json({ data: body.data })
+                    user.trades.push(body.data)
+                    user.save()
+                    res.status(200).json({ message: body.message, data: body.data })
+                }, 10000)
+            } else {
+                res.status(400).json({ message: body.message })
+            }
+
         })
     } catch (error) {
         console.error(error.message)
@@ -74,4 +88,4 @@ const sell = async (req, res) => {
     }
 }
 
-module.exports = {buy, sell}
+module.exports = { buy, sell }
