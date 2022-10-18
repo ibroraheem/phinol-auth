@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const { buy, sell } = require('../controllers/trade')
-const {getTrades, getTrade} = require('../controllers/user')
+const {getTrades, getTrade} = require('../controllers/trade')
 
 router.post('/buy', buy)
 router.post('/sell', sell)

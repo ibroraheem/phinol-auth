@@ -512,33 +512,6 @@ const saveWallet = async (req, res) => {
     }
 }
 
-const getTrades = async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const email = decoded.email;
-        const user = await User.findOne({ email });
-        if (!user) return res.status(401).json({ message: 'User not found' });
-        res.status(200).json({ message: 'Trades retrieved', trades: user.trades });
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
-
-const getTrade = async (req, res) => {
-    try {
-        const {id} = req.params.id;
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const email = decoded.email;
-        const user = await User.findOne({ email });
-        if (!user) return res.status(401).json({ message: 'User not found' });
-        const trade = user.trades.find(trade => trade.id === id);
-        res.status(200).json({ message: 'Trade retrieved', trade });
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
 
 
-module.exports = { register, login, saveWallet, resendOTP, getTrades, getTrade, changePassword, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }
+module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }
