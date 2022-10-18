@@ -15,7 +15,7 @@ const google = async (req, res) => {
         if (user) {
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
             res.status(200).json({ message: 'Sign in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, phoneNumber: user.phoneNumber, token, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber })
-            console.log({ user })
+            console.log({ user: user.email })
         } else {
             await User.create({ email: email, password: password, firstName: firstName, user_id: phoneNumber, lastName: lastName, phoneNumber: phoneNumber, verified: true })
             const token = jwt.sign({ email: user.email, google: true }, process.env.JWT_SECRET)
