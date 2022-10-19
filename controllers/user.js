@@ -14,7 +14,7 @@ const google = async (req, res) => {
         const user = await User.findOne({ email: email })
         if (user) {
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-            // console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user_id: user.user_id, token: token })
+            console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user_id: user.user_id, token: token })
             return res.status(200).json({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user_id, token: token })
         } else {
             const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString(), verified: true })
@@ -137,7 +137,7 @@ const login = async (req, res) => {
             res.status(401).json({ error: 'Invalid password' })
         }
         const token = jwt.sign({ email: user.email, verified: user.verified }, process.env.JWT_SECRET, {
-            expiresIn: '1h'
+            expiresIn: '12h'
         })
         res.status(200).json({ message: 'Login Successful', email: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, user_id: user.user_id, token: token })
     } catch (error) {
