@@ -32,7 +32,7 @@ const buy = async (req, res,) => {
                     user.trades.push(body.data)
                     user.save()
                     res.status(200).json({ message: body.message, data: body.data })
-                }, 30000)
+                }, 25000)
             } else {
                 res.status(400).json({ message: body.message })
             }
@@ -76,7 +76,7 @@ const sell = async (req, res) => {
                     user.save()
                     console.log(body)
                     res.status(200).json({ message: body.message, data: body.data })
-                }, 30000)
+                }, 25000)
             } else {
                 res.status(400).json({ message: body.message })
             }
