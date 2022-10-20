@@ -177,7 +177,7 @@ const getPrice = async (req, res) => {
 }
 
 const getTickers = async (req, res) => {
-    const { market } = req.body
+    const  market  = req.params.market
     const options = {
         method: 'GET',
         url: `https://www.quidax.com/api/v1/markets/tickers/${market}`,

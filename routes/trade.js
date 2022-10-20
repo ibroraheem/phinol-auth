@@ -7,7 +7,7 @@ router.post('/buy', buy)
 router.post('/sell', sell)
 router.get('/trades', getTrades)
 router.get('/trades/:trade_id', getTrade)
-router.get('/tickers', getTickers)
+router.get('/tickers/:market', getTickers)
 router.post('/push-trades', pushTrades)
 
 module.exports = router
