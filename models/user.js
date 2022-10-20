@@ -58,6 +58,10 @@ const UserSchema = new mongoose.Schema({
     trades: {
         type: Array,
         default: []
+    },
+    trade_ids: {
+        type: Array,
+        default: []
     }
 },
     { timestamps: true }

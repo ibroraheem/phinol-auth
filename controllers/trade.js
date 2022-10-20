@@ -29,7 +29,7 @@ const buy = async (req, res,) => {
             if (error) throw new Error(error);
             if (body.status === "success") {
                 setInterval(() => {
-                    user.trades.push(body.data)
+                    user.trade_ids.push(body.data.id)
                     user.save()
                     res.status(200).json({ message: "Trade successfully completed", })
                 }, 25000)
@@ -101,6 +101,39 @@ const getTrades = async (req, res) => {
     }
 }
 
+const pushTrades = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const email = decoded.email;
+        const user = await User.findOne({ email });
+        if (!user) return res.status(401).json({ message: 'User not found' });
+        const options = {
+            method: 'GET',
+            url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders/${user.trade_ids.length - 1}`,
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+            },
+            json: true
+        };
+
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            if (body.status === "success") {
+                user.trades.push(body.data)
+                user.save()
+                res.status(200).json({ message: "Trade successfully completed" })
+            } else {
+                res.status(400).json({ message: body.message })
+            }
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
 const getTrade = async (req, res) => {
     try {
         const { id } = req.params.id;
@@ -116,4 +149,54 @@ const getTrade = async (req, res) => {
     }
 }
 
-module.exports = { buy, sell, getTrades, getTrade }
+const getPrice = async (req, res) => {
+    try {
+        const { market } = req.body
+        const options = {
+            method: 'GET',
+            url: `https://www.quidax.com/api/v1/markets/${market}/ticker`,
+            headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+            },
+            json: true
+        };
+
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+            if (body.status === "success") {
+                res.status(200).json({ message: "Price retrieved", price: body.data.last })
+            } else {
+                res.status(400).json({ message: body.message })
+            }
+        })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const getTickers = async (req, res) => {
+    const { market } = req.body
+    const options = {
+        method: 'GET',
+        url: `https://www.quidax.com/api/v1/markets/tickers/${market}`,
+        headers: {
+            accept: 'application/json',
+            'content-type': 'application/json',
+            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+        },
+        json: true
+    };
+
+    request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+        if (body.status === "success") {
+            res.status(200).json({ message: "Tickers retrieved", tickers: body.data })
+        } else {
+            res.status(400).json({ message: body.message })
+        }
+    })
+}
+
+module.exports = { buy, sell, getTrades, getTrade, getTickers, getPrice, pushTrades }
