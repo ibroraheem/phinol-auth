@@ -166,7 +166,7 @@ const getPrice = async (req, res) => {
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             if (body.status === "success") {
-                res.status(200).json({ message: "Price retrieved", price: body.data.last })
+                res.status(200).json({ message: "Price retrieved", price: body.data.ticker.last })
             } else {
                 res.status(400).json({ message: body.message })
             }
