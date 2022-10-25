@@ -8,6 +8,8 @@ const buy = async (req, res,) => {
 
         const token = req.headers.authorization.split(' ')[1]
         const { market, amount } = req.body
+        let tradeAmount = amount * 99.3
+        let profit = amount - tradeAmount
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email: email })
@@ -21,7 +23,7 @@ const buy = async (req, res,) => {
                 'content-type': 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             },
-            body: { market: market, side: 'buy', ord_type: 'market', volume: amount },
+            body: { market: market, side: 'buy', ord_type: 'market', volume: tradeAmount },
             json: true
         };
 
@@ -33,6 +35,27 @@ const buy = async (req, res,) => {
                     user.save()
                     res.status(200).json({ message: "Trade successfully completed", })
                 }, 25000)
+                const options = {
+                    method: 'POST',
+                    url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                    headers: {
+                        accept: 'application/json',
+                        'content-type': 'application/json',
+                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                    },
+                    body: {
+                        currency: `${market.slice(0, 3)}`,
+                        amount: profit,
+                        fund_uid: me
+                    },
+                    json: true
+                }
+                request(options, function (error, response, body) {
+                    if (error) throw new Error(error);
+
+                    console.log(body);
+                })
+                
             } else {
                 res.status(400).json({ message: body.message })
             }

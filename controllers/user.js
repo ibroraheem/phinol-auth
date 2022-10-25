@@ -40,7 +40,7 @@ const register = async (req, res) => {
             expiresIn: '12h'
         })
         const transporter = nodemailer.createTransport({
-            host: 'smtp.zoho.eu',
+            host: 'smtp.zoho.com',
             port: 465,
             auth: {
                 user: process.env.EMAIL,
@@ -79,7 +79,7 @@ const resendOTP = async (req, res) => {
         user.otp = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'smtp.zoho.eu',
+            host: 'smtp.zoho.com',
             port: 465,
             auth: {
                 user: process.env.EMAIL,
@@ -353,7 +353,7 @@ const forgotPassword = async (req, res) => {
         user.passwordResetToken = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'smtp.zoho.eu',
+            host: 'smtp.zoho.com',
             port: 465,
             auth: {
                 user: process.env.EMAIL,
