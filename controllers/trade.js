@@ -8,7 +8,7 @@ const buy = async (req, res,) => {
 
         const token = req.headers.authorization.split(' ')[1]
         const { market, amount } = req.body
-        let tradeAmount = amount * 99.3
+        let tradeAmount = amount * 0.993
         let profit = amount - tradeAmount
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
