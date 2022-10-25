@@ -7,7 +7,11 @@ const session = require('express-session')
 const MemoryStore = require('memorystore')(session)
 const cookieParser = require('cookie-parser')
 require('dotenv').config();
-
+const swaggerUI = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+const swaggerOptions = {
+    explorer: true,
+};
 const connectDB = require('./config/db');
 
 app.use(morgan('tiny'))
@@ -39,7 +43,7 @@ connectDB()
 app.get('/', (req, res) => {
     res.send('Hello World!');
 })
-
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument, swaggerOptions));
 app.use('/admin', require('./admin'));
 
 app.use('/', require('./routes/user'));
