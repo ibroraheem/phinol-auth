@@ -51,13 +51,12 @@ const buy = async (req, res,) => {
                 }
                 request(options, function (error, response, body) {
                     if (error) throw new Error(error);
-
-                    console.log(body);
                 })
                 res.status(200).json({ message: "Trade successfully completed", })
 
             } else {
                 res.status(400).json({ message: body.message })
+                console.log(body)
             }
         })
 
