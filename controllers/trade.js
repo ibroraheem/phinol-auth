@@ -34,28 +34,28 @@ const buy = async (req, res,) => {
                     user.trade_ids.push(body.data.id)
                     user.save()
                 }, 25000)
-                // const options = {
-                //     method: 'POST',
-                //     url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
-                //     headers: {
-                //         accept: 'application/json',
-                //         'content-type': 'application/json',
-                //         Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                //     },
-                //     body: {
-                //         currency: `${market.slice(0, 3)}`,
-                //         amount: profit,
-                //         fund_uid: me
-                //     },
-                //     json: true
-                // }
-                // request(options, function (error, response, body) {
-                //     if (error) throw new Error(error);
+                const options = {
+                    method: 'POST',
+                    url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                    headers: {
+                        accept: 'application/json',
+                        'content-type': 'application/json',
+                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                    },
+                    body: {
+                        currency: `${market.slice(0, 3)}`,
+                        amount: profit,
+                        fund_uid: 'me'
+                    },
+                    json: true
+                }
+                request(options, function (error, response, body) {
+                    if (error) throw new Error(error);
 
-                //     console.log(body);
-                // })
-
+                    console.log(body);
+                })
                 res.status(200).json({ message: "Trade successfully completed", })
+
             } else {
                 res.status(400).json({ message: body.message })
             }
