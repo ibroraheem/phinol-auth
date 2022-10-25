@@ -26,7 +26,7 @@ const buy = async (req, res,) => {
             body: { market: market, side: 'buy', ord_type: 'market', volume: tradeAmount },
             json: true
         };
-
+        console.log(req.body)
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             if (body.status === "success") {
