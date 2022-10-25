@@ -33,29 +33,29 @@ const buy = async (req, res,) => {
                 setInterval(() => {
                     user.trade_ids.push(body.data.id)
                     user.save()
-                    res.status(200).json({ message: "Trade successfully completed", })
                 }, 25000)
-                const options = {
-                    method: 'POST',
-                    url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
-                    headers: {
-                        accept: 'application/json',
-                        'content-type': 'application/json',
-                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                    },
-                    body: {
-                        currency: `${market.slice(0, 3)}`,
-                        amount: profit,
-                        fund_uid: me
-                    },
-                    json: true
-                }
-                request(options, function (error, response, body) {
-                    if (error) throw new Error(error);
+                // const options = {
+                //     method: 'POST',
+                //     url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                //     headers: {
+                //         accept: 'application/json',
+                //         'content-type': 'application/json',
+                //         Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                //     },
+                //     body: {
+                //         currency: `${market.slice(0, 3)}`,
+                //         amount: profit,
+                //         fund_uid: me
+                //     },
+                //     json: true
+                // }
+                // request(options, function (error, response, body) {
+                //     if (error) throw new Error(error);
 
-                    console.log(body);
-                })
-                
+                //     console.log(body);
+                // })
+
+                res.status(200).json({ message: "Trade successfully completed", })
             } else {
                 res.status(400).json({ message: body.message })
             }
@@ -98,7 +98,7 @@ const sell = async (req, res) => {
                     user.trades.push(body.data)
                     user.save()
                     console.log(body)
-                    res.status(200).json({ message: "Trade successfully completed"})
+                    res.status(200).json({ message: "Trade successfully completed" })
                 }, 10000)
             } else {
                 res.status(400).json({ message: body.message })
@@ -200,7 +200,7 @@ const getPrice = async (req, res) => {
 }
 
 const getTickers = async (req, res) => {
-    const  market  = req.params.market
+    const market = req.params.market
     const options = {
         method: 'GET',
         url: `https://www.quidax.com/api/v1/markets/tickers/${market}`,
