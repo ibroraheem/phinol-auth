@@ -7,59 +7,118 @@ const buy = async (req, res,) => {
     try {
 
         const token = req.headers.authorization.split(' ')[1]
-        const { market, amount } = req.body
-        const tradeAmount = amount * 0.993
-        const profit = amount * 0.007
+        const { market, amount, conversion } = req.body
+        const tradeAmount = Number(amount) * 0.993
+        const profit = Number(amount) * 0.007
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (!user.verified) return res.status(401).json({ message: 'User not verified' })
-        const options = {
-            method: 'POST',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
-            headers: {
-                accept: 'application/json',
-                'content-type': 'application/json',
-                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            },
-            body: { market: market, side: 'buy', ord_type: 'market', volume: tradeAmount },
-            json: true
-        };
-        console.log(req.body)
-        request(options, function (error, response, body) {
-            if (error) throw new Error(error);
-            if (body.status === "success") {
-                setInterval(() => {
-                    user.trade_ids.push(body.data.id)
-                    user.save()
-                }, 25000)
-                const options = {
-                    method: 'POST',
-                    url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
-                    headers: {
-                        accept: 'application/json',
-                        'content-type': 'application/json',
-                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                    },
-                    body: {
-                        currency: `${market.slice(0, 3)}`,
-                        amount: profit,
-                        fund_uid: 'me'
-                    },
-                    json: true
+        if (market.slice(4) === 'usdt') {
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: { market: market, side: 'buy', ord_type: 'market', volume: tradeAmount.toString() },
+                json: true
+            };
+            console.log(req.body)
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                if (body.status === "success") {
+                    setInterval(() => {
+
+                        const options = {
+                            method: 'POST',
+                            url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                            headers: {
+                                accept: 'application/json',
+                                'content-type': 'application/json',
+                                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                            },
+                            body: {
+                                currency: `${market.slice(0, 3)}`,
+                                amount: profit.toString(),
+                                fund_uid: 'me'
+                            },
+                            json: true
+                        }
+                        request(options, function (error, response, body) {
+                            if (error) throw new Error(error);
+                        })
+                        res.status(200).json({ message: "Trade successfully completed", })
+
+                    }, 25000)
+
+                } else {
+                    res.status(400).json({ message: body.message })
+                    console.log(body)
                 }
-                request(options, function (error, response, body) {
-                    if (error) throw new Error(error);
-                })
-                res.status(200).json({ message: "Trade successfully completed", })
+            })
 
-            } else {
-                res.status(400).json({ message: body.message })
-                console.log(body)
-            }
-        })
+        } else {
 
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: { market: `${market.slice(0, 3)}usdt`, side: 'sell', ord_type: 'market', volume: amount },
+                json: true
+            };
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                if (body.status === "success") {
+                    const convert = Number(conversion) * 0.993
+                    const convertProfit = convert * 0.004
+                    const options = {
+                        method: 'POST',
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                        headers: {
+                            accept: 'application/json',
+                            'content-type': 'application/json',
+                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                        },
+                        body: { market: `${market.slice(3)}usdt`, side: 'buy', ord_type: 'market', volume: convert.toString() },
+                        json: true
+                    };
+                    request(options, function (error, response, body) {
+                        if (error) throw new Error(error)
+                        if (body.status === "success") {
+                            setInterval(() => {
+                                const options = {
+                                    method: 'POST',
+                                    url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                                    headers: {
+                                        accept: 'application/json',
+                                        'content-type': 'application/json',
+                                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                                    },
+                                    body: {
+                                        currency: `${market.slice(3)}`,
+                                        amount: convertProfit.toString(),
+                                        fund_uid: 'me'
+                                    },
+                                    json: true
+                                }
+                                request(options, function (error, response, body) {
+                                    if (error) throw new Error(error);
+                                })
+                            }, 25000)
+                            res.status(200).json({ message: "Trade successfully completed", })
+                        }
+                    })
+                }
+            })
+        }
     } catch (error) {
         console.error(error.message)
         res.status(500).json({ message: error.message })
@@ -78,6 +137,7 @@ const sell = async (req, res) => {
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (user.verified == false) return res.status(401).json({ message: 'User not verified' })
         const profit = conversion * 0.007
+        const tradeAmount = amount * 0.993
         const options = {
             method: 'POST',
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
@@ -86,7 +146,7 @@ const sell = async (req, res) => {
                 'content-type': 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             },
-            body: { market: market, side: 'sell', ord_type: 'market', volume: amount },
+            body: { market: market, side: 'sell', ord_type: 'market', volume: tradeAmount },
             json: true
         };
 
