@@ -149,15 +149,13 @@ const login = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { phoneNumber, firstName, lastName } = req.body
+        const { phoneNumber } = req.body
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         user.phoneNumber = phoneNumber
-        user.firstName = firstName
-        user.lastName = lastName
         await user.save()
 
         let options = {
@@ -167,7 +165,11 @@ const updateUser = async (req, res) => {
                 accept: 'application/json',
                 'content-type': 'application/json',
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            }
+            }, 
+            body: {
+                email: `${email.split('@')[0]}${Math.floor(Math.random(10000))}@phinol.com`,
+            },
+            json: true
         };
 
         request(options, async function (error, response, body) {
@@ -175,6 +177,7 @@ const updateUser = async (req, res) => {
             if (error) res.send(error);
             const Body = JSON.parse(body)
             user.user_id = Body.data.id;
+            user.phinolMail = Body.data.email
             await user.save()
             getWallet(Body.data.id);
         });

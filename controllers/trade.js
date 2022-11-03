@@ -189,7 +189,7 @@ const sell = async (req, res) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: { market: `${market.slice(0, 3)}usdt`, side: 'sell', ord_type: 'market', volume: conversion },
+                body: { market: `${market.slice(0, 3)}usdt`, side: 'sell', ord_type: 'market', volume: amount },
                 json: true
             }
             request(options, function (error, response, body) {
@@ -222,7 +222,7 @@ const sell = async (req, res) => {
                                         'content-type': 'application/json',
                                         Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                     },
-                                    body: { market: `${market.slice(3)}usdt`, side: 'buy', ord_type: 'market', volume: amount },
+                                    body: { market: `${market.slice(3)}usdt`, side: 'buy', ord_type: 'market', volume: conversion },
                                     json: true
                                 }
                                 request(options, (error, response, data) => {

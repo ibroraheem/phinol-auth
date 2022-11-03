@@ -52,6 +52,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         
     },
+    phinolMail: {
+        type: String,
+    },
     passwordResetToken: {
         type: Number
     },
