@@ -237,7 +237,7 @@ const sell = async (req, res) => {
                                 })
                             }
 
-                        }, 10000)
+                        }, 20000)
                     })
                 } else {
                     return res.status(400).json(body)
