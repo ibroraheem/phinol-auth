@@ -65,7 +65,11 @@ const UserSchema = new mongoose.Schema({
     trade_ids: {
         type: Array,
         default: []
-    }
+    },
+    referrals: {
+        type: Array,
+        default: []
+    },
 },
     { timestamps: true }
 )
