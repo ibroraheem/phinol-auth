@@ -89,8 +89,7 @@ const buy = async (req, res,) => {
                             }
                             console.log(body)
                             const Body = JSON.parse(body)
-                            console.log(Body.data.status)
-                            if (Body.data.status === 'done') {
+                            if (Body.status === 'success') {
                                 const options = {
                                     method: 'POST',
                                     url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
