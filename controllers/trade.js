@@ -113,7 +113,7 @@ const buy = async (req, res,) => {
                                 })
                             }
 
-                        }, 20000)
+                        }, 10000)
                     })
                 } else {
                     return res.status(400).json(body)
@@ -236,7 +236,7 @@ const sell = async (req, res) => {
                                 })
                             }
 
-                        }, 20000)
+                        }, 10000)
                     })
                 } else {
                     return res.status(400).json(body)
