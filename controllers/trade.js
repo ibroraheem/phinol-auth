@@ -89,7 +89,7 @@ const buy = async (req, res,) => {
                             }
                             console.log(body)
                             const Body = JSON.parse(body)
-                            if (Body.status === 'success') {
+                            if (Body.data.status === 'done') {
                                 const options = {
                                     method: 'POST',
                                     url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
@@ -113,7 +113,7 @@ const buy = async (req, res,) => {
                                 })
                             }
 
-                        }, 10000)
+                        }, 60000)
                     })
                 } else {
                     return res.status(400).json(body)
@@ -212,7 +212,7 @@ const sell = async (req, res) => {
                             console.log(body)
                             const Body = JSON.parse(body)
                             console.log(Body.data.status)
-                            if (Body.status === 'success') {
+                            if (Body.data.status === 'done') {
                                 const options = {
                                     method: 'POST',
                                     url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
@@ -236,7 +236,7 @@ const sell = async (req, res) => {
                                 })
                             }
 
-                        }, 20000)
+                        }, 60000)
                     })
                 } else {
                     return res.status(400).json(body)
