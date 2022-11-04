@@ -5,111 +5,202 @@ require('dotenv').config()
 
 const buy = async (req, res,) => {
     try {
-
         const token = req.headers.authorization.split(' ')[1]
-        const { market, amount } = req.body
-        const tradeAmount = amount * 0.993
-        const profit = amount * 0.007
+        const { amount, conversion, market } = req.body
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
-        const user = await User.findOne({ email: email })
+        const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if (!user.verified) return res.status(401).json({ message: 'User not verified' })
-        const options = {
-            method: 'POST',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
-            headers: {
-                accept: 'application/json',
-                'content-type': 'application/json',
-                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            },
-            body: { market: market, side: 'buy', ord_type: 'market', volume: tradeAmount },
-            json: true
-        };
-        console.log(req.body)
-        request(options, function (error, response, body) {
-            if (error) throw new Error(error);
-            if (body.status === "success") {
-                setInterval(() => {
-                    user.trade_ids.push(body.data.id)
-                    user.save()
-                }, 25000)
-                res.status(200).json({ message: "Trade successfully completed", })
+        if (market.split('-')[1] === 'usdt') {
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: { market: `${market.replace("-", "")}`, side: 'buy', ord_type: 'market', volume: conversion },
+                json: true
+            };
 
-            } else {
-                res.status(400).json({ message: body.message })
-                console.log(body)
-            }
-        })
+            request(options, function (error, response, body) {
+                if (error) {
+                    console.log(error);
+                    res.status(400).json({ error: error.message })
+                }
+                console.log(body);
+                res.status(200).json({ message: 'Trade Successful' })
+            });
+        } else {
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: { market: `${market.split('-')[1]}usdt`, side: 'sell', ord_type: 'market', volume: amount },
+                json: true
+            };
 
+            request(options, function (error, response, body) {
+                if (error) {
+                    console.log(error);
+                }
+                console.log(body);
+                if (body.status !== "success") return res.status(400).json({ message: body.message });
+                if (body.status === 'success') {
+                    setTimeout(() => {
+                        const options = {
+                            method: 'GET',
+                            url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders/${body.data.id}`,
+                            headers: {
+                                accept: 'application/json',
+                                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                            }
+                        }
+                        request(options, function (error, response, body) {
+                            request(options, function (error, response, body) {
+                                if (error) throw new Error(error);
+                                console.log(body);
+                                const Body = JSON.parse(body);
+                                if (Body.data.status === 'done') {
+                                    const options = {
+                                        method: 'POST',
+                                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                                        headers: {
+                                            accept: 'application/json',
+                                            'content-type': 'application/json',
+                                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                                        },
+                                        body: { market: `${market.split("-")[0]}usdt`, side: 'buy', ord_type: 'market', volume: conversion },
+                                        json: true
+                                    }
+                                    request(options, function (error, response, body) {
+                                        if (error) {
+                                            console.log(error);
+                                            res.status(400).json({ error: error.message })
+                                        }
+                                        console.log(body);
+                                        if (body.status === 'success') {
+                                            res.status(200).json({ message: 'Trade Successful' })
+                                        } else {
+                                            res.status(400).json({ error: body.message })
+                                        }
+                                    })
+                                }
+                            });
+                        })
+                    }, 15000)
+
+                }
+            });
+        }
     } catch (error) {
-        console.error(error.message)
-        res.status(500).json({ message: error.message })
+        console.log(error)
     }
-
 }
-
 const sell = async (req, res) => {
     try {
-        const { amount, market, conversion } = req.body
-
         const token = req.headers.authorization.split(' ')[1]
+        const { amount, conversion, market } = req.body
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
-        const user = await User.findOne({ email: email })
+        const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if (user.verified == false) return res.status(401).json({ message: 'User not verified' })
-        const profit = conversion * 0.007
-        const options = {
-            method: 'POST',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
-            headers: {
-                accept: 'application/json',
-                'content-type': 'application/json',
-                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            },
-            body: { market: market, side: 'sell', ord_type: 'market', volume: amount },
-            json: true
-        };
+        if (market.split('-')[1] === 'usdt') {
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: { market: `${market.replace("-", "")}`, side: 'sell', ord_type: 'market', volume: amount },
+                json: true
+            };
 
-        request(options, function (error, response, body) {
-            if (error) throw new Error(error);
-
-            if (body.status === "success") {
-                setInterval(() => {
-                    user.trades.push(body.data)
-                    user.save()
-                    console.log(body)
-                }, 10000)
-                const options = {
-                    method: 'POST',
-                    url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
-                    headers: {
-                        accept: 'application/json',
-                        'content-type': 'application/json',
-                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                    },
-                    body: {
-                        currency: `${market.slice(4, 7)}`,
-                        amount: profit,
-                        fund_uid: 'me'
-                    },
-                    json: true
+            request(options, function (error, response, body) {
+                if (error) {
+                    console.log(error);
+                    res.status(400).json({ error: error.message })
                 }
-                request(options, function (error, response, body) {
-                    if (error) throw new Error(error);
-                })
-                res.status(200).json({ message: "Trade successfully completed", })
+                console.log(body);
+                res.status(200).json({ message: 'Trade Successful' })
+            });
+        } else {
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: { market: `${market.split('-')[0]}usdt`, side: 'sell', ord_type: 'market', volume: amount },
+                json: true
+            };
 
-            } else {
-                res.status(400).json({ message: body.message })
-            }
+            request(options, function (error, response, body) {
+                if (error) {
+                    console.log(error);
+                }
+                console.log(body);
+                if (body.status !== "success") return res.status(400).json({ message: body.message });
+                if (body.status === 'success') {
+                    setTimeout(() => {
+                        const options = {
+                            method: 'GET',
+                            url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders/${body.data.id}`,
+                            headers: {
+                                accept: 'application/json',
+                                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                            }
+                        }
+                        request(options, function (error, response, body) {
+                            request(options, function (error, response, body) {
+                                if (error) throw new Error(error);
+                                console.log(body);
+                                const Body = JSON.parse(body);
+                                if (Body.data.status === 'done') {
+                                    const options = {
+                                        method: 'POST',
+                                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/orders`,
+                                        headers: {
+                                            accept: 'application/json',
+                                            'content-type': 'application/json',
+                                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                                        },
+                                        body: { market: `${market.split("-")[1]}usdt`, side: 'buy', ord_type: 'market', volume: conversion },
+                                        json: true
+                                    }
+                                    request(options, function (error, response, body) {
+                                        if (error) {
+                                            console.log(error);
+                                            res.status(400).json({ error: error.message })
+                                        }
+                                        console.log(body);
+                                        if (body.status === 'success') {
+                                            res.status(200).json({ message: 'Trade Successful' })
+                                        } else {
+                                            res.status(400).json({ error: body.message })
+                                        }
+                                    })
+                                }
+                            });
+                        })
+                    }, 15000)
 
-        })
+                }
+            });
+        }
     } catch (error) {
-        console.error(error.message)
-        res.status(500).json({ message: error.message })
+        console.log(error)
     }
+
 }
 
 const getTrades = async (req, res) => {

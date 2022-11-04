@@ -30,39 +30,71 @@ const google = async (req, res) => {
 
 const register = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { email, password, referralCode } = req.body
         const hashedPassword = bcrypt.hashSync(password, 10)
         const isRegistered = await User.findOne({ email })
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
-        const otp = Math.floor(1000 + Math.random() * 9000)
-        const user = await User.create({ email, password: hashedPassword, otp, user_id: otp.toLocaleString(), phoneNumber: otp.toString() })
-        const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
-            expiresIn: '12h'
-        })
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.zoho.com',
-            port: 465,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.PASSWORD
-            }
-        })
-        const mailOptions = {
-            from: process.env.EMAIL,
-            to: email,
-            subject: 'Verify your email',
-            html: `<h1>Enter the OTP code to verify your email</h1>
+        const referralUser = await User.findOne({ user_id: referralCode })
+        if (referralUser) {
+            const user = await User.create({ email, password: hashedPassword, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString(), refferedBy: referralUser.user_id })
+            const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.zoho.com',
+                port: 465,
+                auth: {
+                    user: process.env.EMAIL,
+                    pass: process.env.PASSWORD
+                }
+            })
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to: email,
+                subject: 'Verify your email',
+                html: `<h1>Enter the OTP code to verify your email</h1>
             <h2>OTP: ${otp}</h2>`
-        }
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.log(error)
-            } else {
-                console.log('Email sent: ' + info.response)
             }
-        })
-        res.status(201).json({ message: 'User registered successfully', email: user.email, addresses: user.addresses, firstName: user.firstName, lastName: user.lastName, verified: user.verified, token: token })
-    } catch (error) {
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log(error)
+                } else {
+                    console.log('Email sent: ' + info.response)
+                }
+            })
+            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, token: token })
+
+        } else {
+            const otp = Math.floor(1000 + Math.random() * 9000)
+            const user = await User.create({ email, password: hashedPassword, otp, user_id: otp.toLocaleString(), phoneNumber: otp.toString() })
+            const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+                expiresIn: '12h'
+            })
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.zoho.com',
+                port: 465,
+                auth: {
+                    user: process.env.EMAIL,
+                    pass: process.env.PASSWORD
+                }
+            })
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to: email,
+                subject: 'Verify your email',
+                html: `<h1>Enter the OTP code to verify your email</h1>
+            <h2>OTP: ${otp}</h2>`
+            }
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log(error)
+                } else {
+                    console.log('Email sent: ' + info.response)
+                }
+            })
+            res.status(201).json({ message: 'User registered successfully', email: user.email, addresses: user.addresses, firstName: user.firstName, lastName: user.lastName, verified: user.verified, token: token })
+        }
+    }
+
+    catch (error) {
         res.status(500).json({ error: error.message })
         console.log(error.message)
     }
@@ -149,36 +181,15 @@ const login = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const { phoneNumber, firstName, lastName } = req.body
+        const { phoneNumber } = req.body
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         user.phoneNumber = phoneNumber
-        user.firstName = firstName
-        user.lastName = lastName
         await user.save()
 
-        let options = {
-            method: 'POST',
-            url: 'https://www.quidax.com/api/v1/users',
-            headers: {
-                accept: 'application/json',
-                'content-type': 'application/json',
-                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            }
-        };
-
-        request(options, async function (error, response, body) {
-            if (error) throw new Error(error);
-            if (error) res.send(error);
-            const Body = JSON.parse(body)
-            user.user_id = Body.data.id;
-            await user.save()
-            getWallet(Body.data.id);
-        });
-        res.status(200).json({ message: 'User updated successfully', })
 
     } catch (error) {
         res.status(500).json({ error: error.message })
