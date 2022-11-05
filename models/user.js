@@ -66,10 +66,18 @@ const UserSchema = new mongoose.Schema({
         type: Array,
         default: []
     },
-    referrals: {
-        type: Array,
-        default: []
+    referralCount: {
+        type: Number,
+        default: 0
     },
+    phinBalance: {
+        type: Number,
+        default: 0
+    },
+    referredBy: {
+        type: String,
+        default: null
+    }
 },
     { timestamps: true }
 )

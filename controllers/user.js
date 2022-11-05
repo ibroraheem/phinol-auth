@@ -36,7 +36,7 @@ const register = async (req, res) => {
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
-            const user = await User.create({ email, password: hashedPassword, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString(), refferedBy: referralUser.user_id })
+            const user = await User.create({ email, password: hashedPassword, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString(), referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'smtp.zoho.com',
@@ -149,6 +149,31 @@ const verifyUser = async (req, res) => {
             user.verified = true
             user.otp = null
             await user.save()
+        }
+            const referralUser = await User.findOne({ user_id: user.referredBy })
+            if(user.referredBy){
+                referralUser.referralCount = referralUser.referralCount + 1
+                referralUser.phinBalance = referralUser.phinBalance + 20
+                await referralUser.save()
+                
+                let options = {
+                method: 'POST',
+                url: 'https://www.quidax.com/api/v1/users',
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                }
+            };
+
+            request(options, async function (error, response, body) {
+                if (error) throw new Error(error);
+                if (error) res.send(error);
+                const Body = JSON.parse(body)
+                user.user_id = Body.data.id;
+                await user.save()
+                getWallet(Body.data.id);
+            });
             res.status(200).json({ message: 'User verified' })
         } else {
             res.status(401).json({ message: 'Invalid OTP' })
@@ -172,7 +197,7 @@ const login = async (req, res) => {
         const token = jwt.sign({ email: user.email, verified: user.verified }, process.env.JWT_SECRET, {
             expiresIn: '12h'
         })
-        res.status(200).json({ message: 'Login Successful', email: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, user_id: user.user_id, token: token })
+        res.status(200).json({ message: 'Login Successful', email: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, referralCode: user.user_id, phin: user.phinBalance, token: token })
     } catch (error) {
         res.status(500).json({ error })
         console.log(error.message)
@@ -190,170 +215,10 @@ const updateUser = async (req, res) => {
         user.phoneNumber = phoneNumber
         await user.save()
 
-
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
-
-// const verifyPhoneNumber = async (req, res) => {
-//     const { verificationCode } = req.body
-//     const token = req.headers.authorization.split(' ')[1]
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-//     try {
-//         const user = await User.findOne({ email: decoded.email })
-//         if (!user) return res.status(401).json({ message: 'User not found' })
-//         if(!user.verified) return res.status(401).json({ message: 'Please verify your email first' })
-//         if (user.verificationCode == verificationCode) {
-//             user.phoneVerified = true
-//             user.verificationCode = null
-//             await user.save()
-//             res.status(200).json({ message: 'Phone number verified' })
-//             if (res.ok()) {
-//                 let options = {
-//                     method: 'POST',
-//                     url: 'https://www.quidax.com/api/v1/users',
-//                     headers: {
-//                         accept: 'application/json',
-//                         'content-type': 'application/json',
-//                         Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-//                     },
-//                     body: {
-//                         email: '',
-//                         first_name: user.firstName,
-//                         last_name: user.lastName,
-//                         phone_number: user.phoneNumber,
-//                     },
-//                     json: true
-//                 };
-
-//                 request(options, function (error, response, body) {
-//                     if (error) throw new Error(error);
-//                     user.user_id = body.data.id
-//                     user.save()
-//                 });
-//                 let currency = ['btc', 'eth', 'usdt', 'bnb']
-//                 const length = currency.length
-//                 for (let i = 0; i < length; i++) {
-//                     var url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`
-//                     const options = {
-//                         method: 'POST',
-//                         url: url,
-//                         headers: {
-//                             accept: 'application/json',
-//                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-//                         }
-//                     };
-
-//                     request(options, function (error, response, body) {
-//                         if (error) throw new Error(error);
-//                     });
-//                 }
-//                 if (res.status(200)) {
-//                     const options = {
-//                         method: 'GET',
-//                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
-//                         headers: {
-//                             accept: 'application/json',
-//                             Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
-//                         }
-//                     };
-
-//                     request(options, function (error, response, body) {
-//                         if (error) throw new Error(error);
-//                         const Body = JSON.parse(body);
-//                         let addresses = [];
-//                         let obj = {}
-//                         obj['btc'] = Body.data[3].deposit_address
-//                         obj['usdt'] = Body.data[4].deposit_address
-//                         obj['eth'] = Body.data[7].deposit_address
-//                         obj['bnb'] = Body.data[8].deposit_address
-//                         addresses.push(obj)
-//                         user.addresses = addresses
-//                         user.save()
-//                     });
-//                 }
-//             }
-//         } else {
-//             res.status(401).json({ message: 'Invalid verification code' })
-//         }
-
-//     } catch (error) {
-//         res.status(500).json({ error: error.message })
-//     }
-// }
-// const createWallet = async (req, res) => {
-//     try {
-//         const token = req.headers.authorization.split(' ')[1]
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-//         const email = decoded.email
-//         const user = await User.findOne({ email })
-//         if (!user) return res.status(401).json({ message: 'User not found' })
-
-//         let options = {
-//             method: 'POST',
-//             url: 'https://www.quidax.com/api/v1/users',
-//             headers: {
-//                 accept: 'application/json',
-//                 'content-type': 'application/json',
-//                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-//             },
-//             body: {
-//                 email: '',
-//                 first_name: user.firstName,
-//                 last_name: user.lastName,
-//                 phone_number: user.phoneNumber,
-//             },
-//             json: true
-//         };
-
-//         request(options, function (error, response, body) {
-//             if (error) throw new Error(error);
-//             user.user_id = body.data.id
-//             user.save()
-//         });
-//         let currency = ['btc', 'eth', 'usdt', 'bnb']
-//         const length = currency.length
-//         for (let i = 0; i < length; i++) {
-//             var url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`
-//             const options = {
-//                 method: 'POST',
-//                 url: url,
-//                 headers: {
-//                     accept: 'application/json',
-//                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-//                 }
-//             };
-
-//             request(options, function (error, response, body) {
-//                 if (error) throw new Error(error);
-//             });
-//         }
-//         if (res.status(200)) {
-//             for (let i = 0; i < length; i++) {
-//                 url = `https://www.quidax/api/v1/users/${user.user_id}/wallets/`
-//                 const options = {
-//                     method: 'GET',
-//                     url: url,
-//                     headers: {
-//                         accept: 'application/json',
-//                         Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-//                     },
-
-//                 }
-//                 request(options, function (error, response, body) {
-//                     if (error) throw new Error(error);
-//                     user.addresses = [];
-//                     user.addresses.push({ Currency: `${body.data.currency}`, Address: `${body.data.address}` })
-
-//                 });
-//             }
-//         }
-
-//     } catch (error) {
-//         res.status(500).json({ error: error.message })
-//     }
-// }
 
 const forgotPassword = async (req, res) => {
     try {
