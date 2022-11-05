@@ -50,6 +50,8 @@ const buy = async (req, res,) => {
                     console.log(error);
                 }
                 console.log(body);
+                user.trade_ids.push(body.data.id)
+                user.save()
                 if (body.status !== "success") return res.status(400).json({ message: body.message });
                 if (body.status === 'success') {
                     setTimeout(() => {
@@ -84,6 +86,8 @@ const buy = async (req, res,) => {
                                             res.status(400).json({ error: error.message })
                                         }
                                         console.log(body);
+                                        user.trade_ids.push(body.data.id)
+                                        user.save()
                                         if (body.status === 'success') {
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
