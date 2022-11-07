@@ -2,7 +2,7 @@ const User = require('../models/user')
 const Streak = require('../models/streak')
 const jwt = require('jsonwebtoken')
 
-export const reward = async (req, res) => {
+const reward = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const user = await User.findById(decoded.id)
@@ -29,4 +29,6 @@ export const reward = async (req, res) => {
         res.json({ message: 'You have not completed the streak' })
     }
 }
+
+module.exports = {reward}
 
