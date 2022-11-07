@@ -308,10 +308,9 @@ const viewWalletBalance = async (req, res) => {
             
             res.status(200).json({
                 BTC: JSON.parse(body).data[3].balance,
-                ETH: JSON.parse(body)[7].balance,
-                USDT: JSON.parse(body)[4].balance,
-                BNB: JSON.parse(body)[8].balance
-
+                USDT: JSON.parse(body).data[4].balance,
+                ETH: JSON.parse(body).data[7].balance,
+                BNB: JSON.parse(body).data[8].balance
             })
         });
     } catch (error) {
