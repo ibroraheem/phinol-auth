@@ -23,8 +23,8 @@ const google = async (req, res) => {
             return res.status(200).json({ message: 'User Signed up via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, token: token })
         }
     } catch (error) {
-        res.status(500).json({ error: error.message })
         console.log(error.message)
+        res.status(500).json({ error: error.message })
     }
 }
 
@@ -36,7 +36,7 @@ const register = async (req, res) => {
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
-            const user = await User.create({ email, password: hashedPassword, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString(), referredBy: referralCode })
+            const user = await User.create({ email, password: hashedPassword, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), username: `${email.split('@')[0]}`, user_id: Math.floor(1000 + Math.random() * 9000).toString(), referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'smtp.zoho.com',
@@ -60,7 +60,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username,  addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000)
@@ -182,8 +182,8 @@ const login = async (req, res) => {
         })
         res.status(200).json({ message: 'Login Successful', email: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, user_id: user.user_id, token: token })
     } catch (error) {
-        res.status(500).json({ error })
-        console.log(error.message)
+        console.log(error)
+        res.status(500).json({ error: error.message })
     }
 }
 
