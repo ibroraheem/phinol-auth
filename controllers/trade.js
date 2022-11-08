@@ -6,7 +6,8 @@ require('dotenv').config()
 const buy = async (req, res,) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
-        const { amount, conversion, market } = req.body
+        const { amount, conversion, market, dollarvValue } = req.body
+        if(dollarvValue < 12) return res.status(400).json({ message: 'Minimum trade amount is $12' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
@@ -30,7 +31,13 @@ const buy = async (req, res,) => {
                     res.status(400).json({ error: error.message })
                 }
                 console.log(body);
-                res.status(200).json({ message: 'Trade Successful' })
+                if (body.status === "success") {
+                    user.phinBalance = amount / 100
+                    user.save()
+                    res.status(200).json({ message: 'Trade Successful' })
+                } else {
+                    res.status(400).json({ message: body.message })
+                }
             });
         } else {
             const options = {
@@ -89,6 +96,8 @@ const buy = async (req, res,) => {
                                         user.trade_ids.push(body.data.id)
                                         user.save()
                                         if (body.status === 'success') {
+                                            user.phinBalance = dollarvValue / 100;
+                                            user.save();
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
                                             res.status(400).json({ error: body.message })
@@ -109,7 +118,8 @@ const buy = async (req, res,) => {
 const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
-        const { amount, conversion, market } = req.body
+        const { amount, conversion, market, dollarvValue } = req.body
+        if (dollarvValue < 12) return res.status(400).json({ message: 'Minimum trade amount is $12' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
@@ -133,6 +143,8 @@ const sell = async (req, res) => {
                     res.status(400).json({ error: error.message })
                 }
                 console.log(body);
+                user.phinBalance = conversion / 100
+                user.save()
                 res.status(200).json({ message: 'Trade Successful' })
             });
         } else {
@@ -188,6 +200,8 @@ const sell = async (req, res) => {
                                         }
                                         console.log(body);
                                         if (body.status === 'success') {
+                                            user.phinBalance = dollarvValue / 100;
+                                            user.save();
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
                                             res.status(400).json({ error: body.message })
