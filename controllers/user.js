@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const User = require('../models/user')
 const request = require('request')
-
+const speakeasy = require('speakeasy')
+const QRCode = require('qrcode')
 
 
 const google = async (req, res) => {
@@ -60,7 +61,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username,  addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000)
@@ -90,7 +91,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            res.status(201).json({ message: 'User registered successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+            res.status(201).json({ message: 'User registered successfully', email: user.email, firstName: user.firstName, tfaEnabled: user._2faEnabled, lastName: user.lastName, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
         }
     }
 
@@ -166,7 +167,7 @@ const verifyUser = async (req, res) => {
     }
 }
 
-const login = async (req, res) => { 
+const login = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await User.findOne({ email })
@@ -174,7 +175,7 @@ const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' })
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-        res.status(200).json({ message: 'User logged in', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+        res.status(200).json({ message: 'User logged in', email: user.email, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, username: user.username, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -341,6 +342,90 @@ const saveWallet = async (req, res) => {
     }
 }
 
+const generateOTP = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const { ascii, hex, base32, otpauth_url } = speakeasy.generateSecret({ issuer: 'Phinol', name: user.username, length: 20 })
+        QRCode.toDataURL(otpauth_url, function (err, data_url) {
+            user.otp_secret = ascii
+            user.hex = hex
+            user.base32 = base32
+            user.save()
+            res.status(200).json({ message: 'OTP generated successfully', otpauth_url, data_url })
+        })
+
+        } catch (error) {
+            res.status(500).json({ error: error.message })
+        }
+    }
+
+const verifyOTP = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const { token: token2 } = req.body
+        const verified = speakeasy.totp.verify({
+            secret: user.otp_secret,
+            encoding: 'ascii',
+            token: token2
+        })
+        if (verified) {
+            user._2faEnabled = true
+            user.save()
+            res.status(200).json({ message: 'OTP verified successfully' })
+        } else {
+            res.status(401).json({ message: 'OTP verification failed' })
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const validateOTP = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const { token: token2 } = req.body
+        const verified = speakeasy.totp.verify({
+            secret: user.otp_secret,
+            encoding: 'ascii',
+            token: token2
+        })
+        if (verified) {
+            res.status(200).json({ message: 'OTP verified successfully' })
+        } else {
+            res.status(401).json({ message: 'OTP verification failed' })
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const disableOTP = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        user._2faEnabled = false
+        user.save()
+        res.status(200).json({ message: 'OTP disabled successfully' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
 
-module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses }
+
+module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, disableOTP, validateOTP, verifyOTP }

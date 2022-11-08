@@ -84,6 +84,22 @@ const UserSchema = new mongoose.Schema({
     referredBy: {
         type: String,
         default: null
+    },
+    _2faEnabled: {
+    type: Boolean,
+    default: false
+    },
+    otpauth_url: {
+        type: String,
+    },
+    otp_ascii: {
+        type: String,
+    },
+    otp_base32: {
+        type: String,
+    },
+    otp_hex: {
+        type: String,
     }
 },
     { timestamps: true }
