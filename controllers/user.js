@@ -166,23 +166,16 @@ const verifyUser = async (req, res) => {
     }
 }
 
-const login = async (req, res) => {
+const login = async (req, res) => { 
     try {
         const { email, password } = req.body
         const user = await User.findOne({ email })
-        if (!user) {
-            res.status(404).json({ error: 'User not found' })
-        }
-        const passwordIsValid = bcrypt.compareSync(password, user.password)
-        if (!passwordIsValid) {
-            res.status(401).json({ error: 'Invalid password' })
-        }
-        const token = jwt.sign({ email: user.email, verified: user.verified }, process.env.JWT_SECRET, {
-            expiresIn: '12h'
-        })
-        res.status(200).json({ message: 'Login Successful', email: user.email, verified: user.verified, addresses: user.addresses, phoneNumber: user.phoneNumber, firstName: user.firstName, lastName: user.lastName, user_id: user.user_id, token: token })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' })
+        const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '12h' })
+        res.status(200).json({ message: 'User logged in', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } catch (error) {
-        console.log(error)
         res.status(500).json({ error: error.message })
     }
 }
