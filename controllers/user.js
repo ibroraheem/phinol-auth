@@ -279,16 +279,10 @@ const viewWalletBalance = async (req, res) => {
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
         };
-
-        request(options, function (error, response, body) {
+        request(options, function (error, response) {
             if (error) throw new Error(error);
-            
-            res.status(200).json({
-                BTC: JSON.parse(body).data[3].balance,
-                USDT: JSON.parse(body).data[4].balance,
-                ETH: JSON.parse(body).data[7].balance,
-                BNB: JSON.parse(body).data[8].balance
-            })
+            const Body = JSON.parse(response.body)
+            res.status(200).json({ message: 'Wallet balance fetched successfully', BTC: Body.data[3].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance, USDT: Body.data[4].balance })
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
