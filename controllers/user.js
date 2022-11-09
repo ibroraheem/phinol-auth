@@ -146,13 +146,13 @@ const verifyUser = async (req, res) => {
         email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const otp = req.body
-        if (user.otp === otp) {
+        const otp = req.body.otp
+        if (user.otp == otp) {
             user.verified = true
             await user.save()
             res.status(200).json({ message: 'User verified' })
         } else {
-            res.status(400).json({ message: 'Invalid OTP' })
+            res.status(400).json({ message: 'OTP is incorrect' })
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
