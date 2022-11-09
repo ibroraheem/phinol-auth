@@ -166,14 +166,36 @@ const verifyUser = async (req, res) => {
             }
             request(options, (error, response) => {
                 if (error) throw new Error(error)
-                user.user_id = response.body.data.id
-                user.save()
-                if (isReferral) {
-                    isReferral.referralCount += 1
-                    isReferral.phinBalance += 20
-                    isReferral.save()
+                if (response.body.message === "success") {
+                    user.user_id = response.body.data.id
+                    user.save()
+                    const currency = ['btc', 'eth', 'bnb', 'usdt']
+                    currency.forEach(async (item) => {
+                        const options = {
+                            method: 'POST',
+                            url: `https://www.quidax.com/api/v1/wallets`,
+                            headers: {
+                                accept: 'application/json',
+                                'content-type': 'application/json',
+                                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                            },
+                        }
+                        request(options, (error, response) => {
+                            if (error) throw new Error(error)
+                            if (response.body.message === "success") {
+                                if (isReferral) {
+                                    isReferral.referralCount += 1
+                                    isReferral.phinBalance += 20
+                                    isReferral.save()
+                                    res.status(200).json({ message: 'User verified successfully', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+                                } else {
+                                    res.status(200).json({ message: 'User verified successfully', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+                                }
+                            }
+                        })
+                    })
+
                 }
-                res.status(200).json({ message: 'User verified successfully', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
             })
         } else {
             res.status(400).json({ message: 'OTP is incorrect' })
@@ -191,7 +213,7 @@ const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' })
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-        res.status(200).json({ message: 'User logged in', email: user.email, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, username: user.username, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+        res.status(200).json({ message: 'User logged in', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, username: user.username, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
