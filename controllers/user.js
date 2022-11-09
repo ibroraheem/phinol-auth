@@ -144,10 +144,10 @@ const verifyUser = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
+        const { otp } = req.body
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const { otp } = req.body
-        if (user.otp == otp) {
+        if (user.otp === otp) {
             user.verified = true
             user.otp = null
             await user.save()
@@ -166,8 +166,8 @@ const verifyUser = async (req, res) => {
             }
             request(options, (error, response) => {
                 if (error) throw new Error(error)
-                const Body = JSON.parse(response.body)
-                user.user_id = Body.data.id
+              
+                user.user_id = response.body.data.id
                 user.save()
                 if (Body.message === 'success') {
                     const currency = ['btc', 'eth', 'bnb', 'usdt']
