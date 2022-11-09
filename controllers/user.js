@@ -171,6 +171,7 @@ const verifyUser = async (req, res) => {
                 isReferral.referralCount += 1
                 isReferral.phinBalance += 20
                 isReferral.save()
+                getWallet(user.user_id)
                 res.status(200).send({email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token})
             })
         }
@@ -298,6 +299,24 @@ const viewAddresses = async (req, res) => {
         res.status(200).json({ message: 'Addresses retrieved', address: user.addresses })
     } catch (error) {
         res.status(500).json({ error: error.message })
+    }
+}
+
+const getWallet = async (user_id) => {
+    let currency = ['btc', 'eth', 'usdt', 'bnb']
+    const length = currency.length
+    for (let i = 0; i < length; i++) {
+        const options = {
+            method: 'POST',
+            url: `https://www.quidax.com/api/v1/users/${user_id}/wallets/${currency[i]}/addresses`,
+            headers: {
+                accept: 'application/json',
+                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+            }
+        };
+        request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+        });
     }
 }
 
