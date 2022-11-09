@@ -65,7 +65,7 @@ const register = async (req, res) => {
             return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
 
         } else {
-            const otp = Math.floor(1000 + Math.random() * 9000)
+            const otp = Math.floor(1000 + Math.random() * 9000).toString()
             const user = await User.create({ email, password: hashedPassword, otp, user_id: otp.toLocaleString(), phoneNumber: otp.toString() })
             const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
                 expiresIn: '12h'
