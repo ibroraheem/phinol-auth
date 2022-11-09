@@ -145,7 +145,7 @@ const verifyUser = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
         const user = await User.findOne({ email })
-        const isReferral = await User.findOne({ user_id: referredBy })
+        const isReferral = await User.findOne({ user_id: user.referredBy })
         const otp = req.body.otp
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (user.otp == otp) {
