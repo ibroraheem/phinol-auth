@@ -144,56 +144,13 @@ const verifyUser = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
-        const { otp } = req.body
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        const otp = req.body
         if (user.otp === otp) {
             user.verified = true
-            user.otp = null
             await user.save()
-            const options = {
-                method: 'POST',
-                url: `https://www.quidax.com/api/v1/users`,
-                headers: {
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                },
-                body: {
-                    email: user.phinolMail
-                },
-                json: true
-            }
-            request(options, (error, response) => {
-                if (error) throw new Error(error)
-              
-                user.user_id = response.body.data.id
-                user.save()
-                if (Body.message === 'success') {
-                    const currency = ['btc', 'eth', 'bnb', 'usdt']
-                    currency.forEach(async (item) => {
-                        const options = {
-                            method: 'POST',
-                            url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/${item}/addresses`,
-                            headers: {
-                                accept: 'application/json',
-                                'content-type': 'application/json',
-                                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                            },
-                        }
-                        request(options, (error, response) => {
-                            if (error) throw new Error(error)
-                            const Body = JSON.parse(response.body)
-                            if (Body.message === 'success') {
-                                user.addresses.push({ currency: item, address: Body.data.address })
-                                user.save()
-                                res.status(200).json({ message: 'User verified successfully', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
-                            }
-                        })
-                    })
-                }
-            })
-            
+            res.status(200).json({ message: 'User verified' })
         } else {
             res.status(400).json({ message: 'Invalid OTP' })
         }
