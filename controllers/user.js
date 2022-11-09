@@ -167,7 +167,7 @@ const verifyUser = async (req, res) => {
                 if (error) throw new Error(error)
                 user.user_id = response.body.data.id
                 user.save()
-                if (Body.message === 'success') {
+                if (response.body.message === 'success') {
                     const currency = ['btc', 'eth', 'bnb', 'usdt']
                     currency.forEach(async (item) => {
                         const options = {
