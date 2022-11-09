@@ -164,3 +164,24 @@ request(options, function (error, response, body) {
 
 
 const parentID = xc57w34g
+
+const options = {
+    method: 'POST',
+    url: `https://www.quidax.com/api/v1/users`,
+    headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+    },
+    body: {
+        email: user.phinolMail
+    },
+    json: true
+}
+request(options, (error, response) => {
+    if (error) throw new Error(error)
+    const Body = JSON.parse(response.body)
+    user.user_id = Body.data.id
+    user.save()
+    res.status(200).json({ message: "User verified successfully" })
+})

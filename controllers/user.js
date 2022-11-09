@@ -6,6 +6,7 @@ const User = require('../models/user')
 const request = require('request')
 const speakeasy = require('speakeasy')
 const QRCode = require('qrcode')
+const json = require('body-parser/lib/types/json')
 
 
 const google = async (req, res) => {
@@ -140,27 +141,61 @@ const resendOTP = async (req, res) => {
 }
 const verifyUser = async (req, res) => {
     try {
-        const { otp } = req.body
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        const { otp } = req.body
         if (user.otp == otp) {
             user.verified = true
             user.otp = null
-            if (user.refferedBy) {
-                const referralUser = await User.findOne({ user_id: user.refferedBy })
-                referralUser.referralCount = referralUser.referralCount + 1
-                referalUser.phinBalance = referralUser.phinBalance + 20
-                await referralUser.save()
-                await user.save()
-            } else {
-                await user.save()
-                res.status(200).json({ message: 'User verified' })
+            await user.save()
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: {
+                    email: user.phinolMail
+                },
+                json: true
             }
+            request(options, (error, response) => {
+                if (error) throw new Error(error)
+                const Body = JSON.parse(response.body)
+                user.user_id = Body.data.id
+                user.save()
+                if (Body.message === 'success') {
+                    const currency = ['btc', 'eth', 'bnb', 'usdt']
+                    currency.forEach(async (item) => {
+                        const options = {
+                            method: 'POST',
+                            url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/${item}/addresses`,
+                            headers: {
+                                accept: 'application/json',
+                                'content-type': 'application/json',
+                                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                            },
+                        }
+                        request(options, (error, response) => {
+                            if (error) throw new Error(error)
+                            const Body = JSON.parse(response.body)
+                            if (Body.message === 'success') {
+                                user.addresses.push({ currency: item, address: Body.data.address })
+                                user.save()
+                                res.status(200).json({ message: 'User verified successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+                            }
+                        })
+                    })
+                }
+            })
+            
         } else {
-            res.status(401).json({ message: 'Invalid OTP' })
+            res.status(400).json({ message: 'Invalid OTP' })
         }
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -181,22 +216,7 @@ const login = async (req, res) => {
     }
 }
 
-const updateUser = async (req, res) => {
-    try {
-        const { phoneNumber } = req.body
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        email = decoded.email
-        const user = await User.findOne({ email })
-        if (!user) return res.status(401).json({ message: 'User not found' })
-        user.phoneNumber = phoneNumber
-        await user.save()
 
-
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
-}
 
 const forgotPassword = async (req, res) => {
     try {
@@ -283,7 +303,7 @@ const viewWalletBalance = async (req, res) => {
         request(options, function (error, response) {
             if (error) throw new Error(error);
             const Body = JSON.parse(response.body)
-            res.status(200).json({ message: 'Wallet balance fetched successfully', BTC: Body.data[3].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance, USDT: Body.data[4].balance })
+            res.status(200).json({ message: 'Wallet balance fetched successfully', BTC: Body.data[3], ETH: Body.data[7], BNB: Body.data[8], USDT: Body.data[4] })
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -358,10 +378,10 @@ const generateOTP = async (req, res) => {
             res.status(200).json({ message: 'OTP generated successfully', otpauth_url, data_url })
         })
 
-        } catch (error) {
-            res.status(500).json({ error: error.message })
-        }
+    } catch (error) {
+        res.status(500).json({ error: error.message })
     }
+}
 
 const verifyOTP = async (req, res) => {
     try {
@@ -428,4 +448,4 @@ const disableOTP = async (req, res) => {
 
 
 
-module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, updateUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, disableOTP, validateOTP, verifyOTP }
+module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, disableOTP, validateOTP, verifyOTP }

@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, verifyUser, saveWallet, changePassword, updateUser, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP } = require('../controllers/user');
+const { register, login, verifyUser, saveWallet, changePassword, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP } = require('../controllers/user');
 const { validateAddress, sendCrypto } = require('../controllers/send');
 const { getDeposit, getDeposits } = require('../controllers/deposit')
 const {reward} = require('../controllers/streak')
 router.post('/register', register);
 router.post('/login', login);
 router.post('/verify-user/', verifyUser);
-router.patch('/update-user/', updateUser);
+
 // router.post('/verify-phone-number/', verifyPhoneNumber);`
 router.post('/resend-otp/', resendOTP);
 router.post('/google', google);
