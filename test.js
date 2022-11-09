@@ -185,3 +185,16 @@ request(options, (error, response) => {
     user.save()
     res.status(200).json({ message: "User verified successfully" })
 })
+
+
+ const currency = ['btc', 'eth', 'bnb', 'usdt']
+                    currency.forEach(async (item) => {
+                        const options = {
+                            method: 'POST',
+                            url: `https://www.quidax.com/api/v1/wallets`,
+                            headers: {
+                                accept: 'application/json',
+                                'content-type': 'application/json',
+                                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                            },
+                        }
