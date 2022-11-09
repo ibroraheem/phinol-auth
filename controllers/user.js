@@ -145,8 +145,9 @@ const verifyUser = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
         const user = await User.findOne({ email })
-        if (!user) return res.status(401).json({ message: 'User not found' })
+        const isReferral = await User.findOne({ user_id: referredBy })
         const otp = req.body.otp
+        if (!user) return res.status(401).json({ message: 'User not found' })
         if (user.otp == otp) {
             user.verified = true
             await user.save()
@@ -167,6 +168,11 @@ const verifyUser = async (req, res) => {
                 if (error) throw new Error(error)
                 user.user_id = response.body.data.id
                 user.save()
+                if (isReferral) {
+                    isReferral.referralCount += 1
+                    isReferral.phinBalance += 20
+                    isReferral.save()
+                }
                 res.status(200).json({ message: 'User verified successfully', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
             })
         } else {
