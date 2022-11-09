@@ -41,7 +41,7 @@ const UserSchema = new mongoose.Schema({
         type: Number,
     },
     otp: {
-        type: Number
+        type: String
     },
     verificationCode: {
         type: Number
