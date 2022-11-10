@@ -7,11 +7,12 @@ const buy = async (req, res,) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market, dollarvValue } = req.body
-        if(dollarvValue < 12) return res.status(400).json({ message: 'Minimum trade amount is $12' })
+        if (dollarvValue < 12) return res.status(400).json({ message: 'Minimum trade amount is $12' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         if (market.split('-')[1] === 'usdt') {
             const options = {
                 method: 'POST',
@@ -124,6 +125,7 @@ const sell = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         if (market.split('-')[1] === 'usdt') {
             const options = {
                 method: 'POST',

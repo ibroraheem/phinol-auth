@@ -38,7 +38,7 @@ const register = async (req, res) => {
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
-            const user = await User.create({ email, password: hashedPassword, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), username: `${email.split('@')[0]}`, user_id: Math.floor(1000 + Math.random() * 9000).toString(), referredBy: referralCode })
+            const user = await User.create({ email, password: hashedPassword,  username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'smtp.zoho.com',
@@ -66,7 +66,7 @@ const register = async (req, res) => {
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
-            const user = await User.create({ email, password: hashedPassword, otp, user_id: otp.toLocaleString(), phoneNumber: otp.toString() })
+            const user = await User.create({ email, password: hashedPassword, otp, phoneNumber: otp.toString() })
             const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
                 expiresIn: '12h'
             })
@@ -270,6 +270,7 @@ const viewWalletBalance = async (req, res) => {
         const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (!user.verified) return res.status(401).json({ message: 'User not verified' })
+        if(!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet'})
         const options = {
             method: 'GET',
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,

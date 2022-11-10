@@ -57,7 +57,6 @@ const UserSchema = new mongoose.Schema({
 
     user_id: {
         type: String,
-        
     },
     phinolMail: {
         type: String,
