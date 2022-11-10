@@ -351,7 +351,7 @@ const saveWallet = async (req, res) => {
             obj['BTC'] = Body.data[2].deposit_address
             obj['ETH'] = Body.data[6].deposit_address
             obj['BNB'] = Body.data[7].deposit_address
-            obj['USDT'] = Body.data[6].deposit_address
+            obj['USDT'] = Body.data[3].deposit_address
             addresses.push(obj)
             user.addresses = addresses
             user.save()
