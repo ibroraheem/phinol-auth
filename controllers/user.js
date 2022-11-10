@@ -38,6 +38,7 @@ const register = async (req, res) => {
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
+            const otp = Math.floor(1000 + Math.random() * 9000).toString()
             const user = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}`, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
@@ -192,7 +193,7 @@ const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' })
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-        res.status(200).json({ message: 'User logged in', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, username: user.username, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+        res.status(200).json({ message: 'User logged in', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
