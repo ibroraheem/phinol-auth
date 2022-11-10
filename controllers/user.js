@@ -342,16 +342,13 @@ const saveWallet = async (req, res) => {
 
         request(options, function (error, response) {
             if (error) throw new Error(error);
-
             let addresses = [];
             const obj = {}
             obj['btc'] = response.body.data[3].deposit_address
             obj['usdt'] = response.body.data[4].deposit_address
             obj['eth'] = response.body.data[7].deposit_address
             obj['bnb'] = response.body.data[8].deposit_address
-            addresses.push(obj)
-            user.addresses = addresses
-            user.save();
+            
             addresses.push(obj)
             user.addresses = addresses
             user.save();
