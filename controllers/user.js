@@ -173,8 +173,8 @@ const verifyUser = async (req, res) => {
                         referralUser.referralCount += 1
                         referralUser.phinBalance += 20
                         referralUser.save()
+                        res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
                     }
-                    res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
                 } else {
                     res.status(500).send({ message: 'Error creating wallet' })
                 }
