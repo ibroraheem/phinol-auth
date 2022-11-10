@@ -342,7 +342,7 @@ const saveWallet = async (req, res) => {
 
         request(options, function (error, response) {
             if (error) throw new Error(error);
-            const Body = JSON.parse(response.body)
+            const Body = response.body
             let addresses = [];
             const obj = {}
             obj['btc'] = Body.data[3].deposit_address
