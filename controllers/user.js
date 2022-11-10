@@ -281,6 +281,7 @@ const viewWalletBalance = async (req, res) => {
         request(options, function (error, response) {
             if (error) throw new Error(error);
             const Body = JSON.parse(response.body)
+            console.log({ message: 'Wallet balance fetched successfully', BTC: Body.data[3].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance, USDT: Body.data[4].balance })
             res.status(200).json({ message: 'Wallet balance fetched successfully', BTC: Body.data[3].balance, ETH: Body.data[7].balance, BNB: Body.data[8].balance, USDT: Body.data[4].balance })
         });
     } catch (error) {
@@ -367,11 +368,13 @@ const generateOTP = async (req, res) => {
         if (!user) return res.status(401).json({ message: 'User not found' })
         const { ascii, hex, base32, otpauth_url } = speakeasy.generateSecret({ issuer: 'Phinol', name: user.username, length: 20 })
         QRCode.toDataURL(otpauth_url, function (err, data_url) {
-            user.otp_secret = ascii
+            user.otp_ascii = ascii
             user.hex = hex
+            user.otp_auth_url = otpauth_url
             user.base32 = base32
+            user.qr_code = data_url
             user.save()
-            res.status(200).json({ message: 'OTP generated successfully', otpauth_url, data_url })
+            res.status(200).json({ message: 'OTP generated successfully', base32, otpauth_url, data_url })
         })
 
     } catch (error) {
@@ -381,24 +384,21 @@ const generateOTP = async (req, res) => {
 
 const verifyOTP = async (req, res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const code = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(code, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const { token: token2 } = req.body
+        const { token } = req.body
         const verified = speakeasy.totp.verify({
-            secret: user.otp_secret,
-            encoding: 'ascii',
-            token: token2
+            secret: user.otp_ascii,
+            encoding: 'base32',
+            token: token
         })
-        if (verified) {
-            user._2faEnabled = true
-            user.save()
-            res.status(200).json({ message: 'OTP verified successfully' })
-        } else {
-            res.status(401).json({ message: 'OTP verification failed' })
-        }
+        if (!verified) return res.status(401).json({ message: 'Invalid Token' })
+        user._2faEnabled = true
+        user.save()
+        res.status(200).json({ message: '2FA enabled successfully', verified: user._2faEnabled })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

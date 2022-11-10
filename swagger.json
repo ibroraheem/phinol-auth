@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://malhub.herokuapp.com"
+      "url": "http://localhost:3000/"
     }
   ],
   "paths": {
@@ -44,10 +44,10 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   },
                   "password": {
-                    "example": "@1237hgg"
+                    "example": "any"
                   }
                 }
               }
@@ -81,10 +81,10 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   },
                   "password": {
-                    "example": "@1237hgg"
+                    "example": "any"
                   }
                 }
               }
@@ -115,7 +115,7 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   }
                 }
               }
@@ -149,13 +149,13 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   },
                   "passwordResetToken": {
                     "example": "any"
                   },
                   "newPassword": {
-                    "example": "@1237hgg"
+                    "example": "any"
                   }
                 }
               }
@@ -169,6 +169,9 @@
         "description": "",
         "parameters": [],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "201": {
             "description": "Created"
           },
@@ -186,10 +189,13 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   },
                   "password": {
-                    "example": "@1237hgg"
+                    "example": "any"
+                  },
+                  "referralCode": {
+                    "example": "any"
                   }
                 }
               }
@@ -209,9 +215,6 @@
           "401": {
             "description": "Unauthorized"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -223,10 +226,10 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   },
                   "password": {
-                    "example": "@1237hgg"
+                    "example": "any"
                   }
                 }
               }
@@ -266,51 +269,6 @@
                 "properties": {
                   "otp": {
                     "example": "any"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/update-user/": {
-      "patch": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "phoneNumber": {
-                    "example": "09000000000"
-                  },
-                  "firstName": {
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "example": "Doe"
                   }
                 }
               }
@@ -363,16 +321,16 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   },
                   "firstName": {
-                    "example": "John"
+                    "example": "any"
                   },
                   "lastName": {
-                    "example": "Doe"
+                    "example": "any"
                   },
                   "password": {
-                    "example": "@1237hgg"
+                    "example": "any"
                   }
                 }
               }
@@ -403,7 +361,7 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "example": "abc@exmaple.com"
+                    "example": "any"
                   }
                 }
               }
@@ -434,7 +392,7 @@
                 "type": "object",
                 "properties": {
                   "password": {
-                    "example": "@1237hgg"
+                    "example": "any"
                   },
                   "passwordResetToken": {
                     "example": "any"
@@ -568,10 +526,10 @@
                 "type": "object",
                 "properties": {
                   "address": {
-                    "example": "0x0000000000000000000000000000000000000000"
+                    "example": "any"
                   },
                   "currency": {
-                    "example": "ETH"
+                    "example": "any"
                   }
                 }
               }
@@ -668,6 +626,199 @@
         }
       }
     },
+    "/daily-reward": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/send-crypto": {
+      "post": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currency": {
+                    "example": "any"
+                  },
+                  "amount": {
+                    "example": "any"
+                  },
+                  "to": {
+                    "example": "any"
+                  },
+                  "narration": {
+                    "example": "any"
+                  },
+                  "note": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/generate-otp": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/verify-otp": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validate-otp": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/disable-otp": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/buy": {
       "post": {
         "description": "",
@@ -689,9 +840,6 @@
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         },
         "requestBody": {
@@ -700,10 +848,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "amount": {
+                    "example": "any"
+                  },
+                  "conversion": {
+                    "example": "any"
+                  },
                   "market": {
                     "example": "any"
                   },
-                  "amount": {
+                  "dollarvValue": {
                     "example": "any"
                   }
                 }
@@ -734,9 +888,6 @@
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         },
         "requestBody": {
@@ -748,7 +899,13 @@
                   "amount": {
                     "example": "any"
                   },
+                  "conversion": {
+                    "example": "any"
+                  },
                   "market": {
+                    "example": "any"
+                  },
+                  "dollarvValue": {
                     "example": "any"
                   }
                 }

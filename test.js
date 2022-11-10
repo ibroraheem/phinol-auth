@@ -180,7 +180,7 @@ const options = {
 }
 request(options, (error, response) => {
     if (error) throw new Error(error)
-    const Body = JSON.parse(response.body)
+    const Body = JSON.parse(response.body)   
     user.user_id = Body.data.id
     user.save()
     res.status(200).json({ message: "User verified successfully" })

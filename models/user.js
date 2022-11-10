@@ -89,7 +89,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false
     },
-    otpauth_url: {
+    otp_auth_url: {
         type: String,
     },
     otp_ascii: {
@@ -100,6 +100,13 @@ const UserSchema = new mongoose.Schema({
     },
     otp_hex: {
         type: String,
+    },
+    qr_code: {
+        type: String,
+    },
+    access: {
+        type: Boolean,
+        default: true
     }
 },
     { timestamps: true }
