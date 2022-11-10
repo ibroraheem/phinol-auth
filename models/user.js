@@ -21,10 +21,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: " "
     },
-    phoneNumber: {
-        type: String,
-
-    },
     username: {
         type: String,
     },
@@ -45,10 +41,6 @@ const UserSchema = new mongoose.Schema({
     },
     verificationCode: {
         type: Number
-    },
-    phoneVerified: {
-        type: Boolean,
-        default: false
     },
     addresses: {
         type: Array,

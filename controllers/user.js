@@ -38,7 +38,7 @@ const register = async (req, res) => {
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
-            const user = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() *1000)}`, username: `${email.split('@')[0]}`, referredBy: referralCode })
+            const user = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}`, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'smtp.zoho.com',
@@ -66,7 +66,7 @@ const register = async (req, res) => {
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
-            const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `{$email.split('@')[0]}${Math.random() * 1000}`, user_id: `${Math.floor(1000 + Math.random() * 100)}` })
+            const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() * 100)}@phinol.com`, username: `${email.split('@')[0]}`})
             const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
                 expiresIn: '12h'
             })
@@ -145,6 +145,7 @@ const verifyUser = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
         const user = await User.findOne({ email })
+        const referralUser = await User.findOne({ user_id: user.referredBy })
         const otp = req.body.otp
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (user.otp == otp) {
@@ -158,17 +159,24 @@ const verifyUser = async (req, res) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: {
-                    email: user.phinolMail
-                },
+                body: { email: user.phinolMail },
                 json: true
             }
-            request(options, (error, response) => {
+            request(options, (error, response, body) => {
                 if (error) throw new Error(error)
-                user.user_id = response.body.data.user_id
-                user.save()
-                getWallet(user.user_id)
-                res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+                if (body.status == 'success') {
+                    user.user_id = body.data.id
+                    user.save()
+                    getWallet(user.user_id)
+                    if (referralUser) {
+                        referralUser.referralCount += 1
+                        referralUser.phinBalance += 20
+                        referralUser.save()
+                    }
+                    res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                } else {
+                    res.status(500).send({ message: 'Error creating wallet' })
+                }
             })
         }
     } catch (error) {
@@ -335,22 +343,20 @@ const saveWallet = async (req, res) => {
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
         };
-
-        request(options, function (error, response) {
+        request(options, function (error, response, body) {
             if (error) throw new Error(error);
-            let addresses = [];
+            const Body = JSON.parse(body)
+            let addresses = []
             const obj = {}
-            const Body = JSON.parse(response.body)
-            const length = Body.data.length
-            for (let i = 0; i < length; i++) {
-                obj[Body.data[i].currency] = Body.data[i].address
-            }
+            obj['BTC'] = Body.data[2].deposit_address
+            obj['ETH'] = Body.data[6].deposit_address
+            obj['BNB'] = Body.data[7].deposit_address
+            obj['USDT'] = Body.data[6].deposit_address
             addresses.push(obj)
             user.addresses = addresses
-            user.save();
+            user.save()
             res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, addresses: user.addresses })
-        })
-
+        });
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
