@@ -38,7 +38,7 @@ const register = async (req, res) => {
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
-            const user = await User.create({ email, password: hashedPassword, username: `${email.split('@')[0]}`, referredBy: referralCode })
+            const user = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() *1000)}`, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'smtp.zoho.com',
@@ -66,7 +66,7 @@ const register = async (req, res) => {
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
-            const user = await User.create({ email, password: hashedPassword, otp, phoneNumber: otp.toString() })
+            const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `{$email.split('@')[0]}${Math.random() * 1000}`, user_id: `${Math.floor(1000 + Math.random() * 100)}` })
             const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
                 expiresIn: '12h'
             })
@@ -145,12 +145,11 @@ const verifyUser = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
         const user = await User.findOne({ email })
-        const isReferral = await User.findOne({ user_id: user.referredBy })
         const otp = req.body.otp
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (user.otp == otp) {
             user.verified = true
-            await user.save()
+            user.save()
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users`,
@@ -168,9 +167,6 @@ const verifyUser = async (req, res) => {
                 if (error) throw new Error(error)
                 user.user_id = response.body.data.user_id
                 user.save()
-                isReferral.referralCount += 1
-                isReferral.phinBalance += 20
-                isReferral.save()
                 getWallet(user.user_id)
                 res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
             })
@@ -344,11 +340,11 @@ const saveWallet = async (req, res) => {
             if (error) throw new Error(error);
             let addresses = [];
             const obj = {}
-            obj['btc'] = response.body.data[3].deposit_address
-            obj['usdt'] = response.body.data[4].deposit_address
-            obj['eth'] = response.body.data[7].deposit_address
-            obj['bnb'] = response.body.data[8].deposit_address
-            
+            const Body = JSON.parse(response.body)
+            const length = Body.data.length
+            for (let i = 0; i < length; i++) {
+                obj[Body.data[i].currency] = Body.data[i].address
+            }
             addresses.push(obj)
             user.addresses = addresses
             user.save();
