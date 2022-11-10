@@ -38,7 +38,7 @@ const register = async (req, res) => {
         if (isRegistered) return res.status(400).json({ error: 'User already registered' })
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
-            const user = await User.create({ email, password: hashedPassword,  username: `${email.split('@')[0]}`, referredBy: referralCode })
+            const user = await User.create({ email, password: hashedPassword, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'smtp.zoho.com',
@@ -172,7 +172,7 @@ const verifyUser = async (req, res) => {
                 isReferral.phinBalance += 20
                 isReferral.save()
                 getWallet(user.user_id)
-                res.status(200).send({email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token})
+                res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
             })
         }
     } catch (error) {
@@ -270,7 +270,7 @@ const viewWalletBalance = async (req, res) => {
         const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (!user.verified) return res.status(401).json({ message: 'User not verified' })
-        if(!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet'})
+        if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         const options = {
             method: 'GET',
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets`,
@@ -342,13 +342,13 @@ const saveWallet = async (req, res) => {
 
         request(options, function (error, response) {
             if (error) throw new Error(error);
-            const Body = response.body
+
             let addresses = [];
             const obj = {}
-            obj['btc'] = Body.data[3].deposit_address
-            obj['usdt'] = Body.data[4].deposit_address
-            obj['eth'] = Body.data[7].deposit_address
-            obj['bnb'] = Body.data[8].deposit_address
+            obj['btc'] = response.body.data[3].deposit_address
+            obj['usdt'] = response.body.data[4].deposit_address
+            obj['eth'] = response.body.data[7].deposit_address
+            obj['bnb'] = response.body.data[8].deposit_address
             addresses.push(obj)
             user.addresses = addresses
             user.save();
