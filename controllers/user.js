@@ -148,8 +148,6 @@ const verifyUser = async (req, res) => {
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         const referredBy = User.findOne({ user_id: user.referredBy })
-        console.log
-
         if (user.otp == otp) {
             user.verified = true
             user.save()
@@ -170,6 +168,11 @@ const verifyUser = async (req, res) => {
                     user.user_id = body.data.id
                     user.save()
                     getWallet(user.user_id)
+                    if (referredBy) {
+                        referredBy.referralCount += 1
+                        referredBy.phinBalance.referral += 20
+                        referredBy.save()
+                    }
                     res.status(200).send({ email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
                 } else {
                     res.status(400).json({ message: 'Error creating wallet' })
@@ -276,7 +279,6 @@ const viewWalletBalance = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if (!user.verified) return res.status(401).json({ message: 'User not verified' })
         if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         const options = {
             method: 'GET',

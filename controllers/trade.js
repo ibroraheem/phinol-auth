@@ -12,6 +12,7 @@ const buy = async (req, res,) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        if(!user.verified) res.status(401).json({message: 'Please verify your account'})
         if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         if (market.split('-')[1] === 'usdt') {
             const options = {
@@ -33,7 +34,7 @@ const buy = async (req, res,) => {
                 }
                 console.log(body);
                 if (body.status === "success") {
-                    user.phinBalance += amount / 100
+                    user.phinBalance.trade += amount / 100
                     user.save()
                     res.status(200).json({ message: 'Trade Successful' })
                 } else {
@@ -97,7 +98,7 @@ const buy = async (req, res,) => {
                                         user.trade_ids.push(body.data.id)
                                         user.save()
                                         if (body.status === 'success') {
-                                            user.phinBalance += dollarValue / 100;
+                                            user.phinBalance.trade += dollarValue / 100;
                                             user.save();
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
@@ -125,6 +126,7 @@ const sell = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        if (!user.verified) res.status(401).json({ message: 'Please verify your account' })
         if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         if (market.split('-')[1] === 'usdt') {
             const options = {
@@ -145,7 +147,7 @@ const sell = async (req, res) => {
                     res.status(400).json({ error: error.message })
                 }
                 console.log(body);
-                user.phinBalance += conversion / 100
+                user.phinBalance.trade += conversion / 100
                 user.save()
                 res.status(200).json({ message: 'Trade Successful' })
             });
@@ -202,7 +204,7 @@ const sell = async (req, res) => {
                                         }
                                         console.log(body);
                                         if (body.status === 'success') {
-                                            user.phinBalance += dollarValue / 100;
+                                            user.phinBalance.trade += dollarValue / 100;
                                             user.save();
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
