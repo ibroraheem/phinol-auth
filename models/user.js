@@ -77,23 +77,29 @@ const UserSchema = new mongoose.Schema({
         default: null
     },
     _2faEnabled: {
-    type: Boolean,
-    default: false
+        type: Boolean,
+        default: false
     },
-    otp_auth_url: {
-        type: String,
+    _2faVerified: {
+        type: Boolean,
+        default: false
     },
-    otp_ascii: {
+    _2faAscii: {
         type: String,
+        default: null
     },
-    otp_base32: {
+    _2faHex: {
         type: String,
+        default: null
     },
-    otp_hex: {
+
+    _2faBase32: {
         type: String,
+        default: null
     },
-    qr_code: {
+    _2faAuthUrl: {
         type: String,
+        default: null
     },
     access: {
         type: Boolean,

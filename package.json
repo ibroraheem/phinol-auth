@@ -26,6 +26,7 @@
     "memorystore": "^1.6.7",
     "mongoose": "^6.6.3",
     "morgan": "^1.10.0",
+    "node-2fa": "^2.0.3",
     "nodemailer": "^6.8.0",
     "nodemon": "^2.0.20",
     "qrcode": "^1.5.1",

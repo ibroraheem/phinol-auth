@@ -6,7 +6,6 @@ const User = require('../models/user')
 const request = require('request')
 const speakeasy = require('speakeasy')
 const QRCode = require('qrcode')
-const json = require('body-parser/lib/types/json')
 
 
 const google = async (req, res) => {
@@ -39,7 +38,7 @@ const register = async (req, res) => {
         const referralUser = await User.findOne({ user_id: referralCode })
         if (referralUser) {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
-            const user = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}`, username: `${email.split('@')[0]}`, referredBy: referralCode })
+            const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'smtp.zoho.com',
@@ -67,7 +66,7 @@ const register = async (req, res) => {
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
-            const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() * 100)}@phinol.com`, username: `${email.split('@')[0]}`})
+            const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() * 100)}@phinol.com`, username: `${email.split('@')[0]}` })
             const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
                 expiresIn: '12h'
             })
@@ -145,10 +144,12 @@ const verifyUser = async (req, res) => {
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         email = decoded.email
-        const user = await User.findOne({ email })
-        const referralUser = await User.findOne({ user_id: user.referredBy })
         const otp = req.body.otp
+        const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        const referredBy = User.findOne({ user_id: user.referredBy })
+        console.log
+
         if (user.otp == otp) {
             user.verified = true
             user.save()
@@ -169,17 +170,15 @@ const verifyUser = async (req, res) => {
                     user.user_id = body.data.id
                     user.save()
                     getWallet(user.user_id)
-                    // if (referralUser) {
-                    //     referralUser.referralCount += 1
-                    //     referralUser.phinBalance += 20
-                    //     referralUser.save()
-                    // }
                     res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
                 } else {
-                    res.status(500).send({ message: 'Error creating wallet' })
+                    res.status(400).json({ message: 'Error creating wallet' })
                 }
             })
+        } else {
+            res.status(400).json({ message: 'Invalid OTP' })
         }
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -310,7 +309,7 @@ const viewAddresses = async (req, res) => {
 }
 
 const getWallet = async (user_id) => {
-    let currency = ['btc', 'eth', 'usdt', 'bnb']
+    let currency = ['qdx', 'btc', 'usd', 'busd', 'eth', 'usdc', 'usdt', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'floki', 'sol']
     const length = currency.length
     for (let i = 0; i < length; i++) {
         const options = {
@@ -349,10 +348,9 @@ const saveWallet = async (req, res) => {
             const Body = JSON.parse(body)
             let addresses = []
             const obj = {}
-            obj['btc'] = Body.data[2].deposit_address
-            obj['eth'] = Body.data[6].deposit_address
-            obj['bnb'] = Body.data[7].deposit_address
-            obj['usdt'] = Body.data[3].deposit_address
+            for (let i = 0; i < Body.data.length; i++) {
+                obj[Body.data[i].currency] = Body.data[i].address
+            }
             addresses.push(obj)
             user.addresses = addresses
             user.save()
@@ -363,6 +361,7 @@ const saveWallet = async (req, res) => {
     }
 }
 
+
 const generateOTP = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
@@ -370,82 +369,73 @@ const generateOTP = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const { ascii, hex, base32, otpauth_url } = speakeasy.generateSecret({ issuer: 'Phinol', name: user.username, length: 20 })
-        QRCode.toDataURL(otpauth_url, function (err, data_url) {
-            user.otp_ascii = ascii
-            user.hex = hex
-            user.otp_auth_url = otpauth_url
-            user.base32 = base32
-            user.qr_code = data_url
-            user.save()
-            res.status(200).json({ message: 'OTP generated successfully', base32, otpauth_url, data_url })
+        const { ascii, hex, base32, otpauth_url } = speakeasy.generateSecret({
+            issuer: 'Phinol',
+            name: user.email,
+            length: 15
         })
-
+        user._2faAscii = ascii
+        user._2faHex = hex
+        user._2faBase32 = base32
+        user._2faAuthUrl = otpauth_url
+        await user.save()
+        QRCode.toDataURL(otpauth_url, (err, url) => {
+            res.status(200).json({ message: 'OTP generated successfully', otpauth_url, setupKey: base32, url })
+        })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
 
 const verifyOTP = async (req, res) => {
-    try {
-        const code = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(code, process.env.JWT_SECRET)
-        const email = decoded.email
-        const user = await User.findOne({ email })
-        if (!user) return res.status(401).json({ message: 'User not found' })
-        const { token } = req.body
-        const verified = speakeasy.totp.verify({
-            secret: user.otp_ascii,
-            encoding: 'base32',
-            token: token
-        })
-        if (!verified) return res.status(401).json({ message: 'Invalid Token' })
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const email = decoded.email
+    const user = await User.findOne({ email })
+    if (!user) return res.status(401).json({ message: 'User not found' })
+    const { otp } = req.body
+    const verified = speakeasy.totp.verify({
+        secret: user._2faAscii,
+        encoding: 'ascii',
+        token: otp
+    })
+    if (verified) {
         user._2faEnabled = true
         user.save()
-        res.status(200).json({ message: '2FA enabled successfully', verified: user._2faEnabled })
-    } catch (error) {
-        res.status(500).json({ error: error.message })
+        res.status(200).json({ message: 'OTP verified successfully' })
+    } else {
+        res.status(401).json({ message: 'OTP verification failed' })
     }
 }
 
 const validateOTP = async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const email = decoded.email
-        const user = await User.findOne({ email })
-        if (!user) return res.status(401).json({ message: 'User not found' })
-        const { token: token2 } = req.body
-        const verified = speakeasy.totp.verify({
-            secret: user.otp_secret,
-            encoding: 'ascii',
-            token: token2
-        })
-        if (verified) {
-            res.status(200).json({ message: 'OTP verified successfully' })
-        } else {
-            res.status(401).json({ message: 'OTP verification failed' })
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message })
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const email = decoded.email
+    const user = await User.findOne({ email })
+    if (!user) return res.status(401).json({ message: 'User not found' })
+    const { otp } = req.body
+    const verified = speakeasy.totp.verify({
+        secret: user._2faAscii,
+        encoding: 'ascii',
+        token: otp
+    })
+    if (verified) {
+        res.status(200).json({ message: 'OTP verified successfully' })
+    } else {
+        res.status(401).json({ message: 'OTP verification failed' })
     }
 }
 
 const disableOTP = async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const email = decoded.email
-        const user = await User.findOne({ email })
-        if (!user) return res.status(401).json({ message: 'User not found' })
-        user._2faEnabled = false
-        user.save()
-        res.status(200).json({ message: 'OTP disabled successfully' })
-    } catch (error) {
-        res.status(500).json({ error: error.message })
-    }
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const email = decoded.email
+    const user = await User.findOne({ email })
+    if (!user) return res.status(401).json({ message: 'User not found' })
+    user._2faEnabled = false
+    user.save()
+    res.status(200).json({ message: 'OTP disabled successfully' })
 }
 
-
-
-module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, disableOTP, validateOTP, verifyOTP }
+module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP }
