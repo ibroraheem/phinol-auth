@@ -21,12 +21,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: " "
     },
-    username: {
+    phinolID: {
         type: String,
+        default: Math.floor(Math.random() * Date.now() / 10000000).toString().substring(0, 6)
     },
     role: {
         type: String,
-
         default: 'user'
     },
     verified: {
@@ -69,8 +69,30 @@ const UserSchema = new mongoose.Schema({
         default: 0
     },
     phinBalance: {
-        type: Number,
-        default: 0
+        dailyEarning: {
+            type: Number,
+            default: 0
+        },
+        withdrawal: {
+            type: Number,
+            default: 0
+        },
+        trade: {
+            type: Number,
+            default: 0
+        },
+        referral: {
+            type: Number,
+            default: 0
+        },
+        deposit: {
+            type: Number,
+            default: 0
+        },
+        total: {
+            type: Number,
+            default: 0
+        },
     },
     referredBy: {
         type: String,

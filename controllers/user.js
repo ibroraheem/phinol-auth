@@ -62,7 +62,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
@@ -92,7 +92,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            res.status(201).json({ message: 'User registered successfully', email: user.email, firstName: user.firstName, tfaEnabled: user._2faEnabled, lastName: user.lastName, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+            res.status(201).json({ message: 'User registered successfully', email: user.email, firstName: user.firstName, tfaEnabled: user._2faEnabled, lastName: user.lastName, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
         }
     }
 
@@ -170,7 +170,7 @@ const verifyUser = async (req, res) => {
                     user.user_id = body.data.id
                     user.save()
                     getWallet(user.user_id)
-                    res.status(200).send({ email: user.email, username: user.username, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                    res.status(200).send({ email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
                 } else {
                     res.status(400).json({ message: 'Error creating wallet' })
                 }
@@ -192,7 +192,7 @@ const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' })
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-        res.status(200).json({ message: 'User logged in', email: user.email, username: user.username, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+        res.status(200).json({ message: 'User logged in', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -243,12 +243,15 @@ const changePassword = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const hashedPassword = bcrypt.hashSync(req.body.password, 10)
+        const checkOldPassword = await bcrypt.compare(req.body.oldPassword, user.password)
+        if (!checkOldPassword) return res.status(401).json({ message: 'Old Password is incorrect' })
+        const hashedPassword = bcrypt.hashSync(req.body.newPassword, 10)
         user.password = hashedPassword
         user.save()
         res.status(200).json({ message: 'Password Change Successfully' })
     } catch (error) {
         res.status(500).json({ error: error.message })
+        console.log(error)
     }
 }
 
