@@ -15,7 +15,7 @@ const google = async (req, res) => {
         const user = await User.findOne({ email: email })
         if (user) {
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-            console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user_id: user.user_id, token: token })
+            console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user_id: user.user_id, access: user.access, token: token })
             return res.status(200).json({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
         } else {
             const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString(), verified: true })
@@ -288,10 +288,10 @@ const viewWalletBalance = async (req, res) => {
                 Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
             }
         };
-        request(options, function (error, response) {
+        request(options, function (error, response, body) {
             if (error) throw new Error(error);
-            const Body = JSON.parse(response.body)
-            console.log({ message: 'Wallet balance fetched successfully', Body })
+            const Body = JSON.parse(body)
+            res.status(200).json({ message: 'Wallet fetched successfully', Body})
         });
     } catch (error) {
         res.status(500).json({ error: error.message })

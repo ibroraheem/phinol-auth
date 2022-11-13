@@ -12,7 +12,8 @@ const buy = async (req, res,) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if(!user.verified) res.status(401).json({message: 'Please verify your account'})
+        if (!user.verified) res.status(401).json({ message: 'Please verify your account' })
+        if(!user.access) res.status(401).json({ message: 'Your account has been suspended'})
         if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         if (market.split('-')[1] === 'usdt') {
             const options = {
@@ -127,6 +128,7 @@ const sell = async (req, res) => {
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (!user.verified) res.status(401).json({ message: 'Please verify your account' })
+        if (!user.access) res.status(401).json({ message: 'Your account has been suspended' })
         if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         if (market.split('-')[1] === 'usdt') {
             const options = {
