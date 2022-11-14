@@ -55,4 +55,16 @@ const reward = async (req, res) => {
     return res.status(200).json({ message: 'You have claimed your reward for today' })
 }
 
-module.exports = { reward }
+const phinBalance = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const user = await User.findById(decoded.id)
+        res.status(200).json({ referral: user.phinBalance.referral, trade: user.phinBalance.trade, withdrawal: user.phinBalance.withdrawal, dailyEarning: user.phinBalance.dailyEarning })
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+        console.log(error)
+    }
+}
+
+module.exports = { reward, phinBalance }
