@@ -173,10 +173,10 @@ const verifyUser = async (req, res) => {
                         referredBy.phinBalance.referral += 20
                         referredBy.save()
                     }
-                    res.status(200).send({ email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                    res.status(200).send({ message:`You were invited by ${referredBy.email}`, email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
                 } else {
-                    res.status(400).json({ message: 'Error creating wallet' })
-                }
+                    res.status(200).send({message: 'You were not invited by anyone', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                }   
             })
         } else {
             res.status(400).json({ message: 'Invalid OTP' })
