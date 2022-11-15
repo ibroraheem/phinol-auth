@@ -170,7 +170,7 @@ const verifyUser = async (req, res) => {
                     getWallet(user.user_id)
                     if (referredBy) {
                         referredBy.referralCount += 1
-                        referredBy.phinBalance.re
+                        referredBy.phinBalance.referral += 20
                         referredBy.save()
                     }
                     res.status(200).send({ message:`You were invited by ${referredBy.email}`, email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
