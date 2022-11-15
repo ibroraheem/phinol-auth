@@ -170,7 +170,7 @@ const verifyUser = async (req, res) => {
                     getWallet(user.user_id)
                     if (referredBy) {
                         referredBy.referralCount += 1
-                        referredBy.phinBalance.referral += 20
+                        referredBy.phinBalance.re
                         referredBy.save()
                     }
                     res.status(200).send({ message:`You were invited by ${referredBy.email}`, email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
@@ -442,4 +442,16 @@ const disableOTP = async (req, res) => {
     res.status(200).json({ message: 'OTP disabled successfully' })
 }
 
-module.exports = { register, login, saveWallet, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP }
+const phinBalance = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+module.exports = { register, login, phinBalance, saveWallet, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP }

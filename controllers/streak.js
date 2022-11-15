@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const reward = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const user = await User.findById(decoded.id)
+    const user = await User.find({ email: decoded.email })
     const streak = await Streak.findOne({ user: user._id })
     if (streak) {
         if (streak.lastAction.toDateString() === new Date().toDateString()) {
@@ -55,16 +55,6 @@ const reward = async (req, res) => {
     return res.status(200).json({ message: 'You have claimed your reward for today' })
 }
 
-const phinBalance = async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const user = await User.findById(decoded.id)
-        res.status(200).json({ referral: user.phinBalance.referral, trade: user.phinBalance.trade, withdrawal: user.phinBalance.withdrawal, dailyEarning: user.phinBalance.dailyEarning })
-    } catch (error) {
-        res.status(400).json({ error: error.message })
-        console.log(error)
-    }
-}
 
-module.exports = { reward, phinBalance }
+
+module.exports = { reward }
