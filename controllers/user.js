@@ -164,19 +164,13 @@ const verifyUser = async (req, res) => {
             }
             request(options, (error, response, body) => {
                 if (error) throw new Error(error)
+                console.log(body)
                 if (body.status == 'success') {
                     user.user_id = body.data.id
                     user.save()
                     getWallet(user.user_id)
-                    if (referredBy) {
-                        referredBy.referralCount += 1
-                        referredBy.phinBalance.referral += 20
-                        referredBy.save()
+                        res.status(200).send({ message: 'User verified', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
                     }
-                    res.status(200).send({ message:`You were invited by ${referredBy.email}`, email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
-                } else {
-                    res.status(200).send({message: 'You were not invited by anyone', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
-                }   
             })
         } else {
             res.status(400).json({ message: 'Invalid OTP' })
@@ -291,7 +285,7 @@ const viewWalletBalance = async (req, res) => {
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             const Body = JSON.parse(body)
-            res.status(200).json({ message: 'Wallet fetched successfully', Body})
+            res.status(200).json({ message: 'Wallet fetched successfully', Body })
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -353,7 +347,7 @@ const saveWallet = async (req, res) => {
             let addresses = []
             const obj = {}
             for (let i = 0; i < Body.data.length; i++) {
-                obj[Body.data[i].currency] = Body.data[i].address
+                obj[Body.data[i].currency] = Body.data[i].deposit_address
             }
             addresses.push(obj)
             user.addresses = addresses
