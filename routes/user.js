@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, verifyUser, saveWallet, phinBalance, changePassword, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP } = require('../controllers/user');
+const { register, login, verifyUser, changeEmail, saveWallet, phinBalance, changePassword, resendOTP, forgotPassword, resetPassword, google, viewWalletBalance, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP } = require('../controllers/user');
 const { validateAddress, sendCrypto } = require('../controllers/send');
 const { getDeposit, getDeposits } = require('../controllers/deposit')
 const {reward} = require('../controllers/streak')
@@ -28,5 +28,6 @@ router.post('/verify-otp', verifyOTP);
 router.post('/validate-otp', validateOTP);
 router.post('/disable-otp', disableOTP);
 router.get('/phin-balance', phinBalance);
+router.post('/change-email', changeEmail);
 
 module.exports = router;
