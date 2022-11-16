@@ -147,7 +147,6 @@ const verifyUser = async (req, res) => {
         const otp = req.body.otp
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const referredBy = User.findOne({ user_id: user.referredBy })
         if (user.otp == otp) {
             user.verified = true
             user.save()
@@ -352,7 +351,7 @@ const saveWallet = async (req, res) => {
             addresses.push(obj)
             user.addresses = addresses
             user.save()
-            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, addresses: user.addresses })
+            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, addresses: user.addresses, phinolID: user.phinolID })
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
