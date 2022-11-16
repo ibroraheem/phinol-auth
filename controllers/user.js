@@ -168,8 +168,8 @@ const verifyUser = async (req, res) => {
                     user.user_id = body.data.id
                     user.save()
                     getWallet(user.user_id)
-                        res.status(200).send({ message: 'User verified', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
-                    }
+                    res.status(200).send({ message: 'User verified', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                }
             })
         } else {
             res.status(400).json({ message: 'Invalid OTP' })
@@ -348,10 +348,12 @@ const saveWallet = async (req, res) => {
             for (let i = 0; i < Body.data.length; i++) {
                 obj[Body.data[i].currency] = Body.data[i].deposit_address
             }
-            addresses.push(obj)
-            user.addresses = addresses
-            user.save()
-            res.status(200).json({ message: 'Wallet', firstName: user.firstName, lastName: user.lastName, email: user.email, verified: user.verified, addresses: user.addresses, phinolID: user.phinolID })
+            setTimeout(() => {
+                addresses.push(obj)
+                user.addresses = addresses
+                user.save()
+                res.status(200).json({ message: 'Wallet saved successfully' })
+            }, 15000)
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
