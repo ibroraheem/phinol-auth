@@ -41,4 +41,5 @@ const withdraw = async (req, res) => {
     }
 }
 
+module.exports = { withdraw }
 
