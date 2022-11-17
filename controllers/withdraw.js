@@ -14,7 +14,7 @@ const withdraw = async (req, res) => {
         if (dollarValue > 10) {
             const options = {
                 method: 'POST',
-                url: `https://www.quidax.com/api/v1/users/${user.quidaxId}/wallets/${currency}/withdrawals`,
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/${currency}/withdrawals`,
                 headers: {
                     accept: 'application/json',
                     'content-type': 'application/json',
@@ -31,6 +31,8 @@ const withdraw = async (req, res) => {
                     return res.status(400).json({ message: error.message })
                 }
                 if (body.status === 'success') {
+                    user.phinBalance.withdrawal += dollarValue / 100
+                    user.save()
                     return res.status(200).json({ message: 'Withdrawal successful' })
                 } else {
                     return res.status(400).json({ message: body.message })

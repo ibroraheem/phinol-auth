@@ -184,6 +184,7 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await User.findOne({ email })
+        // res.status(200).json({email: email, password: password})
         if (!user) return res.status(401).json({ message: 'User not found' })
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' })
@@ -191,6 +192,7 @@ const login = async (req, res) => {
         res.status(200).json({ message: 'User logged in', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
+       
     }
 }
 
@@ -458,13 +460,15 @@ const changeEmail = async (req, res) => {
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         const { newEmail, password } = req.body
-        const isMatch = await bcrypt.compare(password, user.password)   
-        if (!isMatch) return res.status(401).json({ message: 'Invalid password' })
+        const validPassword = await bcrypt.compare(password, user.password)
+        if (!validPassword) return res.status(401).json({ message: 'Invalid password' })
+        const checkEmail = await User.findOne({ email: newEmail })
+        if (checkEmail) return res.status(401).json({ message: 'Email already exists' })
+        const newToken = jwt.sign({ email: newEmail }, process.env.JWT_SECRET, { expiresIn: '1d' })
         user.email = newEmail
         user.save()
-        res.status(200).json({ message: 'Email changed successfully' })
-    }
-    catch (error) {
+        res.status(200).json({ message: 'Email changed successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: newToken })
+    } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
