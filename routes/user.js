@@ -5,7 +5,6 @@ const { validateAddress, sendCrypto } = require('../controllers/send');
 const { getDeposit, getDeposits } = require('../controllers/deposit')
 const {withdraw} = require('../controllers/withdraw')
 const { reward } = require('../controllers/streak')
-const {phinBalanceTotal} = require('../test')
 router.post('/register', register);
 router.post('/login', login);
 router.post('/verify-user/', verifyUser);
@@ -32,6 +31,5 @@ router.post('/disable-otp', disableOTP);
 router.get('/phin-balance', phinBalance);
 router.post('/change-email', changeEmail);
 router.post('/withdraw', withdraw);
-router.post('/total', phinBalanceTotal)
 
 module.exports = router;

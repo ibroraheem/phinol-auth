@@ -17,6 +17,7 @@ const reward = async (req, res) => {
                 streak.lastAction = new Date()
                 streak.save()
                 user.phinBalance.dailyEarning += 3
+                user.phinBalance.total += 3
                 user.save()
                 return res.status(200).json({ message: 'You have claimed your reward for today' })
             } else if (streak.streak < 6) {
@@ -24,6 +25,7 @@ const reward = async (req, res) => {
                 streak.lastAction = new Date()
                 streak.save()
                 user.phinBalance.dailyEarning += 1
+                user.phinBalance.total += 1
                 user.save()
                 return res.status(200).json({ message: 'You have claimed your reward for today' })
             } else {
@@ -31,6 +33,7 @@ const reward = async (req, res) => {
                 streak.lastAction = new Date()
                 streak.save()
                 user.phinBalance.dailyEarning += 2
+                user.phinBalance.total += 2
                 user.save()
                 return res.status(200).json({ message: 'You have claimed your reward for today' })
             }
@@ -40,6 +43,7 @@ const reward = async (req, res) => {
             streak.lastAction = new Date()
             streak.save()
             user.phinBalance.dailyEarning += 1
+            user.phinBalance.total += 1
             user.save()
             return res.status(200).json({ message: 'You have claimed your reward for today' })
         }
@@ -51,6 +55,7 @@ const reward = async (req, res) => {
     })
     await newStreak.save()
     user.phinBalance.dailyEarning += 1
+    user.phinBalance.total += 1
     user.save()
     return res.status(200).json({ message: 'You have claimed your reward for today' })
 }
