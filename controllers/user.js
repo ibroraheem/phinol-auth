@@ -308,7 +308,7 @@ const viewAddresses = async (req, res) => {
 }
 
 const getWallet = async (user_id) => {
-    let currency = ['qdx', 'btc', 'usd', 'busd', 'eth', 'usdc', 'usdt', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'floki', 'sol']
+    let currency = ['btc',  'eth',  'usdt', 'bnb']
     const length = currency.length
     for (let i = 0; i < length; i++) {
         const options = {
