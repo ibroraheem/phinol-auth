@@ -350,12 +350,10 @@ const saveWallet = async (req, res) => {
             for (let i = 0; i < Body.data.length; i++) {
                 obj[Body.data[i].currency] = Body.data[i].deposit_address
             }
-            setTimeout(() => {
-                addresses.push(obj)
-                user.addresses = addresses
-                user.save()
-                res.status(200).json({ message: 'Wallet saved successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token  })
-            }, 15000)
+            addresses.push(obj)
+            user.addresses = addresses
+            user.save()
+            res.status(200).json({ message: 'Wallet saved successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
