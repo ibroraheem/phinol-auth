@@ -7,7 +7,7 @@ const buy = async (req, res,) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market,  dollarValue } = req.body
-        if (dollarValue < 12) return res.status(400).json({ message: 'Minimum trade amount is $12' })
+        if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
@@ -122,7 +122,7 @@ const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market, dollarValue } = req.body
-        if (dollarValue < 12) return res.status(400).json({ message: 'Minimum trade amount is $12' })
+        if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
