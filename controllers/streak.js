@@ -11,7 +11,7 @@ const reward = async (req, res) => {
     if (streak) {
         if (streak.lastAction.toDateString() === new Date().toDateString()) {
             console.log(user.phinBalance)
-            return res.status(400).json({ message: 'You have already claimed your reward for today', phin: user.phinBalance })
+            return res.status(400).json({ message: 'You have already claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
         }
         if (streak.lastAction.toDateString() === new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()) {
             if (streak.streak >= 7) {
@@ -21,7 +21,7 @@ const reward = async (req, res) => {
                 user.phinBalance.dailyEarning += 3
                 user.phinBalance.total += 3
                 user.save()
-                return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance })
+                return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
             } else if (streak.streak < 6) {
                 streak.streak += 1
                 streak.lastAction = new Date()
@@ -29,7 +29,7 @@ const reward = async (req, res) => {
                 user.phinBalance.dailyEarning += 1
                 user.phinBalance.total += 1
                 user.save()
-                return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance })
+                return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
             } else {
                 streak.streak += 1
                 streak.lastAction = new Date()
@@ -37,7 +37,7 @@ const reward = async (req, res) => {
                 user.phinBalance.dailyEarning += 2
                 user.phinBalance.total += 2
                 user.save()
-                return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance })
+                return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
             }
         }
         if (streak.lastAction.toDateString() !== new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()) {
@@ -47,7 +47,7 @@ const reward = async (req, res) => {
             user.phinBalance.dailyEarning += 1
             user.phinBalance.total += 1
             user.save()
-            return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance })
+            return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
         }
     }
     const newStreak = new Streak({
@@ -59,7 +59,7 @@ const reward = async (req, res) => {
     user.phinBalance.dailyEarning += 1
     user.phinBalance.total += 1
     user.save()
-    return res.status(200).json({ message: 'You have claimed your reward for today', phinBalance: user.phinBalance })
+    return res.status(200).json({ message: 'You have claimed your reward for today', phinBalance: user.phinBalance, streak: streak.streak })
 }
 
 
