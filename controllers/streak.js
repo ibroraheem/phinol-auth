@@ -5,11 +5,13 @@ const jwt = require('jsonwebtoken')
 const reward = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const user = await User.find({ email: decoded.email })
+    const user = await User.findOne({ email: decoded.email })
+    if (!user) return res.status(404).json({ error: 'User not found' })
     const streak = await Streak.findOne({ user: user._id })
     if (streak) {
         if (streak.lastAction.toDateString() === new Date().toDateString()) {
-            return res.status(400).json({ message: 'You have already claimed your reward for today', phin: user.phinBalance})
+            console.log(user.phinBalance)
+            return res.status(400).json({ message: 'You have already claimed your reward for today', phin: user.phinBalance })
         }
         if (streak.lastAction.toDateString() === new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()) {
             if (streak.streak >= 7) {
