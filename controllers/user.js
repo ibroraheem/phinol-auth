@@ -6,6 +6,7 @@ const User = require('../models/user')
 const request = require('request')
 const speakeasy = require('speakeasy')
 const QRCode = require('qrcode')
+const Streak = require('../models/streak')
 
 
 const google = async (req, res) => {
@@ -286,7 +287,7 @@ const viewWalletBalance = async (req, res) => {
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             const Body = JSON.parse(body)
-            res.status(200).json({ message: 'Wallet fetched successfully', Body })
+            res.status(200).json({ message: 'Wallet fetched successfully', BTC: Body.data[2].balance, USDT: Body.data[3].balance, ETH: Body.data[6].balance, BNB: Body.data[7].balance})
         });
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -449,7 +450,9 @@ const phinBalance = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance })
+        const streak = Streak.findOne({ user: user.id })
+        if (!streak) return res.status(401).json({ message: 'Streak not found' })
+        res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance, streak: streak.streak})
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
