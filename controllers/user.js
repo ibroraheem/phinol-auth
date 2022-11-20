@@ -306,7 +306,7 @@ const viewAddresses = async (req, res) => {
 }
 
 const getWallet = async (user_id) => {
-    let currency = ['qdx', 'usd', 'btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'sol']
+    let currency = ['qdx', 'usd', 'btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'floki', 'sol']
     const length = currency.length
     for (let i = 0; i < length; i++) {
         const options = {
@@ -345,7 +345,7 @@ const saveWallet = async (req, res) => {
             const Body = JSON.parse(body)
             let addresses = []
             const obj = {}
-            let currency = ['qdx', 'usd', 'btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'sol']
+            let currency = ['qdx', 'usd', 'btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'floki', 'sol']
             const length = currency.length
             for (let i = 0; i < length; i++) {
                 obj[currency[i]] = Body.data[i].deposit_address
