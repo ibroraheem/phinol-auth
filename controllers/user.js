@@ -163,7 +163,6 @@ const verifyUser = async (req, res) => {
             }
             request(options, (error, response, body) => {
                 if (error) throw new Error(error)
-                console.log(body)
                 if (body.status == 'success') {
                     user.user_id = body.data.id
                     user.save()
@@ -346,20 +345,8 @@ const saveWallet = async (req, res) => {
             const Body = JSON.parse(body)
             let addresses = []
             const obj = {}
-            let currency = ['btc', 'eth', 'usdt', 'bnb', 'matic', 'sol', 'xrp', 'link', 'dot', 'cake', 'ada']
-            const length = currency.length
-            for (let i = 0; i < length; i++) {
-                obj['btc'] = Body.data[2].deposit_address
-                obj['usdt'] = Body.data[3].deposit_address
-                obj['eth'] = Body.data[6].deposit_address
-                obj['bnb'] = Body.data[7].deposit_address
-                obj['xrp'] = Body.data[8].deposit_address
-                obj['matic'] = Body.data[15].deposit_address
-                obj['dot'] = Body.data[19].deposit_address
-                obj['link'] = Body.data[20].deposit_address
-                obj['cake'] = Body.data[21].deposit_address
-                obj['ada'] = Body.data[25].deposit_address
-                obj['sol'] = Body.data[30].deposit_address
+            for (let i = 0; i < Body.data.length; i++) {
+                obj[Body.data[i].currency] = Body.data[i].address
             }
             addresses.push(obj)
             user.addresses = addresses
