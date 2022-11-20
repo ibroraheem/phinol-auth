@@ -306,7 +306,7 @@ const viewAddresses = async (req, res) => {
 }
 
 const getWallet = async (user_id) => {
-    let currency = ['btc', 'eth', 'usdt', 'bnb', 'matic', 'sol', 'xrp', 'link', 'dot', 'cake', 'ada']
+    let currency = ['btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'bch',  'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'xtz', 'sol', ]
     const length = currency.length
     for (let i = 0; i < length; i++) {
         const options = {
@@ -345,9 +345,11 @@ const saveWallet = async (req, res) => {
             const Body = JSON.parse(body)
             let addresses = []
             const obj = {}
-            for (let i = 0; i < Body.data.length; i++) {
-                obj[Body.data[i].currency] = Body.data[i].address
+            let currency = ['qdx', 'usd', 'btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge',  'xtz', 'sol']
+            for (let i = 0; i < currency.length; i++) {
+                obj[currency[i]] = Body.data[i].address
             }
+
             addresses.push(obj)
             user.addresses = addresses
             user.save()
