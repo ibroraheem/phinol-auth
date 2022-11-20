@@ -360,9 +360,9 @@ const saveWallet = async (req, res) => {
                 obj['cake'] = Body.data[21].deposit_address
                 obj['ada'] = Body.data[25].deposit_address
                 obj['sol'] = Body.data[30].deposit_address
-                addresses.push(obj)
-                user.addresses = addresses
             }
+            addresses.push(obj)
+            user.addresses = addresses
             user.save()
             res.status(200).json({ message: 'Wallet saved successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
         });
