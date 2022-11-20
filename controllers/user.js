@@ -362,8 +362,8 @@ const saveWallet = async (req, res) => {
                 obj['sol'] = Body.data[30].deposit_address
                 addresses.push(obj)
                 user.addresses = addresses
-                user.save()
             }
+            user.save()
             res.status(200).json({ message: 'Wallet saved successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
         });
     } catch (error) {
