@@ -185,10 +185,9 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await User.findOne({ email })
-        // res.status(200).json({email: email, password: password})
-        if (!user) return res.status(401).json({ message: 'User not found' })
+        if (!user) return res.status(401).json({ message: 'Invalid Email' })
         const isMatch = await bcrypt.compare(password, user.password)
-        if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' })
+        if (!isMatch) return res.status(401).json({ message: 'Invalid password' })
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '12h' })
         res.status(200).json({ message: 'User logged in', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } catch (error) {
@@ -309,7 +308,7 @@ const viewAddresses = async (req, res) => {
 }
 
 const getWallet = async (user_id) => {
-    let currency = ['btc',  'eth',  'usdt', 'bnb']
+    let currency = ['btc', 'eth', 'usdt', 'bnb', 'matic', 'sol', 'xrp', 'link', 'dot', 'cake', 'ada']
     const length = currency.length
     for (let i = 0; i < length; i++) {
         const options = {
@@ -348,17 +347,24 @@ const saveWallet = async (req, res) => {
             const Body = JSON.parse(body)
             let addresses = []
             const obj = {}
-            let currency = ['btc', 'usdt', 'eth', 'bnb']
+            let currency = ['btc', 'eth', 'usdt', 'bnb', 'matic', 'sol', 'xrp', 'link', 'dot', 'cake', 'ada']
             const length = currency.length
             for (let i = 0; i < length; i++) {
                 obj['btc'] = Body.data[2].deposit_address
                 obj['usdt'] = Body.data[3].deposit_address
-                obj['eth'] = Body.data[3].deposit_address
-                obj['bnb'] = Body.data[3].deposit_address
+                obj['eth'] = Body.data[6].deposit_address
+                obj['bnb'] = Body.data[7].deposit_address
+                obj['xrp'] = Body.data[8].deposit_address
+                obj['matic'] = Body.data[15].deposit_address
+                obj['dot'] = Body.data[19].deposit_address
+                obj['link'] = Body.data[20].deposit_address
+                obj['cake'] = Body.data[21].deposit_address
+                obj['ada'] = Body.data[25].deposit_address
+                obj['sol'] = Body.data[30].deposit_address
+                addresses.push(obj)
+                user.addresses = addresses
+                user.save()
             }
-            addresses.push(obj)
-            user.addresses = addresses
-            user.save()
             res.status(200).json({ message: 'Wallet saved successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
         });
     } catch (error) {
