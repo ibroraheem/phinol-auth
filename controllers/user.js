@@ -443,10 +443,12 @@ const phinBalance = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
+        console.log(user._id);
         if (!user) return res.status(401).json({ message: 'User not found' })
-        const streak = Streak.findOne({ user: user.id })
+        const streak = await Streak.findOne({user: user._id})
+        console.log(streak)
         if (!streak) return res.status(401).json({ message: 'Streak not found' })
-        res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance, streak: streak.streak})
+        res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance, streak: streak.streak })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
