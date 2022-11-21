@@ -59,7 +59,7 @@ const reward = async (req, res) => {
     user.phinBalance.dailyEarning += 1
     user.phinBalance.total += 1
     user.save()
-    return res.status(200).json({ message: 'You have claimed your reward for today', phinBalance: user.phinBalance, streak: streak.streak })
+    return res.status(200).json({ message: 'You have claimed your reward for today', phinBalance: user.phinBalance, streak: newStreak.streak })
 }
 
 

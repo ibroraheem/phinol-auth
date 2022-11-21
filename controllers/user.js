@@ -441,7 +441,7 @@ const disableOTP = async (req, res) => {
     if (verified) {
         user._2faEnabled = false
         user.save()
-        res.status(200).json({ message: 'OTP disabled successfully',  })
+        res.status(200).json({ message: 'OTP disabled successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token  })
     } else {
         res.status(401).json({ message: 'OTP verification failed' })
     }

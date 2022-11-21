@@ -6,14 +6,17 @@ require('dotenv').config()
 const buy = async (req, res,) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
-        const { amount, conversion, market,  dollarValue } = req.body
+        const { amount, conversion, market, dollarValue } = req.body
+        const tradeAmount = conversion * 0.993
+        const profit1 = conversion * 0.007
+        const profit2 = conversion * 0.004
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         if (!user.verified) res.status(401).json({ message: 'Please verify your account' })
-        if(!user.access) res.status(401).json({ message: 'Your account has been suspended'})
+        if (!user.access) res.status(401).json({ message: 'Your account has been suspended' })
         if (!user.user_id) return res.status(401).json({ message: 'Wallet not generated yet' })
         if (market.split('-')[1] === 'usdt') {
             const options = {
@@ -24,7 +27,7 @@ const buy = async (req, res,) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: { market: `${market.replace("-", "")}`, side: 'buy', ord_type: 'market', volume: conversion },
+                body: { market: `${market.replace("-", "")}`, side: 'buy', ord_type: 'market', volume: tradeAmount },
                 json: true
             };
 
@@ -37,7 +40,24 @@ const buy = async (req, res,) => {
                 if (body.status === "success") {
                     user.phinBalance.trade += amount / 100
                     user.save()
-                    res.status(200).json({ message: 'Trade Successful' })
+                    const options = {
+                        method: 'POST',
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                        headers: {
+                            accept: 'application/json',
+                            'content-type': 'application/json',
+                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                        },
+                        body: { currency: 'usdt', amount: profit1 },
+                        json: true
+                    };
+                    request(options, function (error, response, body) {
+                        if (error) {
+                            console.log(error);
+                            res.status(400).json({ error: error.message })
+                        }
+                        res.status(200).json({ message: 'Trade Successful' })
+                    })
                 } else {
                     res.status(400).json({ message: body.message })
                 }
@@ -100,7 +120,19 @@ const buy = async (req, res,) => {
                                         user.save()
                                         if (body.status === 'success') {
                                             user.phinBalance.trade += dollarValue / 100;
+                                            user.phinBalance.total += dollarValue / 100;
                                             user.save();
+                                            const options = {
+                                                method: 'POST',
+                                                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                                                headers: {
+                                                    accept: 'application/json',
+                                                    'content-type': 'application/json',
+                                                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                                                },
+                                                body: { currency: 'usdt', amount: profit2 },
+                                                json: true
+                                            };
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
                                             res.status(400).json({ error: body.message })
