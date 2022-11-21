@@ -150,6 +150,7 @@ const sell = async (req, res) => {
                 }
                 console.log(body);
                 user.phinBalance.trade += conversion / 100
+                user.phinBalance.total += conversion / 100
                 user.save()
                 res.status(200).json({ message: 'Trade Successful' })
             });
@@ -207,6 +208,7 @@ const sell = async (req, res) => {
                                         console.log(body);
                                         if (body.status === 'success') {
                                             user.phinBalance.trade += dollarValue / 100;
+                                            user.phinBalance.total += dollarValue / 100;
                                             user.save();
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
