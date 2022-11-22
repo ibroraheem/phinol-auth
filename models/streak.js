@@ -2,8 +2,8 @@ const mongoose = require('mongoose')
 
 const StreakSchema = mongoose.Schema({
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        type: String,
+        required: true,
     },
     streak: {
         type: Number,
