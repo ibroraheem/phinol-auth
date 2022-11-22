@@ -456,7 +456,14 @@ const disableOTP = async (req, res) => {
             const user = await User.findOne({ email })
             if (!user) return res.status(401).json({ message: 'User not found' })
             const streak = await Streak.findOne({ user: user._id })
-            res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance, streak })
+            if (!streak) {
+                const newStreak = new Streak({
+                    user: user._id,
+                    streak: 0,
+                })
+                await newStreak.save()
+            }
+            res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance, streak: streak.streak })
         } catch (error) {
             res.status(500).json({ error: error.message })
         }
