@@ -11,8 +11,8 @@ const withdraw = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const user = await User.findOne({ email: decoded.email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if (dollarValue > 10) {
-            return res.status(401).json({ message: 'You cannot withdraw more than $10' })
+        if (dollarValue < 10) {
+            return res.status(401).json({ message: 'You cannot withdraw less $10' })
         }
         if (currency === 'btc') {
             const options = {
