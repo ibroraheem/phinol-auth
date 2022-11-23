@@ -78,9 +78,35 @@ const withdraw = async (req, res) => {
                     return res.status(200).json({ message: 'Withdrawal successful' })
                 }
             })
-        } 
+        } else if (currency === 'usdt') {
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: {
+                    currency: currency,
+                    amount: '0.2',
+                    fund_uid: 'xc57w34g'
+                },
+                json: true
+            }
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error)
+                if (body.status === 'success') {
+                    return res.status(200).json({ message: 'Withdrawal successful' })
+                }
+            })
+        } else {
+            return res.status(401).json({ message: 'Invalid currency' })
+        }
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: error.message })
+
     }
 }
 
