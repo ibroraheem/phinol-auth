@@ -442,51 +442,63 @@ const disableOTP = async (req, res) => {
     if (verified) {
         user._2faEnabled = false
         user.save()
-        res.status(200).json({ message: 'OTP disabled successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token  })
+        res.status(200).json({ message: 'OTP disabled successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
     } else {
         res.status(401).json({ message: 'OTP verification failed' })
     }
 }
 
-    const phinBalance = async (req, res) => {
-        try {
-            const token = req.headers.authorization.split(' ')[1]
-            const decoded = jwt.verify(token, process.env.JWT_SECRET)
-            const email = decoded.email
-            const user = await User.findOne({ email })
-            if (!user) return res.status(401).json({ message: 'User not found' })
-            const streak = await Streak.findOne({ user: user._id })
-            if (!streak) {
-                const newStreak = new Streak({
-                    user: user._id,
-                    streak: 0,
-                })
-                await newStreak.save()
-            }
-            res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance, streak: streak.streak })
-        } catch (error) {
-            res.status(500).json({ error: error.message })
-        }
+const biometric = async (req, res) => {
+    try {
+        const { email } = req.body
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '12h' })
+        res.status(200).json({ message: 'User logged in', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
     }
+}
 
-    const changeEmail = async (req, res) => {
-        try {
-            const token = req.headers.authorization.split(' ')[1]
-            const decoded = jwt.verify(token, process.env.JWT_SECRET)
-            const email = decoded.email
-            const user = await User.findOne({ email })
-            if (!user) return res.status(401).json({ message: 'User not found' })
-            const { newEmail, password } = req.body
-            const validPassword = await bcrypt.compare(password, user.password)
-            if (!validPassword) return res.status(401).json({ message: 'Invalid password' })
-            const checkEmail = await User.findOne({ email: newEmail })
-            if (checkEmail) return res.status(401).json({ message: 'Email already exists' })
-            const newToken = jwt.sign({ email: newEmail }, process.env.JWT_SECRET, { expiresIn: '1d' })
-            user.email = newEmail
-            user.save()
-            res.status(200).json({ message: 'Email changed successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: newToken })
-        } catch (error) {
-            res.status(500).json({ error: error.message })
+const phinBalance = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const streak = await Streak.findOne({ user: user._id })
+        if (!streak) {
+            const newStreak = new Streak({
+                user: user._id,
+                streak: 0,
+            })
+            await newStreak.save()
         }
+        res.status(200).json({ message: 'Phin balance Retrieved', phin: user.phinBalance, streak: streak.streak })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
     }
-    module.exports = { register, login, phinBalance, saveWallet, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP, changeEmail }
+}
+
+const changeEmail = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = await User.findOne({ email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        const { newEmail, password } = req.body
+        const validPassword = await bcrypt.compare(password, user.password)
+        if (!validPassword) return res.status(401).json({ message: 'Invalid password' })
+        const checkEmail = await User.findOne({ email: newEmail })
+        if (checkEmail) return res.status(401).json({ message: 'Email already exists' })
+        const newToken = jwt.sign({ email: newEmail }, process.env.JWT_SECRET, { expiresIn: '1d' })
+        user.email = newEmail
+        user.save()
+        res.status(200).json({ message: 'Email changed successfully', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: newToken })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+module.exports = { register, login, phinBalance, saveWallet, biometric, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP, changeEmail }
