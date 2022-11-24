@@ -48,7 +48,7 @@ const buy = async (req, res,) => {
                             'content-type': 'application/json',
                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                         },
-                        body: { currency: 'usdt', amount: profit1 },
+                        body: { currency: `${market.split('-')[0]}`, amount: profit1 },
                         json: true
                     };
                     request(options, function (error, response, body) {
