@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 })
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument, swaggerOptions));
-app.use('/admin', require('./admin'));
+app.use('/admin', require('./routes/admin'));
 
 app.use('/', require('./routes/user'));
 app.use('/', require('./routes/trade'));

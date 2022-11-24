@@ -14,96 +14,8 @@ const withdraw = async (req, res) => {
         if (dollarValue < 10) {
             return res.status(401).json({ message: 'You cannot withdraw less $10' })
         }
-        if (currency === 'btc') {
-            const withdrawAmount = Number(amount) - 0.00005
-            const profit = "0.00005"
-            const options = {
-                method: 'POST',
-                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
-                headers: {
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                },
-                body: {
-                    currency: currency,
-                    amount: withdrawAmount.toString(),
-                    fund_uid: address
-                },
-                json: true
-            }
-            request(options, function (error, response, body) {
-                if (error) throw new Error(error)
-                if (body.status === 'success') {
-                    const options = {
-                        method: 'POST',
-                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws/$`,
-                        headers: {
-                            accept: 'application/json',
-                            'content-type': 'application/json',
-                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                        },
-                        body: {
-                            currency: currency,
-                            amount: profit,
-                            fund_uid: 'xc57w34g'
-                        },
-                        json: true
-                    }
-                    request(options, function (error, response, body) {
-                        if (error) throw new Error(error)
-                        if (body.status === 'success') {
-                            return res.status(200).json({ message: 'Withdrawal successful' })
-                        }
-                    })
-                }
-            })
-        } else if (currency === 'bnb') {
-            const withdrawAmount = Number(amount) - 0.000375
-            const profit = "0.000375"
-            const options = {
-                method: 'POST',
-                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
-                headers: {
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                },
-                body: {
-                    currency: currency,
-                    amount: withdrawAmount.toString(),
-                    fund_uid: address
-                },
-                json: true
-            }
-            request(options, function (error, response, body) {
-                if (error) throw new Error(error)
-                if (body.status === 'success') {
-                    const options = {
-                        method: 'POST',
-                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws/$`,
-                        headers: {
-                            accept: 'application/json',
-                            'content-type': 'application/json',
-                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                        },
-                        body: {
-                            currency: currency,
-                            amount: profit,
-                            fund_uid: 'xc57w34g'
-                        },
-                        json: true
-                    }
-                    request(options, function (error, response, body) {
-                        if (error) throw new Error(error)
-                        if (body.status === 'success') {
-                            return res.status(200).json({ message: 'Withdrawal successful' })
-                        }
-                    })
-                }
-            })
-        } else if (currency === 'usdt') {
-            const withdrawAmount = Number(amount) - 0.2
+        if (currency === 'usdt') {
+            const withdrawAmount = (Number(amount) - 0.2).toString()
             const profit = "0.2"
             const options = {
                 method: 'POST',
@@ -115,17 +27,18 @@ const withdraw = async (req, res) => {
                 },
                 body: {
                     currency: currency,
-                    amount: withdrawAmount.toString(),
+                    amount: withdrawAmount,
                     fund_uid: address
                 },
                 json: true
-            }
+            };
             request(options, function (error, response, body) {
-                if (error) throw new Error(error)
+                if (error) throw new Error(error);
+                console.log(body);
                 if (body.status === 'success') {
                     const options = {
                         method: 'POST',
-                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws/$`,
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
                         headers: {
                             accept: 'application/json',
                             'content-type': 'application/json',
@@ -139,15 +52,123 @@ const withdraw = async (req, res) => {
                         json: true
                     }
                     request(options, function (error, response, body) {
-                        if (error) throw new Error(error)
+                        if (error) throw new Error(error);
+                        console.log(body);
                         if (body.status === 'success') {
-                            return res.status(200).json({ message: 'Withdrawal successful' })
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.save()
+                            res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
+                } else {
+                    res.status(400).json({ message: body.message })
+                }
+            })
+        } else if (currency === 'btc') {
+            const withdrawAmount = (Number(amount) - 0.00005).toString()
+            const profit = "0.00005"
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: {
+                    currency: currency,
+                    amount: withdrawAmount,
+                    fund_uid: address
+                },
+                json: true
+            };
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                console.log(body);
+                if (body.status === 'success') {
+                    const options = {
+                        method: 'POST',
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                        headers: {
+                            accept: 'application/json',
+                            'content-type': 'application/json',
+                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                        },
+                        body: {
+                            currency: currency,
+                            amount: profit,
+                            fund_uid: 'xc57w34g'
+                        },
+                        json: true
+                    }
+                    request(options, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        console.log(body);
+                        if (body.status === 'success') {
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.save()
+                            res.status(200).json({ message: 'Withdrawal successful' })
+                        }
+                    })
+                } else {
+                    res.status(400).json({ message: body.message })
+                }
+            })
+        } else if (currency === 'bnb') {
+            const withdrawAmount = (Number(amount) - 0.000375).toString()
+            const profit = "0.000375"
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: {
+                    currency: currency,
+                    amount: withdrawAmount,
+                    fund_uid: address
+                },
+                json: true
+            };
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                console.log(body);
+                if (body.status === 'success') {
+                    const options = {
+                        method: 'POST',
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                        headers: {
+                            accept: 'application/json',
+                            'content-type': 'application/json',
+                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                        },
+                        body: {
+                            currency: currency,
+                            amount: profit,
+                            fund_uid: 'xc57w34g'
+                        },
+                        json: true
+                    }
+                    request(options, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        console.log(body);
+                        if (body.status === 'success') {
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.save()
+                            res.status(200).json({ message: 'Withdrawal successful' })
+                        }
+                    })
+                } else {
+                    res.status(400).json({ message: body.message })
                 }
             })
         } else if (currency === 'sol') {
-            const withdrawAmount = Number(amount) - 0.005
+            const withdrawAmount = (Number(amount) - 0.005).toString()
             const profit = "0.005"
             const options = {
                 method: 'POST',
@@ -159,17 +180,18 @@ const withdraw = async (req, res) => {
                 },
                 body: {
                     currency: currency,
-                    amount: withdrawAmount.toString(),
+                    amount: withdrawAmount,
                     fund_uid: address
                 },
                 json: true
-            }
+            };
             request(options, function (error, response, body) {
-                if (error) throw new Error(error)
+                if (error) throw new Error(error);
+                console.log(body);
                 if (body.status === 'success') {
                     const options = {
                         method: 'POST',
-                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws/$`,
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
                         headers: {
                             accept: 'application/json',
                             'content-type': 'application/json',
@@ -183,59 +205,21 @@ const withdraw = async (req, res) => {
                         json: true
                     }
                     request(options, function (error, response, body) {
-                        if (error) throw new Error(error)
+                        if (error) throw new Error(error);
+                        console.log(body);
                         if (body.status === 'success') {
-                            return res.status(200).json({ message: 'Withdrawal successful' })
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.save()
+                            res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
-                }
-            })
-        } else if (currency === 'doge') {
-            const withdrawAmount = Number(amount) - 2
-            const profit = "2"
-            const options = {
-                method: 'POST',
-                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
-                headers: {
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                },
-                body: {
-                    currency: currency,
-                    amount: withdrawAmount.toString(),
-                    fund_uid: address
-                },
-                json: true
-            }
-            request(options, function (error, response, body) {
-                if (error) throw new Error(error)
-                if (body.status === 'success') {
-                    const options = {
-                        method: 'POST',
-                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws/$`,
-                        headers: {
-                            accept: 'application/json',
-                            'content-type': 'application/json',
-                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                        },
-                        body: {
-                            currency: currency,
-                            amount: profit,
-                            fund_uid: 'xc57w34g'
-                        },
-                        json: true
-                    }
-                    request(options, function (error, response, body) {
-                        if (error) throw new Error(error)
-                        if (body.status === 'success') {
-                            return res.status(200).json({ message: 'Withdrawal successful' })
-                        }
-                    })
+                } else {
+                    res.status(400).json({ message: body.message })
                 }
             })
         } else if (currency === 'xrp') {
-            const withdrawAmount = Number(amount) - 0.12
+            const withdrawAmount = (Number(amount) - 0.12).toString()
             const profit = "0.12"
             const options = {
                 method: 'POST',
@@ -247,17 +231,18 @@ const withdraw = async (req, res) => {
                 },
                 body: {
                     currency: currency,
-                    amount: withdrawAmount.toString(),
+                    amount: withdrawAmount,
                     fund_uid: address
                 },
                 json: true
-            }
+            };
             request(options, function (error, response, body) {
-                if (error) throw new Error(error)
+                if (error) throw new Error(error);
+                console.log(body);
                 if (body.status === 'success') {
                     const options = {
                         method: 'POST',
-                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws/$`,
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
                         headers: {
                             accept: 'application/json',
                             'content-type': 'application/json',
@@ -271,15 +256,21 @@ const withdraw = async (req, res) => {
                         json: true
                     }
                     request(options, function (error, response, body) {
-                        if (error) throw new Error(error)
+                        if (error) throw new Error(error);
+                        console.log(body);
                         if (body.status === 'success') {
-                            return res.status(200).json({ message: 'Withdrawal successful' })
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.save()
+                            res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
+                } else {
+                    res.status(400).json({ message: body.message })
                 }
             })
         } else if (currency === 'link') {
-            const withdrawAmount = Number(amount) - 0.25
+            const withdrawAmount = (Number(amount) - 0.25).toString()
             const profit = "0.25"
             const options = {
                 method: 'POST',
@@ -291,17 +282,18 @@ const withdraw = async (req, res) => {
                 },
                 body: {
                     currency: currency,
-                    amount: withdrawAmount.toString(),
+                    amount: withdrawAmount,
                     fund_uid: address
                 },
                 json: true
-            }
+            };
             request(options, function (error, response, body) {
-                if (error) throw new Error(error)
+                if (error) throw new Error(error);
+                console.log(body);
                 if (body.status === 'success') {
                     const options = {
                         method: 'POST',
-                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws/$`,
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
                         headers: {
                             accept: 'application/json',
                             'content-type': 'application/json',
@@ -315,22 +307,77 @@ const withdraw = async (req, res) => {
                         json: true
                     }
                     request(options, function (error, response, body) {
-                        if (error) throw new Error(error)
+                        if (error) throw new Error(error);
+                        console.log(body);
                         if (body.status === 'success') {
-                            return res.status(200).json({ message: 'Withdrawal successful' })
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.save()
+                            res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
+                } else {
+                    res.status(400).json({ message: body.message })
+                }
+            })
+        } else if (currency === 'ada') {
+            const withdrawAmount = (Number(amount) - 0.25).toString()
+            const profit = "0.25"
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: {
+                    currency: currency,
+                    amount: withdrawAmount,
+                    fund_uid: address
+                },
+                json: true
+            };
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                console.log(body);
+                if (body.status === 'success') {
+                    const options = {
+                        method: 'POST',
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                        headers: {
+                            accept: 'application/json',
+                            'content-type': 'application/json',
+                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                        },
+                        body: {
+                            currency: currency,
+                            amount: profit,
+                            fund_uid: 'xc57w34g'
+                        },
+                        json: true
+                    }
+                    request(options, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        console.log(body);
+                        if (body.status === 'success') {
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.save()
+                            res.status(200).json({ message: 'Withdrawal successful' })
+                        }
+                    })
+                } else {
+                    res.status(400).json({ message: body.message })
                 }
             })
         } else {
             res.status(400).json({ message: 'Invalid currency' })
         }
+           
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ error: error.message })
-
+        console.log(error);
     }
 }
-
 module.exports = { withdraw }
 
