@@ -225,7 +225,7 @@ const forgotPassword = async (req, res) => {
                 console.log(error)
             } else {
                 console.log('Email sent: ' + info.response)
-                res.status(200).json({ message: "OTP sent to user's email address" })
+                res.status(200).json({ message: "OTP sent to user's email address", token: user.passwordResetToken })
             }
         })
     } catch (error) {
@@ -252,10 +252,22 @@ const changePassword = async (req, res) => {
     }
 }
 
+const verifyOtp = async (req, res) => {
+    try {
+        const { otp } = req.body
+        const user = await User.findOne({ passwordResetToken: otp })
+        if (!user) return res.status(401).json({ message: 'Invalid OTP' })
+        res.status(200).json({ message: 'OTP verified' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
 const resetPassword = async (req, res) => {
     try {
-        const { password, passwordResetToken } = req.body
-        const user = await User.findOne({ passwordResetToken })
+        const token = req.headers.authorization.split(' ')[1]
+        const { password } = req.body
+        const user = await User.findOne({ passwordResetToken: token })
         if (!user) return res.status(401).json({ message: 'User not found' })
         user.password = bcrypt.hashSync(password, 10)
         user.passwordResetToken = null
@@ -501,4 +513,4 @@ const changeEmail = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
-module.exports = { register, login, phinBalance, saveWallet, biometric, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP, changeEmail }
+module.exports = { register, login, phinBalance, saveWallet, biometric, verifyOtp, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP, changeEmail }

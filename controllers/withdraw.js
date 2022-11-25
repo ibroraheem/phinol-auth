@@ -55,8 +55,8 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            // user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            // user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
                             // user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }

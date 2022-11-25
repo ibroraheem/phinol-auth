@@ -138,9 +138,9 @@ const buy = async (req, res,) => {
                                             };
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
-                                            res.status(400).json({ error: body.message })
+                                            res.status(400).json({ error: "Insufficient Balance" })
                                         }
-                                    })
+                                    })  
                                 }
                             });
                         })
