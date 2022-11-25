@@ -33,12 +33,12 @@ const buy = async (req, res,) => {
 
             request(options, function (error, response, body) {
                 if (error) {
-                    console.log(error);
                     res.status(400).json({ error: error.message })
                 }
                 console.log(body);
                 if (body.status === "success") {
-                    user.phinBalance.trade += amount / 100
+                    user.phinBalance.trade += dollarValue / 100
+                    user.phinBalance.total += dollarValue / 100
                     user.save()
                     const options = {
                         method: 'POST',
@@ -53,16 +53,14 @@ const buy = async (req, res,) => {
                     };
                     request(options, function (error, response, body) {
                         if (error) {
-                            console.log(error);
                             res.status(400).json({ error: error.message })
                         }
-                        console.log(body);
                         if (body.status === "success") {
                             return res.status(200).json({ message: 'Trade successfully completed' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             });
         } else {
@@ -80,12 +78,12 @@ const buy = async (req, res,) => {
 
             request(options, function (error, response, body) {
                 if (error) {
-                    console.log(error);
+                    res.status(400).json({ error: error.message })
                 }
                 console.log(body);
                 user.trade_ids.push(body.data.id)
                 user.save()
-                if (body.status !== "success") return res.status(400).json({ message: body.message });
+                if (body.status !== "success") return res.status(400).json({ message:"Insufficient Balance" });
                 if (body.status === 'success') {
                     setTimeout(() => {
                         const options = {
@@ -99,7 +97,6 @@ const buy = async (req, res,) => {
                         request(options, function (error, response, body) {
                             request(options, function (error, response, body) {
                                 if (error) throw new Error(error);
-                                console.log(body);
                                 const Body = JSON.parse(body);
                                 if (Body.data.status === 'done') {
                                     const options = {
@@ -118,7 +115,6 @@ const buy = async (req, res,) => {
                                             console.log(error);
                                             res.status(400).json({ error: error.message })
                                         }
-                                        console.log(body);
                                         user.trade_ids.push(body.data.id)
                                         user.save()
                                         if (body.status === 'success') {
@@ -204,10 +200,10 @@ const sell = async (req, res) => {
 
             request(options, function (error, response, body) {
                 if (error) {
-                    console.log(error);
+                    res.status(400).json({ error: error.message })
                 }
-                console.log(body);
-                if (body.status !== "success") return res.status(400).json({ message: body.message });
+        
+                if (body.status !== "success") return res.status(400).json({ message:"Insufficient Balance" });
                 if (body.status === 'success') {
                     setTimeout(() => {
                         const options = {
@@ -221,7 +217,7 @@ const sell = async (req, res) => {
                         request(options, function (error, response, body) {
                             request(options, function (error, response, body) {
                                 if (error) throw new Error(error);
-                                console.log(body);
+                                
                                 const Body = JSON.parse(body);
                                 if (Body.data.status === 'done') {
                                     const options = {
@@ -240,14 +236,14 @@ const sell = async (req, res) => {
                                             console.log(error);
                                             res.status(400).json({ error: error.message })
                                         }
-                                        console.log(body);
+
                                         if (body.status === 'success') {
                                             user.phinBalance.trade += dollarValue / 100;
                                             user.phinBalance.total += dollarValue / 100;
                                             user.save();
                                             res.status(200).json({ message: 'Trade Successful' })
                                         } else {
-                                            res.status(400).json({ error: body.message })
+                                            res.status(400).json({ error:"Insufficient Balance" })
                                         }
                                     })
                                 }
@@ -302,7 +298,7 @@ const pushTrades = async (req, res) => {
                 user.save()
                 res.status(200).json({ message: "Trade successfully completed" })
             } else {
-                res.status(400).json({ message: body.message })
+                res.status(400).json({ message:"Insufficient Balance" })
             }
         })
     } catch (error) {
@@ -344,7 +340,7 @@ const getPrice = async (req, res) => {
             if (body.status === "success") {
                 res.status(200).json({ message: "Price retrieved", price: body.data.ticker.last })
             } else {
-                res.status(400).json({ message: body.message })
+                res.status(400).json({ message:"Insufficient Balance" })
             }
         })
     } catch (error) {
@@ -370,7 +366,7 @@ const getTickers = async (req, res) => {
         if (body.status === "success") {
             res.status(200).json({ message: "Tickers retrieved", tickers: body.data })
         } else {
-            res.status(400).json({ message: body.message })
+            res.status(400).json({ message:"Insufficient Balance" })
         }
     })
 }
