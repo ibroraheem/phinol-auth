@@ -55,14 +55,14 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
-                            // user.save()
+                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.total += dollarValue / 100;
+                            user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             })
         } else if (currency === 'btc') {
@@ -106,14 +106,14 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.total += dollarValue / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             })
         } else if (currency === 'bnb') {
@@ -157,14 +157,14 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.total += dollarValue / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             })
         } else if (currency === 'sol') {
@@ -208,14 +208,14 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.total += dollarValue / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             })
         } else if (currency === 'xrp') {
@@ -259,14 +259,14 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.total += dollarValue / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             })
         } else if (currency === 'link') {
@@ -310,14 +310,14 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.total += dollarValue / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             })
         } else if (currency === 'ada') {
@@ -361,14 +361,14 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += (Number(dollarValue) / 100).toString();
-                            user.phinBalance.total += (Number(dollarValue) / 100).toString();
+                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.total += dollarValue / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
                 } else {
-                    res.status(400).json({ message: body.message })
+                    res.status(400).json({ message:"Insufficient Balance" })
                 }
             })
         } else {

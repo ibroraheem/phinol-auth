@@ -58,7 +58,7 @@ const buy = async (req, res,) => {
                         }
                         console.log(body);
                         if (body.status === "success") {
-                        return res.status(200).json({ message: 'Trade successfully completed' })
+                            return res.status(200).json({ message: 'Trade successfully completed' })
                         }
                     })
                 } else {
@@ -140,7 +140,7 @@ const buy = async (req, res,) => {
                                         } else {
                                             res.status(400).json({ error: "Insufficient Balance" })
                                         }
-                                    })  
+                                    })
                                 }
                             });
                         })
