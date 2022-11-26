@@ -11,7 +11,7 @@ const withdraw = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const user = await User.findOne({ email: decoded.email })
         if (!user) return res.status(401).json({ message: 'User not found' })
-        if (dollarValue < 10) {
+        if (Number(dollarValue) < 10) {
             return res.status(401).json({ message: 'You cannot withdraw less $10' })
         }
         if (currency === 'usdt') {
@@ -55,8 +55,8 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += dollarValue / 100;
-                            user.phinBalance.total += dollarValue / 100;
+                            user.phinBalance.withdrawal += Number(dollarValue) / 100;
+                            user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
@@ -106,8 +106,8 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += dollarValue / 100;
-                            user.phinBalance.total += dollarValue / 100;
+                            user.phinBalance.withdrawal += Number(dollarValue) / 100;
+                            user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
@@ -157,8 +157,8 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += dollarValue / 100;
-                            user.phinBalance.total += dollarValue / 100;
+                            user.phinBalance.withdrawal += Number(dollarValue) / 100;
+                            user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
@@ -208,8 +208,8 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += dollarValue / 100;
-                            user.phinBalance.total += dollarValue / 100;
+                            user.phinBalance.withdrawal += Number(dollarValue) / 100;
+                            user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
@@ -259,8 +259,8 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += dollarValue / 100;
-                            user.phinBalance.total += dollarValue / 100;
+                            user.phinBalance.withdrawal += Number(dollarValue) / 100;
+                            user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
@@ -310,8 +310,8 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += dollarValue / 100;
-                            user.phinBalance.total += dollarValue / 100;
+                            user.phinBalance.withdrawal += Number(dollarValue) / 100;
+                            user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
@@ -361,7 +361,7 @@ const withdraw = async (req, res) => {
                         if (error) throw new Error(error);
                         console.log(body);
                         if (body.status === 'success') {
-                            user.phinBalance.withdrawal += dollarValue / 100;
+                            user.phinBalance.withdrawal += Number(dollarValue) / 100;
                             user.phinBalance.total += dollarValue / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
@@ -374,7 +374,6 @@ const withdraw = async (req, res) => {
         } else {
             res.status(400).json({ message: 'Invalid currency' })
         }
-           
     } catch (error) {
         console.log(error);
     }

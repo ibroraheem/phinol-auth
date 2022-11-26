@@ -32,6 +32,6 @@ router.get('/phin-balance', phinBalance);
 router.post('/change-email', changeEmail);
 router.post('/biometric', biometric);
 router.post('/withdraw', withdraw);
-router.post('/verify-otp', verifyOtp);
+router.post('/verify-password-otp', verifyOtp);
 
 module.exports = router;
