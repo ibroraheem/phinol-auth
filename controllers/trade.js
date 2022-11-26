@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const History = require("../models/history");
 const jwt = require('jsonwebtoken')
 const request = require('request')
 require('dotenv').config()
@@ -40,6 +41,13 @@ const buy = async (req, res,) => {
                     user.phinBalance.trade += dollarValue / 100
                     user.phinBalance.total += dollarValue / 100
                     user.save()
+                     new History({
+                        user_id: user._id,
+                        transaction: body.data.id,
+                        amount: amount,
+                        conversion: conversion,
+                        dollarValue: dollarValue,
+                    })
                     const options = {
                         method: 'POST',
                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -57,6 +65,8 @@ const buy = async (req, res,) => {
                         }
                         if (body.status === "success") {
                             return res.status(200).json({ message: 'Trade successfully completed' })
+                        } else {
+                            return res.status(400).json({ message: 'Insufficient Balance' })
                         }
                     })
                 } else {
@@ -179,7 +189,6 @@ const sell = async (req, res) => {
                     console.log(error);
                     res.status(400).json({ error: error.message })
                 }
-                console.log(body);
                 user.phinBalance.trade += conversion / 100
                 user.phinBalance.total += conversion / 100
                 user.save()

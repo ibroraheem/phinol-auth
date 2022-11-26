@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const History = require("../models/history");
 const jwt = require('jsonwebtoken')
 const request = require('request')
 require('dotenv').config()
@@ -87,6 +88,17 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
                 console.log(body);
                 if (body.status === 'success') {
+                     new History({
+                        user_id: user.user_id,
+                        amount: amount,
+                        currency: currency,
+                        type: 'withdrawal',
+                        status: 'pending',
+                        dollarValue: dollarValue,
+                        transaction_id: body.data.id,
+                        to: address,
+                        date: new Date(),
+                    })
                     const options = {
                         method: 'POST',
                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -136,8 +148,18 @@ const withdraw = async (req, res) => {
             };
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                console.log(body);
                 if (body.status === 'success') {
+                    new History({
+                        user_id: user.user_id,
+                        amount: amount,
+                        currency: currency,
+                        type: 'withdrawal',
+                        status: 'pending',
+                        dollarValue: dollarValue,
+                        transaction_id: body.data.id,
+                        to: address,
+                        date: new Date(),
+                    })
                     const options = {
                         method: 'POST',
                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -155,7 +177,6 @@ const withdraw = async (req, res) => {
                     }
                     request(options, function (error, response, body) {
                         if (error) throw new Error(error);
-                        console.log(body);
                         if (body.status === 'success') {
                             user.phinBalance.withdrawal += Number(dollarValue) / 100;
                             user.phinBalance.total += Number(dollarValue) / 100;
@@ -187,8 +208,18 @@ const withdraw = async (req, res) => {
             };
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                console.log(body);
                 if (body.status === 'success') {
+                    new History({
+                        user_id: user.user_id,
+                        amount: amount,
+                        currency: currency,
+                        type: 'withdrawal',
+                        status: 'pending',
+                        dollarValue: dollarValue,
+                        transaction_id: body.data.id,
+                        to: address,
+                        date: new Date(),
+                    })
                     const options = {
                         method: 'POST',
                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -206,7 +237,6 @@ const withdraw = async (req, res) => {
                     }
                     request(options, function (error, response, body) {
                         if (error) throw new Error(error);
-                        console.log(body);
                         if (body.status === 'success') {
                             user.phinBalance.withdrawal += Number(dollarValue) / 100;
                             user.phinBalance.total += Number(dollarValue) / 100;
@@ -238,8 +268,18 @@ const withdraw = async (req, res) => {
             };
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                console.log(body);
                 if (body.status === 'success') {
+                    new History({
+                        user_id: user.user_id,
+                        amount: amount,
+                        currency: currency,
+                        type: 'withdrawal',
+                        status: 'pending',
+                        dollarValue: dollarValue,
+                        transaction_id: body.data.id,
+                        to: address,
+                        date: new Date(),
+                    })
                     const options = {
                         method: 'POST',
                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -289,8 +329,18 @@ const withdraw = async (req, res) => {
             };
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                console.log(body);
                 if (body.status === 'success') {
+                    new History({
+                        user_id: user.user_id,
+                        amount: amount,
+                        currency: currency,
+                        type: 'withdrawal',
+                        status: 'pending',
+                        dollarValue: dollarValue,
+                        transaction_id: body.data.id,
+                        to: address,
+                        date: new Date(),
+                    })
                     const options = {
                         method: 'POST',
                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -308,7 +358,6 @@ const withdraw = async (req, res) => {
                     }
                     request(options, function (error, response, body) {
                         if (error) throw new Error(error);
-                        console.log(body);
                         if (body.status === 'success') {
                             user.phinBalance.withdrawal += Number(dollarValue) / 100;
                             user.phinBalance.total += Number(dollarValue) / 100;
@@ -340,8 +389,19 @@ const withdraw = async (req, res) => {
             };
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                console.log(body);
+
                 if (body.status === 'success') {
+                    new History({
+                        user_id: user.user_id,
+                        amount: amount,
+                        currency: currency,
+                        type: 'withdrawal',
+                        status: 'pending',
+                        dollarValue: dollarValue,
+                        transaction_id: body.data.id,
+                        to: address,
+                        date: new Date(),
+                    })
                     const options = {
                         method: 'POST',
                         url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -359,10 +419,9 @@ const withdraw = async (req, res) => {
                     }
                     request(options, function (error, response, body) {
                         if (error) throw new Error(error);
-                        console.log(body);
                         if (body.status === 'success') {
                             user.phinBalance.withdrawal += Number(dollarValue) / 100;
-                            user.phinBalance.total += dollarValue / 100;
+                            user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
@@ -378,5 +437,7 @@ const withdraw = async (req, res) => {
         console.log(error);
     }
 }
+
+
 module.exports = { withdraw }
 

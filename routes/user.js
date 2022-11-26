@@ -5,6 +5,7 @@ const { validateAddress, sendCrypto } = require('../controllers/send');
 const { getDeposit, getDeposits } = require('../controllers/deposit')
 const {withdraw} = require('../controllers/withdraw')
 const { reward } = require('../controllers/streak')
+const { getHistory, getHistoryById } = require('../controllers/history')
 router.post('/register', register);
 router.post('/login', login);
 router.post('/verify-user/', verifyUser);
@@ -33,5 +34,7 @@ router.post('/change-email', changeEmail);
 router.post('/biometric', biometric);
 router.post('/withdraw', withdraw);
 router.post('/verify-password-otp', verifyOtp);
+router.get('/history', getHistory);
+router.get('/history/:history_id', getHistoryById);
 
 module.exports = router;
