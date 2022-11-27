@@ -34,32 +34,6 @@ const getDeposits = async (req, res) => {
     }
 }
 
-const getDeposit = async (req, res) => {
-    try {
-        const { deposit_id } = req.body
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const email = decoded.email
-        const user = await User.findOne({ email: email })
-        const request = require('request');
 
-        const options = {
-            method: 'GET',
-            url: `https://www.quidax.com/api/v1/users/${user.user_id}/deposits/${deposit_id}}`,
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-            }
-        };
 
-        request(options, function (error, response, body) {
-            if (error) throw new Error(error);
-            const Body = JSON.parse(body)
-            if (Body.status === 'success') return res.status(200).json(Body.data)
-        });
-    } catch (error) {
-        res.json({ error: error.message })
-    }
-}
-
-module.exports = {getDeposits, getDeposit}
+module.exports = {getDeposits}

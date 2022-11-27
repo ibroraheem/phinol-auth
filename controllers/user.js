@@ -20,9 +20,28 @@ const google = async (req, res) => {
             console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user_id: user.user_id, access: user.access, token: token })
             return res.status(200).json({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
         } else {
-            const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phoneNumber: Math.floor(1000 + Math.random() * 9000).toString(), user_id: Math.floor(1000 + Math.random() * 9000).toString(), verified: true })
+            const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: `${email.split('@')[0]}@phinol.com`, username: `${email.split('@')[0]}`, verified: true })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-            return res.status(200).json({ message: 'User Signed up via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, token: token })
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users`,
+                headers: {
+                    accept: 'application/json',
+                    'content-type': 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                },
+                body: { email: user.phinolMail },
+                json: true
+            }
+            request(options, (error, response, body) => {
+                if (error) throw new Error(error)
+                if (body.status == 'success') {
+                    user.user_id = body.data.id
+                    user.save()
+                    getWallet(user.user_id)
+                    res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                }
+            })
         }
     } catch (error) {
         console.log(error.message)
