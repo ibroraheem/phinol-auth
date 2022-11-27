@@ -167,29 +167,56 @@ const verifyUser = async (req, res) => {
         const otp = req.body.otp
         const user = await User.findOne({ email })
         if (!user) return res.status(401).json({ message: 'User not found' })
+        const referrer = await User.findOne({ user_id: user.referredBy })
         if (user.otp == otp) {
             user.verified = true
             user.save()
-            const options = {
-                method: 'POST',
-                url: `https://www.quidax.com/api/v1/users`,
-                headers: {
-                    accept: 'application/json',
-                    'content-type': 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
-                },
-                body: { email: user.phinolMail },
-                json: true
-            }
-            request(options, (error, response, body) => {
-                if (error) throw new Error(error)
-                if (body.status == 'success') {
-                    user.user_id = body.data.id
-                    user.save()
-                    getWallet(user.user_id)
-                    res.status(200).send({ message: 'User verified', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+            if (referrer) {
+                referrer.referralCount += 1
+                referrer.phinBalance.referral += 20
+                referrer.save()
+                const options = {
+                    method: 'POST',
+                    url: `https://www.quidax.com/api/v1/users`,
+                    headers: {
+                        accept: 'application/json',
+                        'content-type': 'application/json',
+                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                    },
+                    body: { email: user.phinolMail },
+                    json: true
                 }
-            })
+                request(options, (error, response, body) => {
+                    if (error) throw new Error(error)
+                    if (body.status == 'success') {
+                        user.user_id = body.data.id
+                        user.save()
+                        getWallet(user.user_id)
+                        res.status(200).send({ message: 'User verified', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                    }
+                })
+            } else {
+                const options = {
+                    method: 'POST',
+                    url: `https://www.quidax.com/api/v1/users`,
+                    headers: {
+                        accept: 'application/json',
+                        'content-type': 'application/json',
+                        Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                    },
+                    body: { email: user.phinolMail },
+                    json: true
+                }
+                request(options, (error, response, body) => {
+                    if (error) throw new Error(error)
+                    if (body.status == 'success') {
+                        user.user_id = body.data.id
+                        user.save()
+                        getWallet(user.user_id)
+                        res.status(200).send({ message: 'User verified', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                    }
+                })
+            }
         } else {
             res.status(400).json({ message: 'Invalid OTP' })
         }
