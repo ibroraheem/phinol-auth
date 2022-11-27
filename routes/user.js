@@ -21,7 +21,7 @@ router.post('/resend-otp', resendOTP);
 router.post('/save-wallet', saveWallet);
 router.post('/validate-address', validateAddress);
 router.get('/deposits', getDeposits);
-// router.post('/change-password', changePassword);
+router.post('/change-password', changePassword);
 router.post('/daily-reward', reward);
 router.post('/send-crypto', sendCrypto);
 router.post('/generate-otp', generateOTP);
