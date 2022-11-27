@@ -8,9 +8,9 @@ const buy = async (req, res,) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market, dollarValue } = req.body
-        const tradeAmount = conversion * 0.993
-        const profit1 = conversion * 0.007
-        const profit2 = conversion * 0.004
+        const tradeAmount = Number(conversion) * 0.993
+        const profit1 = Number(conversion * 0.007)
+        const profit2 = Number(conversion * 0.004)
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
@@ -28,7 +28,7 @@ const buy = async (req, res,) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: { market: `${market.replace("-", "")}`, side: 'buy', ord_type: 'market', volume: tradeAmount },
+                body: { market: `${market.replace("-", "")}`, side: 'buy', ord_type: 'market', volume: String(tradeAmount) },
                 json: true
             };
 
@@ -36,15 +36,16 @@ const buy = async (req, res,) => {
                 if (error) {
                     res.status(400).json({ error: error.message })
                 }
-                console.log(body);
                 if (body.status === "success") {
                     user.phinBalance.trade += dollarValue / 100
                     user.phinBalance.total += dollarValue / 100
                     user.save()
-                     new History({
+                    History.create({
                         user_id: user._id,
                         transaction: body.data.id,
                         amount: amount,
+                        from: 'usdt',
+                        to: market.split('-')[0],
                         conversion: conversion,
                         dollarValue: dollarValue,
                     })
@@ -56,21 +57,18 @@ const buy = async (req, res,) => {
                             'content-type': 'application/json',
                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                         },
-                        body: { currency: `${market.split('-')[0]}`, amount: profit1 },
+                        body: { currency: `${market.split('-')[0]}`, amount: String(profit1) },
                         json: true
                     };
                     request(options, function (error, response, body) {
                         if (error) {
                             res.status(400).json({ error: error.message })
                         }
-                        if (body.status === "success") {
-                            return res.status(200).json({ message: 'Trade successfully completed' })
-                        } else {
-                            return res.status(400).json({ message: 'Insufficient Balance' })
-                        }
+                        if (body.status === "success") 
+                        return res.status(200).json({ message: 'Trade successfully completed' })
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             });
         } else {
@@ -90,10 +88,9 @@ const buy = async (req, res,) => {
                 if (error) {
                     res.status(400).json({ error: error.message })
                 }
-                console.log(body);
                 user.trade_ids.push(body.data.id)
                 user.save()
-                if (body.status !== "success") return res.status(400).json({ message:"Insufficient Balance" });
+                if (body.status !== "success") return res.status(400).json({ message: "Insufficient Balance" });
                 if (body.status === 'success') {
                     setTimeout(() => {
                         const options = {
@@ -117,7 +114,7 @@ const buy = async (req, res,) => {
                                             'content-type': 'application/json',
                                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                         },
-                                        body: { market: `${market.split("-")[0]}usdt`, side: 'buy', ord_type: 'market', volume: conversion },
+                                        body: { market: `${market.split("-")[0]}usdt`, side: 'buy', ord_type: 'market', volume: String(tradeAmount) },
                                         json: true
                                     }
                                     request(options, function (error, response, body) {
@@ -125,12 +122,19 @@ const buy = async (req, res,) => {
                                             console.log(error);
                                             res.status(400).json({ error: error.message })
                                         }
-                                        user.trade_ids.push(body.data.id)
-                                        user.save()
                                         if (body.status === 'success') {
                                             user.phinBalance.trade += dollarValue / 100;
                                             user.phinBalance.total += dollarValue / 100;
                                             user.save();
+                                            History.create({
+                                                user_id: user._id,
+                                                transaction: body.data.id,
+                                                amount: amount,
+                                                from: market.split('-')[1],
+                                                to: market.split('-')[0],
+                                                conversion: conversion,
+                                                dollarValue: dollarValue,
+                                            })
                                             const options = {
                                                 method: 'POST',
                                                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -139,12 +143,12 @@ const buy = async (req, res,) => {
                                                     'content-type': 'application/json',
                                                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                                 },
-                                                body: { currency: 'usdt', amount: profit2 },
+                                                body: { currency: 'usdt', amount: String(profit2) },
                                                 json: true
                                             };
-                                            res.status(200).json({ message: 'Trade Successful' })
-                                        } else {
-                                            res.status(400).json({ error: "Insufficient Balance" })
+                                            request(options, function (error, response, body) {
+                                                if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
+                                            })
                                         }
                                     })
                                 }
@@ -163,6 +167,9 @@ const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market, dollarValue } = req.body
+        const tradeAmount = Number(conversion * 0.993)
+        const profit1 = Number(conversion * 0.007)
+        const profit2 = Number(conversion * 0.004)
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
@@ -180,7 +187,7 @@ const sell = async (req, res) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: { market: `${market.replace("-", "")}`, side: 'sell', ord_type: 'market', volume: amount },
+                body: { market: `${market.replace("-", "")}`, side: 'sell', ord_type: 'market', volume: String(tradeAmount) },
                 json: true
             };
 
@@ -189,10 +196,34 @@ const sell = async (req, res) => {
                     console.log(error);
                     res.status(400).json({ error: error.message })
                 }
-                user.phinBalance.trade += conversion / 100
-                user.phinBalance.total += conversion / 100
+                user.phinBalance.trade += Number(dollarValue) / 100
+                user.phinBalance.total += Number(dollarValue) / 100
                 user.save()
-                res.status(200).json({ message: 'Trade Successful' })
+                if (body.status === 'success') {
+                    History.create({
+                        user_id: user._id,
+                        transaction: body.data.id,
+                        amount: amount,
+                        from: market.split('-')[1],
+                        to: market.split('-')[0],
+                        conversion: conversion,
+                        dollarValue: dollarValue,
+                    })
+                    const options = {
+                        method: 'POST',
+                        url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                        headers: {
+                            accept: 'application/json',
+                            'content-type': 'application/json',
+                            Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                        },
+                        body: { currency: 'usdt', amount: String(profit1) },
+                        json: true
+                    };
+                    request(options, function (error, response, body) {
+                        if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
+                    })
+                }
             });
         } else {
             const options = {
@@ -211,8 +242,7 @@ const sell = async (req, res) => {
                 if (error) {
                     res.status(400).json({ error: error.message })
                 }
-        
-                if (body.status !== "success") return res.status(400).json({ message:"Insufficient Balance" });
+                if (body.status !== "success") return res.status(400).json({ message: "Insufficient Balance" });
                 if (body.status === 'success') {
                     setTimeout(() => {
                         const options = {
@@ -226,7 +256,6 @@ const sell = async (req, res) => {
                         request(options, function (error, response, body) {
                             request(options, function (error, response, body) {
                                 if (error) throw new Error(error);
-                                
                                 const Body = JSON.parse(body);
                                 if (Body.data.status === 'done') {
                                     const options = {
@@ -237,7 +266,7 @@ const sell = async (req, res) => {
                                             'content-type': 'application/json',
                                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                         },
-                                        body: { market: `${market.split("-")[1]}usdt`, side: 'buy', ord_type: 'market', volume: conversion },
+                                        body: { market: `${market.split("-")[1]}usdt`, side: 'buy', ord_type: 'market', volume: String(tradeAmount) },
                                         json: true
                                     }
                                     request(options, function (error, response, body) {
@@ -250,10 +279,17 @@ const sell = async (req, res) => {
                                             user.phinBalance.trade += dollarValue / 100;
                                             user.phinBalance.total += dollarValue / 100;
                                             user.save();
+                                            History.create({
+                                                user_id: user._id,
+                                                transaction: body.data.id,
+                                                amount: amount,
+                                                from: market.split('-')[0],
+                                                to: market.split('-')[1],
+                                                conversion: conversion,
+                                                dollarValue: dollarValue,
+                                            })
                                             res.status(200).json({ message: 'Trade Successful' })
-                                        } else {
-                                            res.status(400).json({ error:"Insufficient Balance" })
-                                        }
+                                        } 
                                     })
                                 }
                             });
@@ -307,7 +343,7 @@ const pushTrades = async (req, res) => {
                 user.save()
                 res.status(200).json({ message: "Trade successfully completed" })
             } else {
-                res.status(400).json({ message:"Insufficient Balance" })
+                res.status(400).json({ message: "Insufficient Balance" })
             }
         })
     } catch (error) {
@@ -349,7 +385,7 @@ const getPrice = async (req, res) => {
             if (body.status === "success") {
                 res.status(200).json({ message: "Price retrieved", price: body.data.ticker.last })
             } else {
-                res.status(400).json({ message:"Insufficient Balance" })
+                res.status(400).json({ message: "Insufficient Balance" })
             }
         })
     } catch (error) {
@@ -375,7 +411,7 @@ const getTickers = async (req, res) => {
         if (body.status === "success") {
             res.status(200).json({ message: "Tickers retrieved", tickers: body.data })
         } else {
-            res.status(400).json({ message:"Insufficient Balance" })
+            res.status(400).json({ message: "Insufficient Balance" })
         }
     })
 }

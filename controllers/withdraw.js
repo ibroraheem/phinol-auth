@@ -88,7 +88,7 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
                 console.log(body);
                 if (body.status === 'success') {
-                     new History({
+                     History.create({
                         user_id: user.user_id,
                         amount: amount,
                         currency: currency,
@@ -149,7 +149,7 @@ const withdraw = async (req, res) => {
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
-                    new History({
+                    History.create({
                         user_id: user.user_id,
                         amount: amount,
                         currency: currency,
@@ -209,7 +209,7 @@ const withdraw = async (req, res) => {
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
-                    new History({
+                    History.create({
                         user_id: user.user_id,
                         amount: amount,
                         currency: currency,
@@ -269,7 +269,7 @@ const withdraw = async (req, res) => {
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
-                    new History({
+                    History.create({
                         user_id: user.user_id,
                         amount: amount,
                         currency: currency,
@@ -330,7 +330,7 @@ const withdraw = async (req, res) => {
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
-                    new History({
+                    History.create({
                         user_id: user.user_id,
                         amount: amount,
                         currency: currency,
@@ -391,7 +391,7 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
 
                 if (body.status === 'success') {
-                    new History({
+                    History.create({
                         user_id: user.user_id,
                         amount: amount,
                         currency: currency,
