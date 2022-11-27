@@ -291,7 +291,7 @@ const changePassword = async (req, res) => {
         const hashedPassword = bcrypt.hashSync(req.body.newPassword, 10)
         user.password = hashedPassword
         user.save()
-        res.status(200).json({ message: 'Password Change Successfully' })
+        res.status(200).json({ message: 'Password Changed Successfully' })
     } catch (error) {
         res.status(500).json({ error: error.message })
         console.log(error)
