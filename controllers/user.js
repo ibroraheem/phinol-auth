@@ -343,8 +343,8 @@ const viewWalletBalance = async (req, res) => {
         request(options, function (error, response, body) {
             if (error) throw new Error(error);
             const Body = JSON.parse(body)
-            res.status(200).json({ message: 'Wallet fetched successfully', BTC: Body.data[2].balance, ETH: Body.data[6].balance, BNB: Body.data[7].balance, USDT: Body.data[3].balance })
-        });
+            res.status(200).json({ message: 'Wallet fetched successfully', USDT: Body.data[3].balance, BTC: Body.data[2].balance, ETH: Body.data[6].balance, BNB: Body.data[7].balance, MATIC: Body.data[15].balance, DOT: Body.data[19].balance, LINK: Body.data[20].balance, CAKE: Body.data[21].balance, ADA: Body.data[25].balance, SOL: Body.data[30].balance })
+        })
     } catch (error) {
         res.status(500).json({ error: error.message })
         console.log(error)
