@@ -1,6 +1,7 @@
 const History = require('../models/history')
 const User = require('../models/user')
 const request = require('request')
+const jwt = require('jsonwebtoken')
 
 const getHistory = async (req, res) => {
     try {
