@@ -23,7 +23,6 @@ const getHistory = async (req, res) => {
             if (error) throw new Error(error);
             if (body.status === 'success') {
                 const data = body.data
-                console.log(data)
                 return res.status(200).json(history && data)
             }
         });
