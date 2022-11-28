@@ -10,7 +10,6 @@ const getHistory = async (req, res) => {
         const email = decoded.email
         const user = await User.findOne({ email: email })
         const history = await History.find({ user: user._id })
-        console.log(history)
         const options = {
             method: 'GET',
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/deposits`,
@@ -24,6 +23,7 @@ const getHistory = async (req, res) => {
             if (error) throw new Error(error);
             if (body.status === 'success') {
                 const data = body.data
+                console.log(data)
                 return res.status(200).json(history && data)
             }
         });
