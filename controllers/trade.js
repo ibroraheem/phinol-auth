@@ -281,8 +281,9 @@ const sell = async (req, res) => {
                                             user.save();
                                             History.create({
                                                 user_id: user._id,
-                                                transaction: body.data.id,
+                                                txId: body.data.id,
                                                 amount: amount,
+                                                type: 'trade',
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
                                                 conversion: conversion,

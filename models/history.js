@@ -25,7 +25,7 @@ const historySchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    transaction_id: {
+    txId: {
         type: String,
         required: true
     },

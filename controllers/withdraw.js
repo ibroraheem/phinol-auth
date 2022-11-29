@@ -63,7 +63,7 @@ const withdraw = async (req, res) => {
                         }
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             })
         } else if (currency === 'btc') {
@@ -88,7 +88,7 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
                 console.log(body);
                 if (body.status === 'success') {
-                     History.create({
+                    History.create({
                         user_id: user.user_id,
                         amount: amount,
                         currency: currency,
@@ -125,7 +125,7 @@ const withdraw = async (req, res) => {
                         }
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             })
         } else if (currency === 'bnb') {
@@ -185,7 +185,7 @@ const withdraw = async (req, res) => {
                         }
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             })
         } else if (currency === 'sol') {
@@ -245,7 +245,7 @@ const withdraw = async (req, res) => {
                         }
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             })
         } else if (currency === 'xrp') {
@@ -276,7 +276,7 @@ const withdraw = async (req, res) => {
                         type: 'withdrawal',
                         status: 'pending',
                         dollarValue: dollarValue,
-                        transaction_id: body.data.id,
+                        txId: body.data.id,
                         to: address,
                         date: new Date(),
                     })
@@ -306,7 +306,7 @@ const withdraw = async (req, res) => {
                         }
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             })
         } else if (currency === 'link') {
@@ -366,7 +366,7 @@ const withdraw = async (req, res) => {
                         }
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             })
         } else if (currency === 'ada') {
@@ -427,7 +427,7 @@ const withdraw = async (req, res) => {
                         }
                     })
                 } else {
-                    res.status(400).json({ message:"Insufficient Balance" })
+                    res.status(400).json({ message: "Insufficient Balance" })
                 }
             })
         } else {
