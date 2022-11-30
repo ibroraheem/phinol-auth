@@ -82,6 +82,7 @@ const buy = async (req, res,) => {
                         net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                         status: 'failed',
                     })
+                    return res.status(400).json({ message: 'Trade failed' })
                 }
             });
         } else {
@@ -178,7 +179,9 @@ const buy = async (req, res,) => {
                                                 net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                                                 status: 'failed',
                                             })
+                                            res.status(400).json({ message: 'Trade Failed' })
                                         }
+
                                     })
                                 }
                             });
@@ -262,6 +265,7 @@ const sell = async (req, res) => {
                         net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                         status: 'failed',
                     })
+                    res.status(400).json({ message: 'Trade Failed' })
                 }
             })
         } else {
