@@ -4,33 +4,45 @@ const historySchema = new mongoose.Schema({
     user_id: {
         type: String,
     },
-    amount: {
-        type: Number,
-    },
-    currency: {
+    txID: {
         type: String,
     },
     type: {
         type: String,
     },
-    status: {
-        type: String,
-    },
-    date: {
-        type: Date,
-        default: Date.now
-    },
-    txId: {
+    from: {
         type: String,
     },
     to: {
         type: String,
     },
-    from: {
+    convert_from_value: {
+        type: String,
+    },
+    convert_to_value: {
+        type: String,
+    },
+    convert_rate: {
+        type: String,
+    },
+    currency: {
+        type: String,
+    },
+    net_total: {
+        type: String,
+    },
+    status: {
+        type: String,
+    },
+    fee: {
         type: String,
     },
     wallet: {
-        deposit_address: { type: String}
+        deposit_address:{ type: String, type: String },
+    },
+    done_at: {
+        type: Date,
+        default: Date.now
     }
 },
     { timestamps: true }

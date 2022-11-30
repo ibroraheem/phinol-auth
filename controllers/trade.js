@@ -7,7 +7,7 @@ require('dotenv').config()
 const buy = async (req, res,) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
-        const { amount, conversion, market, dollarValue } = req.body
+        const { amount, conversion, market, dollarValue, conversion_rate } = req.body
         const tradeAmount = Number(conversion) * 0.993
         const profit1 = Number(conversion * 0.007)
         const profit2 = Number(conversion * 0.004)
@@ -42,12 +42,16 @@ const buy = async (req, res,) => {
                     user.save()
                     History.create({
                         user_id: user._id,
-                        transaction: body.data.id,
-                        amount: amount,
-                        from: 'usdt',
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
+                        from: market.split('-')[1],
                         to: market.split('-')[0],
-                        conversion: conversion,
-                        dollarValue: dollarValue,
+                        convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[0]}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
+                        type: "convert",
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -68,7 +72,21 @@ const buy = async (req, res,) => {
                             return res.status(200).json({ message: 'Trade successfully completed' })
                     })
                 } else {
-                    res.status(400).json({ message: "Insufficient Balance" })
+                    History.create({
+                        user_id: user._id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
+                        from: market.split('-')[1],
+                        to: market.split('-')[0],
+                        convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[0]}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
+                        conversion_rate: `$ `,
+                        type: "convert",
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'failed',
+                    })
+                    return res.status(400).json({ message: 'Trade failed' })
                 }
             });
         } else {
@@ -123,17 +141,23 @@ const buy = async (req, res,) => {
                                             res.status(400).json({ error: error.message })
                                         }
                                         if (body.status === 'success') {
+                                            generateId(6)
                                             user.phinBalance.trade += dollarValue / 100;
                                             user.phinBalance.total += dollarValue / 100;
                                             user.save();
                                             History.create({
                                                 user_id: user._id,
-                                                transaction: body.data.id,
-                                                amount: amount,
+                                                txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                                                quidaxID: body.data.id,
                                                 from: market.split('-')[1],
                                                 to: market.split('-')[0],
-                                                conversion: conversion,
-                                                dollarValue: dollarValue,
+                                                convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                                                convert_to_value: `${conversion} ${market.split('-')[0]}`,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                type: "convert",
+                                                conversion_rate: String(conversion_rate),
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                status: 'successful',
                                             })
                                             const options = {
                                                 method: 'POST',
@@ -149,7 +173,24 @@ const buy = async (req, res,) => {
                                             request(options, function (error, response, body) {
                                                 if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                                             })
+                                        } else {
+                                            generateId(6)
+                                            History.create({
+                                                user_id: user._id,
+                                                txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                                                quidaxID: body.data.id,
+                                                from: market.split('-')[1],
+                                                to: market.split('-')[0],
+                                                convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                                                convert_to_value: `${conversion} ${market.split('-')[0]}`,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                conversion_rate: String(conversion_rate),
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                status: 'failed',
+                                            })
+                                            res.status(400).json({ message: 'Trade Failed Reason: Insufficient funds' })
                                         }
+
                                     })
                                 }
                             });
@@ -166,8 +207,7 @@ const buy = async (req, res,) => {
 const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
-        const { amount, conversion, market, dollarValue } = req.body
-        const profit2 = Number(conversion * 0.004)
+        const { amount, conversion, market, dollarValue, conversion_rate } = req.body
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
@@ -196,13 +236,20 @@ const sell = async (req, res) => {
                     user.phinBalance.trade += Number(dollarValue) / 100;
                     user.phinBalance.total += Number(dollarValue) / 100;
                     user.save();
+                    generateId(6)
                     History.create({
                         user_id: user._id,
-                        txId: body.data.id,
-                        amount: amount,
+                        txID: result,
+                        quidaxID: body.data.id,
                         from: market.split('-')[0],
                         to: market.split('-')[1],
-                        dollarValue: dollarValue,
+                        convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
+                        type: "convert",
+                        conversion_rate: String(conversion_rate),
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -218,6 +265,22 @@ const sell = async (req, res) => {
                     request(options, function (error, response, body) {
                         if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                     })
+                } else {
+                    History.create({
+                        user_id: user._id,
+                        txID: result,
+                        quidaxID: body.data.id,
+                        from: market.split('-')[0],
+                        to: market.split('-')[1],
+                        convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
+                        conversion_rate: String(conversion_rate),
+                        type: "convert",
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'failed',
+                    })
+                    res.status(400).json({ message: 'Trade Failed' })
                 }
             })
         } else {
@@ -274,15 +337,21 @@ const sell = async (req, res) => {
                                             user.phinBalance.trade += dollarValue / 100;
                                             user.phinBalance.total += dollarValue / 100;
                                             user.save();
+                                            generateId(6)
                                             History.create({
                                                 user_id: user._id,
-                                                txId: body.data.id,
-                                                amount: amount,
-                                                type: 'trade',
+                                                txID: result,
+                                                quidaxID: body.data.id,
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
-                                                conversion: conversion,
-                                                dollarValue: dollarValue,
+                                                type: "convert",
+                                                convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                                                convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                conversion_rate: String(conversion_rate),
+                                                type: "convert",
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                status: 'successful',
                                             })
                                             const options = {
                                                 method: 'POST',
@@ -298,6 +367,22 @@ const sell = async (req, res) => {
                                             request(options, function (error, response, body) {
                                                 if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                                             })
+                                        } else {
+                                            generateId(6)
+                                            History.create({
+                                                user_id: user._id,
+                                                txID: result,
+                                                quidaxID: body.data.id,
+                                                from: market.split('-')[0],
+                                                to: market.split('-')[1],
+                                                convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                                                convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                conversion_rate: String(conversion_rate),
+                                                status: 'failed',
+                                            })
+                                            res.status(400).json({ message: 'Trade Failed' })
                                         }
                                     })
                                 }
