@@ -31,6 +31,14 @@ const historySchema = new mongoose.Schema({
     },
     wallet: {
         deposit_address: { type: String}
+    },
+    isTrade: {
+        type: Boolean,
+        default: false
+    },
+    isWithdraw: {
+        type: Boolean,
+        default: false
     }
 },
     { timestamps: true }

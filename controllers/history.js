@@ -9,7 +9,8 @@ const getHistory = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
         const user = await User.findOne({ email: email })
-        const history = await History.find({ user: user._id })
+        const history = await History.find({ user_id: user._id })
+   
         const options = {
             method: 'GET',
             url: `https://www.quidax.com/api/v1/users/${user.user_id}/deposits`,
@@ -23,7 +24,7 @@ const getHistory = async (req, res) => {
             if (error) throw new Error(error);
             if (body.status === 'success') {
                 const data = body.data
-                return res.status(200).json(history && data)
+                return res.status(200).json({History: history.concat(data)});
             }
         });
     } catch (error) {
