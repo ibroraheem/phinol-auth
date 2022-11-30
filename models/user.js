@@ -4,9 +4,12 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
     },
     password: {
+        type: String,
+        required: true
+    },
+    username: {
         type: String,
         required: true
     },
@@ -18,14 +21,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: " "
     },
-    phoneNumber: {
+    phinolID: {
         type: String,
-        unique: true,
-        default: " "
+        default: Math.floor(Math.random() * Date.now() / 10000000).toString().substring(0, 6)
     },
     role: {
         type: String,
-        required: true,
         default: 'user'
     },
     verified: {
@@ -36,14 +37,10 @@ const UserSchema = new mongoose.Schema({
         type: Number,
     },
     otp: {
-        type: Number
+        type: String
     },
     verificationCode: {
         type: Number
-    },
-    phoneVerified: {
-        type: Boolean,
-        default: false
     },
     addresses: {
         type: Array,
@@ -52,12 +49,84 @@ const UserSchema = new mongoose.Schema({
 
     user_id: {
         type: String,
-        unique: true,
-        default: " "
+    },
+    phinolMail: {
+        type: String,
     },
     passwordResetToken: {
         type: Number
     },
+    trades: {
+        type: Array,
+        default: []
+    },
+    trade_ids: {
+        type: Array,
+        default: []
+    },
+    referralCount: {
+        type: Number,
+        default: 0
+    },
+    phinBalance: {
+        dailyEarning: {
+            type: Number,
+            default: 0
+        },
+        withdrawal: {
+            type: Number,
+            default: 0
+        },
+        trade: {
+            type: Number,
+            default: 0
+        },
+        referral: {
+            type: Number,
+            default: 0
+        },
+        deposit: {
+            type: Number,
+            default: 0
+        },
+        total: {
+            type: Number,
+            default: 0
+        }
+    },
+    referredBy: {
+        type: String,
+        default: null
+    },
+    _2faEnabled: {
+        type: Boolean,
+        default: false
+    },
+    _2faVerified: {
+        type: Boolean,
+        default: false
+    },
+    _2faAscii: {
+        type: String,
+        default: null
+    },
+    _2faHex: {
+        type: String,
+        default: null
+    },
+
+    _2faBase32: {
+        type: String,
+        default: null
+    },
+    _2faAuthUrl: {
+        type: String,
+        default: null
+    },
+    access: {
+        type: Boolean,
+        default: true
+    }
 },
     { timestamps: true }
 )

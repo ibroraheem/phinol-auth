@@ -2,6 +2,7 @@ const Admin = require('../models/admin')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
+const User = require('../models/user')
 
 const register = async (req, res) => {
     const { email, password } = req.body
@@ -94,5 +95,65 @@ const resetPassword = async (req, res) => {
     }
 }
 
-module.exports = { register, login, forgotPassword, resetPassword }
+const getAllUsers = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const admin = await Admin.findById(decoded.adminId)
+        if (!admin) return res.status(404).json({ error: 'Admin not found' })
+        if(admin.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' })
+        const users = await User.find()
+        res.status(200).json({ users })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const getUser = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const admin = await Admin.findById(decoded.adminId)
+        if (!admin) return res.status(404).json({ error: 'Admin not found' })
+        if(admin.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' })
+        const user = await User.findById(req.params.id)
+        res.status(200).json({ user })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const revokeAccess = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const admin = await Admin.findById(decoded.adminId)
+        if (!admin) return res.status(404).json({ error: 'Admin not found' })
+        if (admin.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' })
+        const user = await User.findById(req.params.id)
+        if (!user) return res.status(404).json({ error: 'User not found' })
+        await User.findOneAndUpdate({ _id: req.params.id }, { access: false })
+        res.status(200).json({ message: 'Access revoked' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+const grantAccess = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const admin = await Admin.findById(decoded.adminId)
+        if (!admin) return res.status(404).json({ error: 'Admin not found' })
+        if (admin.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' })
+        const user = await User.findById(req.params.id)
+        if (!user) return res.status(404).json({ error: 'User not found' })
+        await User.findOneAndUpdate({ _id: req.params.id }, { access: true })
+        res.status(200).json({ message: 'Access granted' })
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+
+module.exports = { register, login, forgotPassword, resetPassword, getAllUsers, getUser, revokeAccess, grantAccess }
 
