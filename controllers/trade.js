@@ -42,11 +42,12 @@ const buy = async (req, res,) => {
                     user.save()
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
                         from: market.split('-')[1],
                         to: market.split('-')[0],
                         convert_from_value: ` ${amount} ${market.split('-')[1]}`,
-                        convert_to_value: `${dollarValue} ${market.split('-')[0]}` ,
+                        convert_to_value: `${dollarValue} ${market.split('-')[0]}`,
                         fee: `$${Number(dollarValue) * 0.01}`,
                         type: "convert",
                         net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
@@ -73,7 +74,8 @@ const buy = async (req, res,) => {
                 } else {
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
                         from: market.split('-')[1],
                         to: market.split('-')[0],
                         convert_from_value: ` ${amount} ${market.split('-')[1]}`,
@@ -139,12 +141,14 @@ const buy = async (req, res,) => {
                                             res.status(400).json({ error: error.message })
                                         }
                                         if (body.status === 'success') {
+                                            generateId(6)
                                             user.phinBalance.trade += dollarValue / 100;
                                             user.phinBalance.total += dollarValue / 100;
                                             user.save();
                                             History.create({
                                                 user_id: user._id,
-                                                txID: body.data.id,
+                                                txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                                                quidaxID: body.data.id,
                                                 from: market.split('-')[1],
                                                 to: market.split('-')[0],
                                                 convert_from_value: ` ${amount} ${market.split('-')[1]}`,
@@ -170,9 +174,11 @@ const buy = async (req, res,) => {
                                                 if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                                             })
                                         } else {
+                                            generateId(6)
                                             History.create({
                                                 user_id: user._id,
-                                                txID: body.data.id,
+                                                txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                                                quidaxID: body.data.id,
                                                 from: market.split('-')[1],
                                                 to: market.split('-')[0],
                                                 convert_from_value: ` ${amount} ${market.split('-')[1]}`,
@@ -182,7 +188,7 @@ const buy = async (req, res,) => {
                                                 net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                                                 status: 'failed',
                                             })
-                                            res.status(400).json({ message: 'Trade Failed' })
+                                            res.status(400).json({ message: 'Trade Failed Reason: Insufficient funds' })
                                         }
 
                                     })
@@ -230,9 +236,11 @@ const sell = async (req, res) => {
                     user.phinBalance.trade += Number(dollarValue) / 100;
                     user.phinBalance.total += Number(dollarValue) / 100;
                     user.save();
+                    generateId(6)
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: result,
+                        quidaxID: body.data.id,
                         from: market.split('-')[0],
                         to: market.split('-')[1],
                         convert_from_value: ` ${amount} ${market.split('-')[0]}`,
@@ -260,7 +268,8 @@ const sell = async (req, res) => {
                 } else {
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: result,
+                        quidaxID: body.data.id,
                         from: market.split('-')[0],
                         to: market.split('-')[1],
                         convert_from_value: ` ${amount} ${market.split('-')[0]}`,
@@ -328,9 +337,11 @@ const sell = async (req, res) => {
                                             user.phinBalance.trade += dollarValue / 100;
                                             user.phinBalance.total += dollarValue / 100;
                                             user.save();
+                                            generateId(6)
                                             History.create({
                                                 user_id: user._id,
-                                                txID: body.data.id,
+                                                txID: result,
+                                                quidaxID: body.data.id,
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
                                                 type: "convert",
@@ -357,9 +368,11 @@ const sell = async (req, res) => {
                                                 if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                                             })
                                         } else {
+                                            generateId(6)
                                             History.create({
                                                 user_id: user._id,
-                                                txID: body.data.id,
+                                                txID: result,
+                                                quidaxID: body.data.id,
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
                                                 convert_from_value: ` ${amount} ${market.split('-')[0]}`,

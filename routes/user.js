@@ -10,6 +10,7 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/verify-user/', verifyUser);
 
+
 // router.post('/verify-phone-number/', verifyPhoneNumber);`
 router.post('/resend-otp/', resendOTP);
 router.post('/google', google);

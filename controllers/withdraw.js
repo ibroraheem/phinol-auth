@@ -3,6 +3,7 @@ const History = require("../models/history");
 const jwt = require('jsonwebtoken')
 const request = require('request')
 require('dotenv').config()
+const generateId = require('../config/id')
 
 
 const withdraw = async (req, res) => {
@@ -62,7 +63,8 @@ const withdraw = async (req, res) => {
                             user.save()
                             History.create({
                                 user_id: user._id,
-                                txID: body.data.id,
+                                txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                                quidaxID: body.data.id,
                                 currency: currency,
                                 fee: `1.2 ${currency}}`,
                                 receivable_amount: `${String(Number(amount) - Number(fee))}`,
@@ -100,7 +102,8 @@ const withdraw = async (req, res) => {
                 if (body.status === 'success') {
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
                         currency: currency,
                         fee: `${fee} ${currency}}`,
                         receivable_amount: `${String(Number(amount) - Number(fee))}`,
@@ -157,9 +160,11 @@ const withdraw = async (req, res) => {
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
+
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
                         currency: currency,
                         fee: `${fee} ${currency}}`,
                         receivable_amount: `${String(Number(amount) - Number(fee))}`,
@@ -215,9 +220,11 @@ const withdraw = async (req, res) => {
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
+
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
                         currency: currency,
                         fee: `${fee} ${currency}}`,
                         receivable_amount: `${String(Number(amount) - Number(fee))}`,
@@ -275,7 +282,8 @@ const withdraw = async (req, res) => {
                 if (body.status === 'success') {
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        quidaxID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
                         currency: currency,
                         fee: `${fee} ${currency}}`,
                         receivable_amount: `${String(Number(amount) - Number(fee))}`,
@@ -332,9 +340,11 @@ const withdraw = async (req, res) => {
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
+                    generateId(6)
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
                         currency: currency,
                         fee: `${fee} ${currency}}`,
                         receivable_amount: `${String(Number(amount) - Number(fee))}`,
@@ -393,7 +403,8 @@ const withdraw = async (req, res) => {
                 if (body.status === 'success') {
                     History.create({
                         user_id: user._id,
-                        txID: body.data.id,
+                        txID: `${(Math.random() + 1).toString(36).substring(2)}`,
+                        quidaxID: body.data.id,
                         currency: currency,
                         fee: `${fee} ${currency}}`,
                         receivable_amount: `${String(Number(amount) - Number(fee))}`,
