@@ -101,7 +101,7 @@ const register = async (req, res) => {
             </header>
             <h2 style="font-size: 12px">Verification Code</h2>
             <p>Enter this code to verify your account</p>
-            <p style="font-size: 50; font-weight: 800">1234</p>
+            <p style="font-size: 50; font-weight: 800">${otp}</p>
             <p>You can ignore this message if you didn't request this code.</p>
             <p>For Further enquiry, checkout our <a href="">FAQ</a> or you can contact our <a href="" target="_blank"
                     rel="noopener noreferrer">SUPPORT</a></p>
@@ -134,7 +134,7 @@ const register = async (req, res) => {
                 expiresIn: '12h'
             })
             const transporter = nodemailer.createTransport({
-                host: 'smtp.zoho.com',
+                host: 'phinol.com',
                 port: 465,
                 auth: {
                     user: process.env.EMAIL,
@@ -147,7 +147,50 @@ const register = async (req, res) => {
                 subject: 'Verify your email',
                 html:
                     `
-                
+                <body style="
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #101010;
+    color: #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  ">
+    <main style="padding: 1.5em;">
+        <div style="
+        margin-top: 1em;
+        padding: 0.1em 1em;
+        background-color: #e1e1e1;
+        color: #101010;
+        font-size: 10px;
+        font-weight: 400;
+        width:300px;
+      ">
+            <header style="margin-top:10px">
+                <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                        src="https://phinol.com/images/logo.png" alt=""
+                        style="width: 50px; height: 50px; object-fit: contain" /></a>
+            </header>
+            <h2 style="font-size: 12px">Verification Code</h2>
+            <p>Enter this code to verify your account</p>
+            <p style="font-size: 50; font-weight: 800">${otp}</p>
+            <p>You can ignore this message if you didn't request this code.</p>
+            <p>For Further enquiry, checkout our <a href="">FAQ</a> or you can contact our <a href="" target="_blank"
+                    rel="noopener noreferrer">SUPPORT</a></p>
+            <div style="margin-top: 40px;font-size: 10px; color: #101010">
+                <hr />
+                <div style="display:flex; justify-content: space-between; align-items:center;">
+                    <p><b>Phinol Team</b></p>
+                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                            src="https://phinol.com/images/logo.png" alt=""
+                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                </div>
+            </div>
+        </div>
+    </main>
+    </body>
                 `
             }
             transporter.sendMail(mailOptions, (error, info) => {
@@ -178,7 +221,7 @@ const resendOTP = async (req, res) => {
         user.otp = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'smtp.zoho.com',
+            host: 'phinol.com',
             port: 465,
             auth: {
                 user: process.env.EMAIL,
@@ -191,7 +234,50 @@ const resendOTP = async (req, res) => {
             subject: 'Verify your email',
             html:
                 `
-             `
+                <body style="
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #101010;
+    color: #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  ">
+    <main style="padding: 1.5em;">
+        <div style="
+        margin-top: 1em;
+        padding: 0.1em 1em;
+        background-color: #e1e1e1;
+        color: #101010;
+        font-size: 10px;
+        font-weight: 400;
+        width:300px;
+      ">
+            <header style="margin-top:10px">
+                <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                        src="https://phinol.com/images/logo.png" alt=""
+                        style="width: 50px; height: 50px; object-fit: contain" /></a>
+            </header>
+            <h2 style="font-size: 12px">Verification Code</h2>
+            <p>Enter this code to verify your account</p>
+            <p style="font-size: 50; font-weight: 800">${otp}</p>
+            <p>You can ignore this message if you didn't request this code.</p>
+            <p>For Further enquiry, checkout our <a href="">FAQ</a> or you can contact our <a href="" target="_blank"
+                    rel="noopener noreferrer">SUPPORT</a></p>
+            <div style="margin-top: 40px;font-size: 10px; color: #101010">
+                <hr />
+                <div style="display:flex; justify-content: space-between; align-items:center;">
+                    <p><b>Phinol Team</b></p>
+                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                            src="https://phinol.com/images/logo.png" alt=""
+                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                </div>
+            </div>
+        </div>
+    </main>
+    </body>`
         }
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
@@ -298,7 +384,7 @@ const forgotPassword = async (req, res) => {
         user.passwordResetToken = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'smtp.zoho.com',
+            host: 'phinol.com',
             port: 465,
             auth: {
                 user: process.env.EMAIL,
@@ -309,8 +395,50 @@ const forgotPassword = async (req, res) => {
             from: process.env.EMAIL,
             to: user.email,
             subject: 'Password Reset',
-            html: `<h1>Hi ${user.firstName} ${user.lastName}</h1>
-            <p>Your password reset code is ${otp}</p>`
+            html: `<body style="
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #101010;
+    color: #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  ">
+    <main style="padding: 1.5em;">
+        <div style="
+        margin-top: 1em;
+        padding: 0.1em 1em;
+        background-color: #e1e1e1;
+        color: #101010;
+        font-size: 10px;
+        font-weight: 400;
+        width:300px;
+      ">
+            <header style="margin-top:10px">
+                <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                        src="https://phinol.com/images/logo.png" alt=""
+                        style="width: 50px; height: 50px; object-fit: contain" /></a>
+            </header>
+            <h2 style="font-size: 12px">Verification Code</h2>
+            <p>Enter this code to verify your account</p>
+            <p style="font-size: 50; font-weight: 800">${otp}</p>
+            <p>You can ignore this message if you didn't request this code.</p>
+            <p>For Further enquiry, checkout our <a href="">FAQ</a> or you can contact our <a href="" target="_blank"
+                    rel="noopener noreferrer">SUPPORT</a></p>
+            <div style="margin-top: 40px;font-size: 10px; color: #101010">
+                <hr />
+                <div style="display:flex; justify-content: space-between; align-items:center;">
+                    <p><b>Phinol Team</b></p>
+                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                            src="https://phinol.com/images/logo.png" alt=""
+                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                </div>
+            </div>
+        </div>
+    </main>
+    </body>`
         }
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
@@ -337,7 +465,72 @@ const changePassword = async (req, res) => {
         const hashedPassword = bcrypt.hashSync(req.body.newPassword, 10)
         user.password = hashedPassword
         user.save()
-        res.status(200).json({ message: 'Password Changed Successfully' })
+        const transporter = nodemailer.createTransport({
+            host: 'phinol.com',
+            port: 465,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
+            }
+        })
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: user.email,
+            subject: 'Password Successfully',
+            html: `changing email template
+
+
+<body style="
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #101010;
+    color: #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  ">
+    <main style="padding: 1.5em;">
+        <div style="
+        margin-top: 1em;
+        padding: 0.1em 1em;
+        background-color: #e1e1e1;
+        color: #101010;
+        font-size: 10px;
+        font-weight: 400;
+        width:300px;
+      ">
+            <header style="margin-top:10px">
+                <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                        src="https://phinol.com/images/logo.png" alt=""
+                        style="width: 50px; height: 50px; object-fit: contain" /></a>
+            </header>
+            <h2 style="font-size: 12px">You have successfully change your email</h2>
+            <p style="color:red;">Please contact our support if you are not trying to change your email</p>
+            <p>For Further enquiry, checkout our <a href="">FAQ</a> or you can contact our <a href="" target="_blank"
+                    rel="noopener noreferrer">SUPPORT</a></p>
+            <div style="margin-top: 40px;font-size: 10px; color: #101010">
+                <hr />
+                <div style="display:flex; justify-content: space-between; align-items:center;">
+                    <p><b>Phinol Team</b></p>
+                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                            src="https://phinol.com/images/logo.png" alt=""
+                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>`
+        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error)
+            } else {
+                console.log('Email sent: ' + info.response)
+                res.status(200).json({ message: "Email Changed Successfully"})
+            }
+        })
     } catch (error) {
         res.status(500).json({ error: error.message })
         console.log(error)
@@ -364,7 +557,73 @@ const resetPassword = async (req, res) => {
         user.password = bcrypt.hashSync(password, 10)
         user.passwordResetToken = null
         await user.save()
-        res.status(200).json({ message: 'Password reset successful' })
+        const transporter = nodemailer.createTransport({
+            host: 'phinol.com',
+            port: 465,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
+            }
+        })
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: user.email,
+            subject: 'Password Successfully',
+            html:
+                `
+            Changin password template mail
+
+<body style="
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #101010;
+    color: #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  ">
+    <main style="padding: 1.5em;">
+        <div style="
+        margin-top: 1em;
+        padding: 0.1em 1em;
+        background-color: #e1e1e1;
+        color: #101010;
+        font-size: 10px;
+        font-weight: 400;
+        width:300px;
+      ">
+            <header style="margin-top:10px">
+                <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                        src="https://phinol.com/images/logo.png" alt=""
+                        style="width: 50px; height: 50px; object-fit: contain" /></a>
+            </header>
+            <h2 style="font-size: 12px">You have successfully change your password</h2>
+            <p style="color:red;">Please contact our support if you are not trying to change your password</p>
+            <p>For Further enquiry, checkout our <a href="">FAQ</a> or you can contact our <a href="" target="_blank"
+                    rel="noopener noreferrer">SUPPORT</a></p>
+            <div style="margin-top: 40px;font-size: 10px; color: #101010">
+                <hr />
+                <div style="display:flex; justify-content: space-between; align-items:center;">
+                    <p><b>Phinol Team</b></p>
+                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                            src="https://phinol.com/images/logo.png" alt=""
+                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>`
+        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error)
+            } else {
+                console.log('Email sent: ' + info.response)
+                res.status(200).json({ message: "Password Changed Successfully" })
+            }
+        })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
