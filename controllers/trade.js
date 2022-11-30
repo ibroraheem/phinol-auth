@@ -57,7 +57,7 @@ const buy = async (req, res,) => {
                             'content-type': 'application/json',
                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                         },
-                        body: { currency: `${market.split('-')[0]}`, amount: String(profit1) },
+                        body: { currency: `${market.split('-')[0]}`, amount: String(profit1), fund_uid: 'xc57w34g' },
                         json: true
                     };
                     request(options, function (error, response, body) {
@@ -143,7 +143,7 @@ const buy = async (req, res,) => {
                                                     'content-type': 'application/json',
                                                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                                 },
-                                                body: { currency: 'usdt', amount: String(profit2) },
+                                                body: { currency: 'usdt', amount: String(profit2), fund_uid: 'xc57w34g'},
                                                 json: true
                                             };
                                             request(options, function (error, response, body) {
@@ -167,7 +167,6 @@ const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market, dollarValue } = req.body
-        const profit1 = Number(conversion * 0.007)
         const profit2 = Number(conversion * 0.004)
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -216,7 +215,7 @@ const sell = async (req, res) => {
                             'content-type': 'application/json',
                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                         },
-                        body: { currency: 'usdt', amount: String(profit1) },
+                        body: { currency: 'usdt', amount: `${String(Number(dollarValue) * 0.007)}`, fund_uid: 'xc57w34g' },
                         json: true
                     };
                     request(options, function (error, response, body) {
@@ -268,7 +267,7 @@ const sell = async (req, res) => {
                                             'content-type': 'application/json',
                                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                         },
-                                        body: { market: `${market.split("-")[1]}usdt`, side: 'buy', ord_type: 'market', volume: String(tradeAmount) },
+                                        body: { market: `${market.split("-")[1]}usdt`, side: 'buy', ord_type: 'market', volume: amount },
                                         json: true
                                     }
                                     request(options, function (error, response, body) {
