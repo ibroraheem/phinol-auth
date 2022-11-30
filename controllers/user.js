@@ -38,8 +38,10 @@ const google = async (req, res) => {
                 if (body.status == 'success') {
                     user.user_id = body.data.id
                     user.save()
-                    getWallet(user.user_id)
-                    res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id })
+                    setTimeout(() => {
+                        getWallet(user.user_id)
+                    }, 15000)
+                    res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, token: token })
                 }
             })
         }
