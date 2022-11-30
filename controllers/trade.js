@@ -200,7 +200,7 @@ const sell = async (req, res) => {
                 if (body.status === 'success') {
                    History.create({
                         user_id: user._id,
-                        transaction: body.data.id,
+                        txId: body.data.id,
                         amount: amount,
                         from: market.split('-')[1],
                         to: market.split('-')[0],

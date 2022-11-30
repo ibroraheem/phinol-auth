@@ -3,23 +3,18 @@ const mongoose = require('mongoose')
 const historySchema = new mongoose.Schema({
     user_id: {
         type: String,
-        required: true
     },
     amount: {
         type: Number,
-        required: true
     },
     currency: {
         type: String,
-        required: true
     },
     type: {
         type: String,
-        required: true
     },
     status: {
         type: String,
-        required: true
     },
     date: {
         type: Date,
@@ -27,7 +22,6 @@ const historySchema = new mongoose.Schema({
     },
     txId: {
         type: String,
-        required: true
     },
     to: {
         type: String,
