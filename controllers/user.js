@@ -36,7 +36,7 @@ const google = async (req, res) => {
                 if (error) throw new Error(error)
                 if (body.status == 'success') {
                     getWallet(body.data.id)
-                    const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: phinolMail, user_id:body.data.id, username: `${email.split('@')[0]}`, verified: true })
+                    const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: phinolMail, user_id: body.data.id, username: `${email.split('@')[0]}`, verified: true })
                     const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
                     res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, token: token })
                 }
@@ -60,7 +60,7 @@ const register = async (req, res) => {
             const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
-                host: 'smtp.zoho.com',
+                host: 'phinol.com',
                 port: 465,
                 auth: {
                     user: process.env.EMAIL,
@@ -71,8 +71,52 @@ const register = async (req, res) => {
                 from: process.env.EMAIL,
                 to: email,
                 subject: 'Verify your email',
-                html: `<h1>Enter the OTP code to verify your email</h1>
-            <h2>OTP: ${otp}</h2>`
+                html:
+                    `
+<body style="
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #101010;
+    color: #e1e1e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  ">
+    <main style="padding: 1.5em;">
+        <div style="
+        margin-top: 1em;
+        padding: 0.1em 1em;
+        background-color: #e1e1e1;
+        color: #101010;
+        font-size: 10px;
+        font-weight: 400;
+        width:300px;
+      ">
+            <header style="margin-top:10px">
+                <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                        src="https://phinol.com/images/logo.png" alt=""
+                        style="width: 50px; height: 50px; object-fit: contain" /></a>
+            </header>
+            <h2 style="font-size: 12px">Verification Code</h2>
+            <p>Enter this code to verify your account</p>
+            <p style="font-size: 50; font-weight: 800">1234</p>
+            <p>You can ignore this message if you didn't request this code.</p>
+            <p>For Further enquiry, checkout our <a href="">FAQ</a> or you can contact our <a href="" target="_blank"
+                    rel="noopener noreferrer">SUPPORT</a></p>
+            <div style="margin-top: 40px;font-size: 10px; color: #101010">
+                <hr />
+                <div style="display:flex; justify-content: space-between; align-items:center;">
+                    <p><b>Phinol Team</b></p>
+                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
+                            src="https://phinol.com/images/logo.png" alt=""
+                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                </div>
+            </div>
+        </div>
+    </main>
+    </body>`
             }
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
@@ -101,8 +145,10 @@ const register = async (req, res) => {
                 from: process.env.EMAIL,
                 to: email,
                 subject: 'Verify your email',
-                html: `<h1>Enter the OTP code to verify your email</h1>
-            <h2>OTP: ${otp}</h2>`
+                html:
+                    `
+                
+                `
             }
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
@@ -143,8 +189,9 @@ const resendOTP = async (req, res) => {
             from: process.env.EMAIL,
             to: email,
             subject: 'Verify your email',
-            html: `<h1>Enter the OTP code to verify your email</h1>
-            <h2>OTP: ${otp}</h2>`
+            html:
+                `
+             `
         }
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {

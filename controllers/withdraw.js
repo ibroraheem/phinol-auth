@@ -3,7 +3,7 @@ const History = require("../models/history");
 const jwt = require('jsonwebtoken')
 const request = require('request')
 require('dotenv').config()
-const generateId = require('../config/id')
+
 
 
 const withdraw = async (req, res) => {
