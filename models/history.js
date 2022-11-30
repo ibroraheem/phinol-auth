@@ -29,6 +29,9 @@ const historySchema = new mongoose.Schema({
     from: {
         type: String,
     },
+    wallet: {
+        deposit_address: { type: String}
+    }
 },
     { timestamps: true }
 )

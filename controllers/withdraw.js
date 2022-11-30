@@ -337,8 +337,8 @@ const withdraw = async (req, res) => {
                         type: 'withdrawal',
                         status: 'pending',
                         dollarValue: dollarValue,
-                        transaction_id: body.data.id,
-                        to: address,
+                        txId: body.data.id,
+                        wallet: address,
                         date: new Date(),
                     })
                     const options = {
