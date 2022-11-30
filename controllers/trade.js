@@ -64,8 +64,8 @@ const buy = async (req, res,) => {
                         if (error) {
                             res.status(400).json({ error: error.message })
                         }
-                        if (body.status === "success") 
-                        return res.status(200).json({ message: 'Trade successfully completed' })
+                        if (body.status === "success")
+                            return res.status(200).json({ message: 'Trade successfully completed' })
                     })
                 } else {
                     res.status(400).json({ message: "Insufficient Balance" })
@@ -143,7 +143,7 @@ const buy = async (req, res,) => {
                                                     'content-type': 'application/json',
                                                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                                 },
-                                                body: { currency: 'usdt', amount: String(profit2), fund_uid: 'xc57w34g'},
+                                                body: { currency: 'usdt', amount: String(profit2), fund_uid: 'xc57w34g' },
                                                 json: true
                                             };
                                             request(options, function (error, response, body) {
@@ -185,26 +185,23 @@ const sell = async (req, res) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: { market: `${market.replace("-", "")}`, side: 'sell', ord_type: 'market', volume: amount },
+                body: { market: `${market.replace('-', '')}`, side: 'sell', ord_type: 'market', volume: amount },
                 json: true
             };
-
             request(options, function (error, response, body) {
                 if (error) {
-                    console.log(error);
-                    res.status(400).json({ error: error.message })
+                    res.status(400).json({ error: "Insufficient Balance" })
                 }
-                user.phinBalance.trade += Number(dollarValue) / 100
-                user.phinBalance.total += Number(dollarValue) / 100
-                user.save()
-                if (body.status === 'success') {
-                   History.create({
+                if (body.status === "success") {
+                    user.phinBalance.trade += Number(dollarValue) / 100;
+                    user.phinBalance.total += Number(dollarValue) / 100;
+                    user.save();
+                    History.create({
                         user_id: user._id,
                         txId: body.data.id,
                         amount: amount,
-                        from: market.split('-')[1],
-                        to: market.split('-')[0],
-                        conversion: conversion,
+                        from: market.split('-')[0],
+                        to: market.split('-')[1],
                         dollarValue: dollarValue,
                     })
                     const options = {
@@ -215,17 +212,14 @@ const sell = async (req, res) => {
                             'content-type': 'application/json',
                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                         },
-                        body: { currency: 'usdt', amount: `${String(Number(dollarValue) * 0.007)}`, fund_uid: 'xc57w34g' },
+                        body: { currency: 'usdt', amount: Number(dollarValue * 0.007).toString(), fund_uid: 'xc57w34g' },
                         json: true
                     };
                     request(options, function (error, response, body) {
-                        if (error) {
-                            res.status(400).json({ error: error.message })
-                        }
                         if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                     })
                 }
-            });
+            })
         } else {
             const options = {
                 method: 'POST',
@@ -267,7 +261,7 @@ const sell = async (req, res) => {
                                             'content-type': 'application/json',
                                             Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                                         },
-                                        body: { market: `${market.split("-")[1]}usdt`, side: 'buy', ord_type: 'market', volume: amount },
+                                        body: { market: `${market.split("-")[1]}usdt`, side: 'buy', ord_type: 'market', volume: conversion },
                                         json: true
                                     }
                                     request(options, function (error, response, body) {
@@ -290,8 +284,21 @@ const sell = async (req, res) => {
                                                 conversion: conversion,
                                                 dollarValue: dollarValue,
                                             })
-                                            res.status(200).json({ message: 'Trade Successful' })
-                                        } 
+                                            const options = {
+                                                method: 'POST',
+                                                url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
+                                                headers: {
+                                                    accept: 'application/json',
+                                                    'content-type': 'application/json',
+                                                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`,
+                                                },
+                                                body: { currency: `${market.split('-')[0]}`, amount: Number(dollarValue * 0.004).toString(), fund_uid: 'xc57w34g' },
+                                                json: true
+                                            };
+                                            request(options, function (error, response, body) {
+                                                if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
+                                            })
+                                        }
                                     })
                                 }
                             });
