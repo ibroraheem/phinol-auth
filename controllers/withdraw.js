@@ -18,6 +18,7 @@ const withdraw = async (req, res) => {
         if (currency === 'usdt') {
             const withdrawAmount = (Number(amount) - 0.2).toString()
             const profit = "0.2"
+            const fee = "1.2"
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -59,6 +60,14 @@ const withdraw = async (req, res) => {
                             user.phinBalance.withdrawal += Number(dollarValue) / 100;
                             user.phinBalance.total += Number(dollarValue) / 100;
                             user.save()
+                            History.create({
+                                user_id: user._id,
+                                txID: body.data.id,
+                                currency: currency,
+                                fee: `1.2 ${currency}}`,
+                                receivable_amount: `${String(Number(amount) - Number(fee))}`,
+                                status: 'successful',
+                            })
                             res.status(200).json({ message: 'Withdrawal successful' })
                         }
                     })
@@ -69,6 +78,7 @@ const withdraw = async (req, res) => {
         } else if (currency === 'btc') {
             const withdrawAmount = (Number(amount) - 0.00005).toString()
             const profit = "0.00005"
+            const fee = "0.00025"
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -89,15 +99,12 @@ const withdraw = async (req, res) => {
                 console.log(body);
                 if (body.status === 'success') {
                     History.create({
-                        user_id: user.user_id,
-                        amount: amount,
+                        user_id: user._id,
+                        txID: body.data.id,
                         currency: currency,
-                        type: 'withdrawal',
-                        status: 'pending',
-                        dollarValue: dollarValue,
-                        transaction_id: body.data.id,
-                        to: address,
-                        date: new Date(),
+                        fee: `${fee} ${currency}}`,
+                        receivable_amount: `${String(Number(amount) - Number(fee))}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -131,6 +138,7 @@ const withdraw = async (req, res) => {
         } else if (currency === 'bnb') {
             const withdrawAmount = (Number(amount) - 0.000375).toString()
             const profit = "0.000375"
+            const fee = "0.001125"
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -150,15 +158,12 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
                     History.create({
-                        user_id: user.user_id,
-                        amount: amount,
+                        user_id: user._id,
+                        txID: body.data.id,
                         currency: currency,
-                        type: 'withdrawal',
-                        status: 'pending',
-                        dollarValue: dollarValue,
-                        transaction_id: body.data.id,
-                        to: address,
-                        date: new Date(),
+                        fee: `${fee} ${currency}}`,
+                        receivable_amount: `${String(Number(amount) - Number(fee))}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -191,6 +196,7 @@ const withdraw = async (req, res) => {
         } else if (currency === 'sol') {
             const withdrawAmount = (Number(amount) - 0.005).toString()
             const profit = "0.005"
+            const fee = "0.015"
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -210,15 +216,12 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
                     History.create({
-                        user_id: user.user_id,
-                        amount: amount,
+                        user_id: user._id,
+                        txID: body.data.id,
                         currency: currency,
-                        type: 'withdrawal',
-                        status: 'pending',
-                        dollarValue: dollarValue,
-                        transaction_id: body.data.id,
-                        to: address,
-                        date: new Date(),
+                        fee: `${fee} ${currency}}`,
+                        receivable_amount: `${String(Number(amount) - Number(fee))}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -251,6 +254,7 @@ const withdraw = async (req, res) => {
         } else if (currency === 'xrp') {
             const withdrawAmount = (Number(amount) - 0.12).toString()
             const profit = "0.12"
+            const fee = "0.24"
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -270,15 +274,12 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
                     History.create({
-                        user_id: user.user_id,
-                        amount: amount,
+                        user_id: user._id,
+                        txID: body.data.id,
                         currency: currency,
-                        type: 'withdrawal',
-                        status: 'pending',
-                        dollarValue: dollarValue,
-                        txId: body.data.id,
-                        to: address,
-                        date: new Date(),
+                        fee: `${fee} ${currency}}`,
+                        receivable_amount: `${String(Number(amount) - Number(fee))}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -312,6 +313,7 @@ const withdraw = async (req, res) => {
         } else if (currency === 'link') {
             const withdrawAmount = (Number(amount) - 0.25).toString()
             const profit = "0.25"
+            const fee = "2.25"
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -331,15 +333,12 @@ const withdraw = async (req, res) => {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
                     History.create({
-                        user_id: user.user_id,
-                        amount: amount,
+                        user_id: user._id,
+                        txID: body.data.id,
                         currency: currency,
-                        type: 'withdrawal',
-                        status: 'pending',
-                        dollarValue: dollarValue,
-                        txId: body.data.id,
-                        wallet: address,
-                        date: new Date(),
+                        fee: `${fee} ${currency}}`,
+                        receivable_amount: `${String(Number(amount) - Number(fee))}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -372,6 +371,7 @@ const withdraw = async (req, res) => {
         } else if (currency === 'ada') {
             const withdrawAmount = (Number(amount) - 0.25).toString()
             const profit = "0.25"
+            const fee = "1.25"
             const options = {
                 method: 'POST',
                 url: `https://www.quidax.com/api/v1/users/${user.user_id}/withdraws`,
@@ -392,15 +392,12 @@ const withdraw = async (req, res) => {
 
                 if (body.status === 'success') {
                     History.create({
-                        user_id: user.user_id,
-                        amount: amount,
+                        user_id: user._id,
+                        txID: body.data.id,
                         currency: currency,
-                        type: 'withdrawal',
-                        status: 'pending',
-                        dollarValue: dollarValue,
-                        transaction_id: body.data.id,
-                        to: address,
-                        date: new Date(),
+                        fee: `${fee} ${currency}}`,
+                        receivable_amount: `${String(Number(amount) - Number(fee))}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',

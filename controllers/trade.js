@@ -42,12 +42,14 @@ const buy = async (req, res,) => {
                     user.save()
                     History.create({
                         user_id: user._id,
-                        transaction: body.data.id,
-                        amount: amount,
-                        from: 'usdt',
+                        txID: body.data.id,
+                        from: market.split('-')[1],
                         to: market.split('-')[0],
-                        conversion: conversion,
-                        dollarValue: dollarValue,
+                        convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[0]}` ,
+                        fee: `$ ${Number(dollarValue) * 0.01}`,
+                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -68,7 +70,18 @@ const buy = async (req, res,) => {
                             return res.status(200).json({ message: 'Trade successfully completed' })
                     })
                 } else {
-                    res.status(400).json({ message: "Insufficient Balance" })
+                    History.create({
+                        user_id: user._id,
+                        txID: body.data.id,
+                        from: market.split('-')[1],
+                        to: market.split('-')[0],
+                        convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[0]}`,
+                        fee: `$ ${Number(dollarValue) * 0.01}`,
+                        conversion_rate: `$ `,
+                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'failed',
+                    })
                 }
             });
         } else {
@@ -128,12 +141,15 @@ const buy = async (req, res,) => {
                                             user.save();
                                             History.create({
                                                 user_id: user._id,
-                                                transaction: body.data.id,
-                                                amount: amount,
+                                                txID: body.data.id,
                                                 from: market.split('-')[1],
                                                 to: market.split('-')[0],
-                                                conversion: conversion,
-                                                dollarValue: dollarValue,
+                                                convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                                                convert_to_value: `${conversion} ${market.split('-')[0]}`,
+                                                fee: `$ ${Number(dollarValue) * 0.01}`,
+                                                conversion_rate: `$ `,
+                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                status: 'successful',
                                             })
                                             const options = {
                                                 method: 'POST',
@@ -148,6 +164,19 @@ const buy = async (req, res,) => {
                                             };
                                             request(options, function (error, response, body) {
                                                 if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
+                                            })
+                                        } else {
+                                            History.create({
+                                                user_id: user._id,
+                                                txID: body.data.id,
+                                                from: market.split('-')[1],
+                                                to: market.split('-')[0],
+                                                convert_from_value: ` ${amount} ${market.split('-')[1]}`,
+                                                convert_to_value: `${conversion} ${market.split('-')[0]}`,
+                                                fee: `$ ${Number(dollarValue) * 0.01}`,
+                                                conversion_rate: `$ `,
+                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                status: 'failed',
                                             })
                                         }
                                     })
@@ -167,7 +196,6 @@ const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market, dollarValue } = req.body
-        const profit2 = Number(conversion * 0.004)
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
@@ -198,11 +226,14 @@ const sell = async (req, res) => {
                     user.save();
                     History.create({
                         user_id: user._id,
-                        txId: body.data.id,
-                        amount: amount,
+                        txID: body.data.id,
                         from: market.split('-')[0],
                         to: market.split('-')[1],
-                        dollarValue: dollarValue,
+                        convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                        fee: `$ ${Number(dollarValue) * 0.01}`,
+                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'successful',
                     })
                     const options = {
                         method: 'POST',
@@ -217,6 +248,19 @@ const sell = async (req, res) => {
                     };
                     request(options, function (error, response, body) {
                         if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
+                    })
+                } else {
+                    History.create({
+                        user_id: user._id,
+                        txID: body.data.id,
+                        from: market.split('-')[0],
+                        to: market.split('-')[1],
+                        convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                        convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                        fee: `$ ${Number(dollarValue) * 0.01}`,
+                        conversion_rate: `$ `,
+                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        status: 'failed',
                     })
                 }
             })
@@ -276,13 +320,15 @@ const sell = async (req, res) => {
                                             user.save();
                                             History.create({
                                                 user_id: user._id,
-                                                txId: body.data.id,
-                                                amount: amount,
-                                                type: 'trade',
+                                                txID: body.data.id,
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
-                                                conversion: conversion,
-                                                dollarValue: dollarValue,
+                                                convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                                                convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                                                fee: `$ ${Number(dollarValue) * 0.01}`,
+                                                conversion_rate: `$ `,
+                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                status: 'successful',
                                             })
                                             const options = {
                                                 method: 'POST',
@@ -298,6 +344,20 @@ const sell = async (req, res) => {
                                             request(options, function (error, response, body) {
                                                 if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                                             })
+                                        } else {
+                                            History.create({
+                                                user_id: user._id,
+                                                txID: body.data.id,
+                                                from: market.split('-')[0],
+                                                to: market.split('-')[1],
+                                                convert_from_value: ` ${amount} ${market.split('-')[0]}`,
+                                                convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
+                                                fee: `$ ${Number(dollarValue) * 0.01}`,
+                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                conversion_rate: `$ `,
+                                                status: 'failed',
+                                            })
+                                            res.status(400).json({ message: 'Trade Failed' })
                                         }
                                     })
                                 }
