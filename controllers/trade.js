@@ -7,7 +7,7 @@ require('dotenv').config()
 const buy = async (req, res,) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
-        const { amount, conversion, market, dollarValue } = req.body
+        const { amount, conversion, market, dollarValue, conversion_rate } = req.body
         const tradeAmount = Number(conversion) * 0.993
         const profit1 = Number(conversion * 0.007)
         const profit2 = Number(conversion * 0.004)
@@ -47,8 +47,9 @@ const buy = async (req, res,) => {
                         to: market.split('-')[0],
                         convert_from_value: ` ${amount} ${market.split('-')[1]}`,
                         convert_to_value: `${dollarValue} ${market.split('-')[0]}` ,
-                        fee: `$ ${Number(dollarValue) * 0.01}`,
-                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
+                        type: "convert",
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                         status: 'successful',
                     })
                     const options = {
@@ -77,9 +78,10 @@ const buy = async (req, res,) => {
                         to: market.split('-')[0],
                         convert_from_value: ` ${amount} ${market.split('-')[1]}`,
                         convert_to_value: `${dollarValue} ${market.split('-')[0]}`,
-                        fee: `$ ${Number(dollarValue) * 0.01}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
                         conversion_rate: `$ `,
-                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        type: "convert",
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                         status: 'failed',
                     })
                     return res.status(400).json({ message: 'Trade failed' })
@@ -147,9 +149,10 @@ const buy = async (req, res,) => {
                                                 to: market.split('-')[0],
                                                 convert_from_value: ` ${amount} ${market.split('-')[1]}`,
                                                 convert_to_value: `${conversion} ${market.split('-')[0]}`,
-                                                fee: `$ ${Number(dollarValue) * 0.01}`,
-                                                conversion_rate: `$ `,
-                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                type: "convert",
+                                                conversion_rate: String(conversion_rate),
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                                                 status: 'successful',
                                             })
                                             const options = {
@@ -174,9 +177,9 @@ const buy = async (req, res,) => {
                                                 to: market.split('-')[0],
                                                 convert_from_value: ` ${amount} ${market.split('-')[1]}`,
                                                 convert_to_value: `${conversion} ${market.split('-')[0]}`,
-                                                fee: `$ ${Number(dollarValue) * 0.01}`,
-                                                conversion_rate: `$ `,
-                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                conversion_rate: String(conversion_rate),
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                                                 status: 'failed',
                                             })
                                             res.status(400).json({ message: 'Trade Failed' })
@@ -198,7 +201,7 @@ const buy = async (req, res,) => {
 const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
-        const { amount, conversion, market, dollarValue } = req.body
+        const { amount, conversion, market, dollarValue, conversion_rate } = req.body
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
@@ -234,8 +237,10 @@ const sell = async (req, res) => {
                         to: market.split('-')[1],
                         convert_from_value: ` ${amount} ${market.split('-')[0]}`,
                         convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
-                        fee: `$ ${Number(dollarValue) * 0.01}`,
-                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
+                        type: "convert",
+                        conversion_rate: String(conversion_rate),
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                         status: 'successful',
                     })
                     const options = {
@@ -260,9 +265,10 @@ const sell = async (req, res) => {
                         to: market.split('-')[1],
                         convert_from_value: ` ${amount} ${market.split('-')[0]}`,
                         convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
-                        fee: `$ ${Number(dollarValue) * 0.01}`,
-                        conversion_rate: `$ `,
-                        net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                        fee: `$${Number(dollarValue) * 0.01}`,
+                        conversion_rate: String(conversion_rate),
+                        type: "convert",
+                        net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                         status: 'failed',
                     })
                     res.status(400).json({ message: 'Trade Failed' })
@@ -327,11 +333,13 @@ const sell = async (req, res) => {
                                                 txID: body.data.id,
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
+                                                type: "convert",
                                                 convert_from_value: ` ${amount} ${market.split('-')[0]}`,
                                                 convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
-                                                fee: `$ ${Number(dollarValue) * 0.01}`,
-                                                conversion_rate: `$ `,
-                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                conversion_rate: String(conversion_rate),
+                                                type: "convert",
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
                                                 status: 'successful',
                                             })
                                             const options = {
@@ -356,9 +364,9 @@ const sell = async (req, res) => {
                                                 to: market.split('-')[1],
                                                 convert_from_value: ` ${amount} ${market.split('-')[0]}`,
                                                 convert_to_value: `${dollarValue} ${market.split('-')[1]}`,
-                                                fee: `$ ${Number(dollarValue) * 0.01}`,
-                                                net_total: `$ ${Number(dollarValue) - Number(dollarValue) * 0.01}`,
-                                                conversion_rate: `$ `,
+                                                fee: `$${Number(dollarValue) * 0.01}`,
+                                                net_total: `$${Number(dollarValue) - Number(dollarValue) * 0.01}`,
+                                                conversion_rate: String(conversion_rate),
                                                 status: 'failed',
                                             })
                                             res.status(400).json({ message: 'Trade Failed' })
