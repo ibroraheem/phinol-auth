@@ -167,7 +167,6 @@ const sell = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const { amount, conversion, market, dollarValue } = req.body
-        const tradeAmount = Number(conversion * 0.993)
         const profit1 = Number(conversion * 0.007)
         const profit2 = Number(conversion * 0.004)
         if (dollarValue < 10) return res.status(400).json({ message: 'Minimum trade amount is $10' })
@@ -187,7 +186,7 @@ const sell = async (req, res) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: { market: `${market.replace("-", "")}`, side: 'sell', ord_type: 'market', volume: String(tradeAmount) },
+                body: { market: `${market.replace("-", "")}`, side: 'sell', ord_type: 'market', volume: amount },
                 json: true
             };
 
@@ -200,7 +199,7 @@ const sell = async (req, res) => {
                 user.phinBalance.total += Number(dollarValue) / 100
                 user.save()
                 if (body.status === 'success') {
-                    History.create({
+                   History.create({
                         user_id: user._id,
                         transaction: body.data.id,
                         amount: amount,
@@ -221,6 +220,9 @@ const sell = async (req, res) => {
                         json: true
                     };
                     request(options, function (error, response, body) {
+                        if (error) {
+                            res.status(400).json({ error: error.message })
+                        }
                         if (body.status === 'success') return res.status(200).json({ message: 'Trade Successful' })
                     })
                 }
