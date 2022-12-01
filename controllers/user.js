@@ -28,7 +28,7 @@ const google = async (req, res) => {
                     'content-type': 'application/json',
                     Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
                 },
-                body: { email: user.phinolMail },
+                body: { email: phinolMail },
                 json: true
             }
             request(options, (error, response, body) => {
