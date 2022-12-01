@@ -881,6 +881,8 @@ const createWallet = (req, res) => {
                 if (error) throw new Error(error);
                 if (body.status === 'success') {
                     res.status(200).json({ message: 'Wallet created successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
+                } else {
+                    res.status(401).json({ message: 'Wallet creation failed' })
                 }
             });
         }
