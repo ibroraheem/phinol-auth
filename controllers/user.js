@@ -36,6 +36,7 @@ const google = async (req, res) => {
                 if (body.status == 'success') {
                     const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: phinolMail, user_id: body.data.id, username: `${email.split('@')[0]}`, verified: true })
                     const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
+                    console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user_id: user.user_id, access: user.access, token: token })
                     res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, token: token })
                 }
             })
