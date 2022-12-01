@@ -5,7 +5,6 @@ const nodemailer = require('nodemailer')
 const User = require('../models/user')
 const request = require('request')
 const speakeasy = require('speakeasy')
-const mongoose = require('mongoose')
 const QRCode = require('qrcode')
 const Streak = require('../models/streak')
 
@@ -35,7 +34,6 @@ const google = async (req, res) => {
             request(options, (error, response, body) => {
                 if (error) throw new Error(error)
                 if (body.status == 'success') {
-                    getWallet(body.data.id)
                     const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: phinolMail, user_id: body.data.id, username: `${email.split('@')[0]}`, verified: true })
                     const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
                     res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, address: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, token: token })
@@ -60,7 +58,7 @@ const register = async (req, res) => {
             const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
-                host: 'phinol.com',
+                host: 'mail.phinol.com',
                 port: 465,
                 auth: {
                     user: process.env.EMAIL,
@@ -134,7 +132,7 @@ const register = async (req, res) => {
                 expiresIn: '12h'
             })
             const transporter = nodemailer.createTransport({
-                host: 'phinol.com',
+                host: 'mail.phinol.com',
                 port: 465,
                 auth: {
                     user: process.env.EMAIL,
@@ -221,7 +219,7 @@ const resendOTP = async (req, res) => {
         user.otp = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'phinol.com',
+            host: 'mail.phinol.com',
             port: 465,
             auth: {
                 user: process.env.EMAIL,
@@ -384,7 +382,7 @@ const forgotPassword = async (req, res) => {
         user.passwordResetToken = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'phinol.com',
+            host: 'mail.phinol.com',
             port: 465,
             auth: {
                 user: process.env.EMAIL,
@@ -476,10 +474,8 @@ const changePassword = async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL,
             to: user.email,
-            subject: 'Password Successfully',
-            html: `changing email template
-
-
+            subject: 'Password Changed Successfully',
+            html: `
 <body style="
     margin: 0;
     padding: 0;
@@ -568,11 +564,9 @@ const resetPassword = async (req, res) => {
         const mailOptions = {
             from: process.env.EMAIL,
             to: user.email,
-            subject: 'Password Successfully',
+            subject: 'Password Changed Successfully',
             html:
                 `
-            Changin password template mail
-
 <body style="
     margin: 0;
     padding: 0;
@@ -864,4 +858,31 @@ const changeEmail = async (req, res) => {
         res.status(500).json({ error: error.message })
     }
 }
-module.exports = { register, login, phinBalance, saveWallet, biometric, verifyOtp, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP, changeEmail }
+
+const createWallet = (req, res) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const email = decoded.email
+        const user = User.findOne({ email: email })
+        if (!user) return res.status(401).json({ message: 'User not found' })
+        let currency = ['qdx', 'usd', 'btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'floki', 'sol']
+        const length = currency.length
+        for (let i = 0; i < length; i++) {
+            const options = {
+                method: 'POST',
+                url: `https://www.quidax.com/api/v1/users/${user.user_id}/wallets/${currency[i]}/addresses`,
+                headers: {
+                    accept: 'application/json',
+                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                }
+            };
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+module.exports = { register, createWallet, login, phinBalance, saveWallet, biometric, verifyOtp, resendOTP, changePassword, verifyUser, forgotPassword, resetPassword, viewWalletBalance, google, viewAddresses, generateOTP, verifyOTP, validateOTP, disableOTP, changeEmail }

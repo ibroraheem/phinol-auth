@@ -239,7 +239,7 @@ const sell = async (req, res) => {
                     generateId(6)
                     History.create({
                         user_id: user._id,
-                        txID: result,
+                         txID: `${(Math.random() + 1).toString(36).substring(2)}`,
                         quidaxID: body.data.id,
                         from: market.split('-')[0],
                         to: market.split('-')[1],
@@ -268,7 +268,7 @@ const sell = async (req, res) => {
                 } else {
                     History.create({
                         user_id: user._id,
-                        txID: result,
+                         txID: `${(Math.random() + 1).toString(36).substring(2)}`,
                         quidaxID: body.data.id,
                         from: market.split('-')[0],
                         to: market.split('-')[1],
@@ -340,7 +340,7 @@ const sell = async (req, res) => {
                                             generateId(6)
                                             History.create({
                                                 user_id: user._id,
-                                                txID: result,
+                                                 txID: `${(Math.random() + 1).toString(36).substring(2)}`,
                                                 quidaxID: body.data.id,
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
@@ -371,7 +371,7 @@ const sell = async (req, res) => {
                                             generateId(6)
                                             History.create({
                                                 user_id: user._id,
-                                                txID: result,
+                                                 txID: `${(Math.random() + 1).toString(36).substring(2)}`,
                                                 quidaxID: body.data.id,
                                                 from: market.split('-')[0],
                                                 to: market.split('-')[1],
