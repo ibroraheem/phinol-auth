@@ -34,10 +34,10 @@ const google = async (req, res) => {
             request(options, (error, response, body) => {
                 if (error) throw new Error(error)
                 if (body.status == 'success') {
-                    const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: phinolMail, user_id: body.data.id, username: `${email.split('@')[0]}`, verified: true,  })
+                    const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: phinolMail, user_id: body.data.id, username: `${email.split('@')[0]}`, verified: true, })
                     const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
                     console.log({ message: 'User Signed up via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: [], verified: user.verified, user_id: user.user_id, access: user.access, token: token })
-                    res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, addresses:[], tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, token: token })
+                    res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, addresses: [], tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, token: token })
                 }
             })
         }
@@ -59,8 +59,9 @@ const register = async (req, res) => {
             const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, referredBy: referralCode })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
-                host: 'mail.phinol.com',
+                host: 'premium73.web-hosting.com',
                 port: 465,
+                secure: true,
                 auth: {
                     user: process.env.EMAIL,
                     pass: process.env.PASSWORD
@@ -133,8 +134,10 @@ const register = async (req, res) => {
                 expiresIn: '12h'
             })
             const transporter = nodemailer.createTransport({
-                host: 'mail.phinol.com',
+                host: 'premium73.web-hosting.com',
                 port: 465,
+                secure: true,
+
                 auth: {
                     user: process.env.EMAIL,
                     pass: process.env.PASSWORD
@@ -220,8 +223,10 @@ const resendOTP = async (req, res) => {
         user.otp = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'mail.phinol.com',
+            host: 'premium73.web-hosting.com',
             port: 465,
+            secure: true,
+
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASSWORD
@@ -383,8 +388,10 @@ const forgotPassword = async (req, res) => {
         user.passwordResetToken = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'mail.phinol.com',
+            host: 'premium73.web-hosting.com',
             port: 465,
+            secure: true,
+
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASSWORD
@@ -465,8 +472,10 @@ const changePassword = async (req, res) => {
         user.password = hashedPassword
         user.save()
         const transporter = nodemailer.createTransport({
-            host: 'phinol.com',
+            host: 'premium73.web-hosting.com',
             port: 465,
+            secure: true,
+
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASSWORD
@@ -525,7 +534,7 @@ const changePassword = async (req, res) => {
                 console.log(error)
             } else {
                 console.log('Email sent: ' + info.response)
-                res.status(200).json({ message: "Email Changed Successfully"})
+                res.status(200).json({ message: "Email Changed Successfully" })
             }
         })
     } catch (error) {
@@ -555,8 +564,10 @@ const resetPassword = async (req, res) => {
         user.passwordResetToken = null
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'phinol.com',
+            host: 'premium73.web-hosting.com',
             port: 465,
+            secure: true,
+
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASSWORD
@@ -880,11 +891,7 @@ const createWallet = (req, res) => {
             };
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                if (body.status === 'success') {
-                    res.status(200).json({ message: 'Wallet created successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
-                } else {
-                    res.status(401).json({ message: 'Wallet creation failed' })
-                }
+                res.status(200).json({ message: 'Wallet created successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
             });
         }
     } catch (error) {
