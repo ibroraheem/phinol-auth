@@ -125,7 +125,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            return res.status(200).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
+            return res.status(201).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
@@ -451,8 +451,8 @@ const forgotPassword = async (req, res) => {
                 console.log(error)
             } else {
                 console.log('Email sent: ' + info.response)
-                res.status(200).json({ message: "OTP sent to user's email address", token: user.passwordResetToken })
             }
+            res.status(200).json({ message: "OTP sent to user's email address", token: user.passwordResetToken })
         })
     } catch (error) {
         res.status(500).json({ error: error.message })
@@ -564,7 +564,7 @@ const resetPassword = async (req, res) => {
         user.passwordResetToken = null
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'premium73.web-hosting.com',
+            host: 'mail.phinol.com',
             port: 465,
             secure: true,
 
