@@ -16,8 +16,7 @@ const google = async (req, res) => {
         const user = await User.findOne({ email: email })
         if (user) {
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-            console.log({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user_id: user.user_id, access: user.access, token: token })
-            return res.status(200).json({ message: 'User Signed in via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
+            return res.status(200).json({ message: 'User Signed in via google', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
         } else {
             const phinolMail = `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`
             const options = {
