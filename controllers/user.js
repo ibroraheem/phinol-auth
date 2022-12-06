@@ -893,7 +893,7 @@ const createWallet = (req, res) => {
                 if (error) throw new Error(error);
             });
         }
-        res.status(200).json({ message: 'Wallet created successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
+        res.status(200).json({ message: 'Wallet created successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
