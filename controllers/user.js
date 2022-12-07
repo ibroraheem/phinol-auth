@@ -11,37 +11,43 @@ const Streak = require('../models/streak')
 
 const google = async (req, res) => {
     try {
-        const { email, firstName, lastName, password } = req.body
+        const { email, password } = req.body
         const hashedPassword = bcrypt.hashSync(password, 10)
         const user = await User.findOne({ email: email })
         if (user) {
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             return res.status(200).json({ message: 'User Signed in via google', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
         } else {
-            const phinolMail = `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`
+            const newUser = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, addresses: [], verified: true })
+            const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const options = {
                 method: 'POST',
-                url: `https://www.quidax.com/api/v1/users`,
+                url: 'https://www.quidax.com/api/v1/users',
                 headers: {
                     accept: 'application/json',
                     'content-type': 'application/json',
-                    Authorization: `Bearer ${process.env.QUIDAX_API_SECRET}`
+                    Authorization: 'Bearer kabQxIAoJuu1Jwl9DKTulyjxcblEOB4VdixcUE3i'
                 },
-                body: { email: phinolMail },
+                body: { email: newUser.phinolMail },
                 json: true
-            }
-            request(options, (error, response, body) => {
-                if (error) throw new Error(error)
-                if (body.status == 'success') {
-                    const user = User.create({ email: email, password: hashedPassword, firstName: firstName, lastName: lastName, phinolMail: phinolMail, user_id: body.data.id, username: `${email.split('@')[0]}`, verified: true, })
-                    const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-                    console.log({ message: 'User Signed up via google', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: [], verified: user.verified, user_id: user.user_id, access: user.access, token: token })
-                    res.status(200).json({ message: 'User Signed up via google', email: user.email, phinolID: user.phinolID, addresses: [], tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, token: token })
+            };
+
+            request(options, function (error, response, body) {
+                if (error) throw new Error(error);
+                console.log(body);
+                if (body.status === 'success') {
+                    newUser.user_id = body.data.id
+                    newUser.save()
+                    return res.status(200).json({ message: 'User Signed up via google', email: newUser.email, phinolID: newUser.phinolID, firstName: newUser.firstName, lastName: newUser.lastName, addresses: newUser.addresses, verified: newUser.verified, user: newUser.user_id, token: token })
+                } else {
+                    console.log(body)
+                    res.status(500).json({ error: 'Something went wrong' })
                 }
-            })
+
+            });
         }
     } catch (error) {
-        console.log(error.message)
+        console.log(error)
         res.status(500).json({ error: error.message })
     }
 }
