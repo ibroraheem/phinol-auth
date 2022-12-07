@@ -34,7 +34,6 @@ const google = async (req, res) => {
 
             request(options, function (error, response, body) {
                 if (error) throw new Error(error);
-                console.log(body);
                 if (body.status === 'success') {
                     newUser.user_id = body.data.id
                     newUser.save()
@@ -876,12 +875,12 @@ const changeEmail = async (req, res) => {
     }
 }
 
-const createWallet = (req, res) => {
+const createWallet = async (req, res) => {
     try {
         const token = req.headers.authorization.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         const email = decoded.email
-        const user = User.findOne({ email: email })
+        const user = await User.findOne({ email: email })
         if (!user) return res.status(401).json({ message: 'User not found' })
         let currency = ['qdx', 'usd', 'btc', 'usdt', 'busd', 'usdc', 'eth', 'bnb', 'xrp', 'ltc', 'wkd', 'bch', 'dash', 'doge', 'trx', 'matic', 'sfm', 'aave', 'shib', 'dot', 'link', 'cake', 'xlm', 'axs', 'fil', 'ada', 'one', 'babydoge', 'xtz', 'floki', 'sol']
         const length = currency.length
