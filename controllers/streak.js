@@ -29,26 +29,35 @@ const reward = async (req, res) => {
                 user.phinBalance.total += 1
                 user.save()
                 return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
-            } else {
-                streak.streak += 1
+            }
+            else if (!streak.streak) {
+                streak.streak = 1
                 streak.lastAction = new Date()
                 streak.save()
-                user.phinBalance.dailyEarning += 2
-                user.phinBalance.total += 2
+                user.phinBalance.dailyEarning += 1
+                user.phinBalance.total += 1
                 user.save()
                 return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
-            }
-        }
-        if (streak.lastAction.toDateString() !== new Date(new Date().setDate(new Date().getDate() - 1)).toDateString()|| streak.streak === 0) {
-            streak.streak = 1
+            } else
+                streak.streak += 1
             streak.lastAction = new Date()
             streak.save()
-            user.phinBalance.dailyEarning += 1
-            user.phinBalance.total += 1
+            user.phinBalance.dailyEarning += 2
+            user.phinBalance.total += 2
             user.save()
             return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
         }
     }
+    if (streak.lastAction.toDateString() !== new Date(new Date().setDate(new Date().getDate() - 1)).toDateString() || streak.streak === 0) {
+        streak.streak = 1
+        streak.lastAction = new Date()
+        streak.save()
+        user.phinBalance.dailyEarning += 1
+        user.phinBalance.total += 1
+        user.save()
+        return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
+    }
+}
 }
 
 
