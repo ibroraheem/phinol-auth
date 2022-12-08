@@ -314,6 +314,7 @@ const verifyUser = async (req, res) => {
             if (referrer) {
                 referrer.referralCount += 1
                 referrer.phinBalance.referral += 20
+                referrer.phinBalance.total += 20
                 referrer.save()
                 const options = {
                     method: 'POST',
