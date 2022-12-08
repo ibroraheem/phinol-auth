@@ -18,7 +18,7 @@ const google = async (req, res) => {
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             return res.status(200).json({ message: 'User Signed in via google', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
         } else {
-            const newUser = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, addresses: [], verified: true })
+            const newUser = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() * 1000)}@phinol.com`, username: `${email.split('@')[0]}`, addresses: [], verified: true })
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const options = {
                 method: 'POST',
@@ -40,7 +40,7 @@ const google = async (req, res) => {
                     return res.status(200).json({ message: 'User Signed up via google', email: newUser.email, phinolID: newUser.phinolID, firstName: newUser.firstName, lastName: newUser.lastName, addresses: newUser.addresses, verified: newUser.verified, user: newUser.user_id, token: token })
                 } else {
                     console.log(body)
-                    res.status(500).json({ error: 'Something went wrong' })
+                    res.status(500).json({ error: body })
                 }
 
             });
