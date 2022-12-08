@@ -16,9 +16,13 @@ const google = async (req, res) => {
         const user = await User.findOne({ email: email })
         if (user) {
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
-            return res.status(200).json({ message: 'User Signed in via google', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
+            return res.status(200).json({ message: 'User Signed in via google', email: user.email, phinolID: user.phinolID, firstName: user.firstName, lastName: user.lastName, tfaEnabled: user._2faEnabled, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, token: token })
         } else {
             const newUser = await User.create({ email, password: hashedPassword, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() * 1000)}@phinol.com`, username: `${email.split('@')[0]}`, addresses: [], verified: true })
+            const streak = await Streak.create({ user: newUser._id, streak: 1 })
+            newUser.phinBalance.dailyEarning += 1
+            newUser.phinBalance.total += 1
+            newUser.save()
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const options = {
                 method: 'POST',
@@ -37,7 +41,7 @@ const google = async (req, res) => {
                 if (body.status === 'success') {
                     newUser.user_id = body.data.id
                     newUser.save()
-                    return res.status(200).json({ message: 'User Signed up via google', email: newUser.email, phinolID: newUser.phinolID, firstName: newUser.firstName, lastName: newUser.lastName, addresses: newUser.addresses, verified: newUser.verified, user: newUser.user_id, token: token })
+                    return res.status(200).json({ message: 'User Signed up via google', email: newUser.email, phinolID: newUser.phinolID, firstName: newUser.firstName, lastName: newUser.lastName, addresses: newUser.addresses, verified: newUser.verified, user: newUser.user_id, token: token, streak: streak.streak })
                 } else {
                     console.log(body)
                     res.status(500).json({ error: body })
@@ -61,6 +65,10 @@ const register = async (req, res) => {
         if (referralUser) {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
             const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, referredBy: referralCode })
+            const streak = await Streak.create({ user: user._id, streak: 1 })
+            user.phinBalance.dailyEarning += 1
+            user.phinBalance.total += 1
+            user.save()
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'premium73.web-hosting.com',
@@ -129,7 +137,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            return res.status(201).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
+            return res.status(201).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token, streak: streak.streak })
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
@@ -898,7 +906,7 @@ const createWallet = async (req, res) => {
                 if (error) throw new Error(error);
             });
         }
-        res.status(200).json({ message: 'Wallet created successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: user.addresses, verified: user.verified, user: user.user_id, token: token })
+        res.status(200).json({ message: 'Wallet created successfully', email: user.email, firstName: user.firstName, lastName: user.lastName, addresses: [], verified: user.verified, user: user.user_id, token: token })
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
