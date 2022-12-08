@@ -65,10 +65,11 @@ const register = async (req, res) => {
         if (referralUser) {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
             const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(1000 + Math.random() * 10)}@phinol.com`, username: `${email.split('@')[0]}`, referredBy: referralCode })
-            const streak = await Streak.create({ user: user._id, streak: 1 })
+            const newStreak = await Streak.create({ user: user._id, streak: 1 })
             user.phinBalance.dailyEarning += 1
             user.phinBalance.total += 1
-            user.save()
+            await user.save()
+            console.log(newStreak)
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'premium73.web-hosting.com',
@@ -137,11 +138,15 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            return res.status(201).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token, streak: streak.streak })
+            return res.status(201).json({ message: 'User Signed up', email: user.email, firstName: user.firstName, lastName: user.lastName, username: user.username, addresses: user.addresses, tfaEnabled: user._2faEnabled, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token, streak: newStreak.streak })
 
         } else {
             const otp = Math.floor(1000 + Math.random() * 9000).toString()
             const user = await User.create({ email, password: hashedPassword, otp, phinolMail: `${email.split('@')[0]}${Math.floor(Math.random() * 100)}@phinol.com`, username: `${email.split('@')[0]}` })
+            const newStreak = await Streak.create({ user: user._id, streak: 1 })
+            user.phinBalance.dailyEarning += 1
+            user.phinBalance.total += 1
+            await user.save()
             const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
                 expiresIn: '12h'
             })
@@ -214,7 +219,7 @@ const register = async (req, res) => {
                     console.log('Email sent: ' + info.response)
                 }
             })
-            res.status(201).json({ message: 'User registered successfully', email: user.email, firstName: user.firstName, tfaEnabled: user._2faEnabled, lastName: user.lastName, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token })
+            res.status(201).json({ message: 'User registered successfully', email: user.email, firstName: user.firstName, tfaEnabled: user._2faEnabled, lastName: user.lastName, addresses: user.addresses, verified: user.verified, phin: user.phinBalance, referralCode: user.user_id, referrals: user.referralCount, phinolID: user.phinolID, token: token, streak: newStreak.streak })
         }
     }
 
