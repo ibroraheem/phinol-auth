@@ -58,7 +58,7 @@ const reward = async (req, res) => {
         return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
     }
 }
-}
+
 
 
 
