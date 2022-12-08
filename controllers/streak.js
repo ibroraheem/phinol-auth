@@ -30,7 +30,7 @@ const reward = async (req, res) => {
                 user.save()
                 return res.status(200).json({ message: 'You have claimed your reward for today', phin: user.phinBalance, streak: streak.streak })
             }
-            else if (!streak.streak) {
+            else if (streak.streak === 0) {
                 streak.streak = 1
                 streak.lastAction = new Date()
                 streak.save()
