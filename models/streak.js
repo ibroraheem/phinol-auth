@@ -7,7 +7,6 @@ const StreakSchema = mongoose.Schema({
     },
     streak: {
         type: Number,
-        default: 0
     },
     lastAction: {
         type: Date,
