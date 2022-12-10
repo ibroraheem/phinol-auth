@@ -69,7 +69,6 @@ const register = async (req, res) => {
             user.phinBalance.dailyEarning += 1
             user.phinBalance.total += 1
             await user.save()
-            console.log(newStreak)
             const token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '12h' })
             const transporter = nodemailer.createTransport({
                 host: 'premium73.web-hosting.com',
@@ -88,25 +87,22 @@ const register = async (req, res) => {
                     `
 <body style="
     margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #101010;
-    color: #e1e1e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  ">
-    <main style="padding: 1.5em;">
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #101010;
+      color: #e1e1e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    ">
+    <main style="padding: 1.5em; width: 300px; height: 100%; margin: auto;
+          background-color: #e1e1e1;">
         <div style="
-        margin-top: 1em;
-        padding: 0.1em 1em;
-        background-color: #e1e1e1;
-        color: #101010;
-        font-size: 10px;
-        font-weight: 400;
-        width:300px;
-      ">
+          color: #101010;
+          font-size: 10px;
+          font-weight: 400;
+        ">
             <header style="margin-top:10px">
                 <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
                         src="https://phinol.com/images/logo.png" alt=""
@@ -120,11 +116,16 @@ const register = async (req, res) => {
                     rel="noopener noreferrer">SUPPORT</a></p>
             <div style="margin-top: 40px;font-size: 10px; color: #101010">
                 <hr />
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <p><b>Phinol Team</b></p>
-                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
-                            src="https://phinol.com/images/logo.png" alt=""
-                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                <div>
+                    <p>
+                        <b>Phinol Team</b>
+                    </p>
+                    <div style="float: right; margin-top:-25px;">
+                        <a href="http://phinol.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://phinol.com/images/logo.png" alt=""
+                                style="width: 20px; height: 20px; object-fit: contain" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,28 +167,23 @@ const register = async (req, res) => {
                 subject: 'Verify your email',
                 html:
                     `
-                <body style="
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #101010;
-    color: #e1e1e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  ">
-    <main style="padding: 1.5em;">
+                <body style="margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #101010;
+      color: #e1e1e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    ">
+    <main style="padding: 1.5em; width: 300px; height: 100%; margin: auto;
+          background-color: #e1e1e1;">
         <div style="
-        margin-top: 1em;
-        padding: 0.1em 1em;
-        background-color: #e1e1e1;
-        color: #101010;
-        font-size: 10px;
-        font-weight: 400;
-        width:300px;
-      ">
-            <header style="margin-top:10px">
+          color: #101010;
+          font-size: 10px;
+          font-weight: 400;
+        "> <header style="margin-top:10px">
                 <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
                         src="https://phinol.com/images/logo.png" alt=""
                         style="width: 50px; height: 50px; object-fit: contain" /></a>
@@ -200,11 +196,16 @@ const register = async (req, res) => {
                     rel="noopener noreferrer">SUPPORT</a></p>
             <div style="margin-top: 40px;font-size: 10px; color: #101010">
                 <hr />
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <p><b>Phinol Team</b></p>
-                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
-                            src="https://phinol.com/images/logo.png" alt=""
-                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                 <div>
+                    <p>
+                        <b>Phinol Team</b>
+                    </p>
+                    <div style="float: right; margin-top:-25px;">
+                        <a href="http://phinol.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://phinol.com/images/logo.png" alt=""
+                                style="width: 20px; height: 20px; object-fit: contain" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -255,28 +256,23 @@ const resendOTP = async (req, res) => {
             subject: 'Verify your email',
             html:
                 `
-                <body style="
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #101010;
-    color: #e1e1e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  ">
-    <main style="padding: 1.5em;">
+                <body style="margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #101010;
+      color: #e1e1e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    ">
+    <main style="padding: 1.5em; width: 300px; height: 100%; margin: auto;
+          background-color: #e1e1e1;">
         <div style="
-        margin-top: 1em;
-        padding: 0.1em 1em;
-        background-color: #e1e1e1;
-        color: #101010;
-        font-size: 10px;
-        font-weight: 400;
-        width:300px;
-      ">
-            <header style="margin-top:10px">
+          color: #101010;
+          font-size: 10px;
+          font-weight: 400;
+        "><header style="margin-top:10px">
                 <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
                         src="https://phinol.com/images/logo.png" alt=""
                         style="width: 50px; height: 50px; object-fit: contain" /></a>
@@ -289,11 +285,16 @@ const resendOTP = async (req, res) => {
                     rel="noopener noreferrer">SUPPORT</a></p>
             <div style="margin-top: 40px;font-size: 10px; color: #101010">
                 <hr />
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <p><b>Phinol Team</b></p>
-                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
-                            src="https://phinol.com/images/logo.png" alt=""
-                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                 <div>
+                    <p>
+                        <b>Phinol Team</b>
+                    </p>
+                    <div style="float: right; margin-top:-25px;">
+                        <a href="http://phinol.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://phinol.com/images/logo.png" alt=""
+                                style="width: 20px; height: 20px; object-fit: contain" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -419,27 +420,23 @@ const forgotPassword = async (req, res) => {
             from: process.env.EMAIL,
             to: user.email,
             subject: 'Password Reset',
-            html: `<body style="
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #101010;
-    color: #e1e1e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  ">
-    <main style="padding: 1.5em;">
+            html: `<body style="margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #101010;
+      color: #e1e1e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    ">
+    <main style="padding: 1.5em; width: 300px; height: 100%; margin: auto;
+          background-color: #e1e1e1;">
         <div style="
-        margin-top: 1em;
-        padding: 0.1em 1em;
-        background-color: #e1e1e1;
-        color: #101010;
-        font-size: 10px;
-        font-weight: 400;
-        width:300px;
-      ">
+          color: #101010;
+          font-size: 10px;
+          font-weight: 400;
+        ">
             <header style="margin-top:10px">
                 <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
                         src="https://phinol.com/images/logo.png" alt=""
@@ -453,11 +450,16 @@ const forgotPassword = async (req, res) => {
                     rel="noopener noreferrer">SUPPORT</a></p>
             <div style="margin-top: 40px;font-size: 10px; color: #101010">
                 <hr />
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <p><b>Phinol Team</b></p>
-                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
-                            src="https://phinol.com/images/logo.png" alt=""
-                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                 <div>
+                    <p>
+                        <b>Phinol Team</b>
+                    </p>
+                    <div style="float: right; margin-top:-25px;">
+                        <a href="http://phinol.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://phinol.com/images/logo.png" alt=""
+                                style="width: 20px; height: 20px; object-fit: contain" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -504,28 +506,23 @@ const changePassword = async (req, res) => {
             to: user.email,
             subject: 'Password Changed Successfully',
             html: `
-<body style="
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #101010;
-    color: #e1e1e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  ">
-    <main style="padding: 1.5em;">
+<body style="margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #101010;
+      color: #e1e1e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    ">
+    <main style="padding: 1.5em; width: 300px; height: 100%; margin: auto;
+          background-color: #e1e1e1;">
         <div style="
-        margin-top: 1em;
-        padding: 0.1em 1em;
-        background-color: #e1e1e1;
-        color: #101010;
-        font-size: 10px;
-        font-weight: 400;
-        width:300px;
-      ">
-            <header style="margin-top:10px">
+          color: #101010;
+          font-size: 10px;
+          font-weight: 400;
+        "><header style="margin-top:10px">
                 <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
                         src="https://phinol.com/images/logo.png" alt=""
                         style="width: 50px; height: 50px; object-fit: contain" /></a>
@@ -536,11 +533,16 @@ const changePassword = async (req, res) => {
                     rel="noopener noreferrer">SUPPORT</a></p>
             <div style="margin-top: 40px;font-size: 10px; color: #101010">
                 <hr />
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <p><b>Phinol Team</b></p>
-                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
-                            src="https://phinol.com/images/logo.png" alt=""
-                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                 <div>
+                    <p>
+                        <b>Phinol Team</b>
+                    </p>
+                    <div style="float: right; margin-top:-25px;">
+                        <a href="http://phinol.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://phinol.com/images/logo.png" alt=""
+                                style="width: 20px; height: 20px; object-fit: contain" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -597,28 +599,23 @@ const resetPassword = async (req, res) => {
             subject: 'Password Changed Successfully',
             html:
                 `
-<body style="
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #101010;
-    color: #e1e1e1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  ">
-    <main style="padding: 1.5em;">
+<body style="margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #101010;
+      color: #e1e1e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    ">
+    <main style="padding: 1.5em; width: 300px; height: 100%; margin: auto;
+          background-color: #e1e1e1;">
         <div style="
-        margin-top: 1em;
-        padding: 0.1em 1em;
-        background-color: #e1e1e1;
-        color: #101010;
-        font-size: 10px;
-        font-weight: 400;
-        width:300px;
-      ">
-            <header style="margin-top:10px">
+          color: #101010;
+          font-size: 10px;
+          font-weight: 400;
+        "> <header style="margin-top:10px">
                 <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
                         src="https://phinol.com/images/logo.png" alt=""
                         style="width: 50px; height: 50px; object-fit: contain" /></a>
@@ -629,11 +626,16 @@ const resetPassword = async (req, res) => {
                     rel="noopener noreferrer">SUPPORT</a></p>
             <div style="margin-top: 40px;font-size: 10px; color: #101010">
                 <hr />
-                <div style="display:flex; justify-content: space-between; align-items:center;">
-                    <p><b>Phinol Team</b></p>
-                    <a href="http://phinol.com" target="_blank" rel="noopener noreferrer"><img
-                            src="https://phinol.com/images/logo.png" alt=""
-                            style="width: 20px; height: 20px; object-fit: contain" /></a>
+                 <div>
+                    <p>
+                        <b>Phinol Team</b>
+                    </p>
+                    <div style="float: right; margin-top:-25px;">
+                        <a href="http://phinol.com" target="_blank" rel="noopener noreferrer">
+                            <img src="https://phinol.com/images/logo.png" alt=""
+                                style="width: 20px; height: 20px; object-fit: contain" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
